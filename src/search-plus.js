@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.3.3
+// @version      3.3.4
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -30,8 +30,7 @@
 // @match      *://www.sogou.com/*
 // @match      *://m.sogou.com/*
 // @match      *://wap.sogou.com/*
-// @match      *://neice.tiangong.cn/*
-// @match      *://chat.tiangong.cn/*
+// @match      *://*.tiangong.cn/*
 // @match      *://www.bilibili.com/video/*
 // @match      *://blog.csdn.net/*/article/details/*
 // @match      *://chatglm.cn/*
@@ -144,6 +143,7 @@
 // @connect   geetest.com
 // @connect   neice.tiangong.cn
 // @connect   chat.tiangong.cn
+// @connect   work.tiangong.cn
 // @connect   yeyu1024.xyz
 // @connect   yeyu2048.xyz
 // @connect   chatglm.cn
@@ -168,7 +168,7 @@
     'use strict';
 
 
-    const JSver = '3.3.3';
+    const JSver = '3.3.4';
 
 
     function getGPTMode() {
@@ -1239,7 +1239,7 @@
         <a target="_blank"  href="https://yeyu2048.xyz/gpt.html?random=${Math.random()}&from=js&ver=${JSver}">网页版</a>
         <a target="_blank"  href="https://yiyan.baidu.com/">文心</a>
         <a target="_blank"  href="https://qianwen.aliyun.com/">通义</a>
-        <a target="_blank"  href="https://chat.tiangong.cn/">天工</a>
+        <a target="_blank"  href="https://www.tiangong.cn/">天工</a>
         <a target="_blank"  href="https://xinghuo.xfyun.cn/">讯飞</a>
         <a target="_blank"  href="https://hunyuan.tencent.com/">混元</a>
         <a target="_blank"  href="https://www.doubao.com/chat/">豆包</a>
@@ -3408,166 +3408,132 @@
 
     //天工 ----start--------
 
-    let tg_invite_Token;
-    let tg_token;
-    async function initTGtoken() {
-        if (location.href.includes("neice.tiangong.cn") || location.href.includes("chat.tiangong.cn")) {
-            //"invite-token": "Bearer " + c("aiChatQueueWaitToken"),
-            tg_invite_Token = localStorage.getItem("aiChatQueueWaitToken");
-            //token: "Bearer " + c("aiChatResearchToken"),
-            tg_token = localStorage.getItem("aiChatResearchToken");
-            GM_setValue("tg_invite_Token", tg_invite_Token)
-            GM_setValue("tg_token", tg_token)
-            if(tg_invite_Token){
-                document.querySelector('div[class="title"]').innerText = `invite_Token获取成功:${tg_invite_Token}`
-            }else{
-                document.querySelector('div[class="title"]').innerText = `invite_Token获取失败，请再次刷新`
-            }
-            setTimeout(initTGtoken,2500)
+    let tg_k_device_hash;
+
+    async function initDeviceHash() {
+        if (location.href.includes("tiangong.cn")) {
+            tg_k_device_hash = getCookieValue(document.cookie,"k_device_hash");
+            console.log("tg_k_device_hash",tg_k_device_hash)
+            GM_setValue("tg_k_device_hash", tg_k_device_hash)
+            try {
+                if(tg_k_device_hash){
+                    document.querySelector('textarea').placeholder = `device_hash获取成功:${tg_k_device_hash}`
+                }else{
+                    document.querySelector('textarea').placeholder = `device_hash获取失败，请再次刷新.`
+                }
+            }catch (e) {}
+            setTimeout(initDeviceHash,2000)
         } else {
-            tg_invite_Token =  GM_getValue("tg_invite_Token")
-            tg_token =  GM_getValue("tg_token")
+            tg_k_device_hash =  GM_getValue("tg_k_device_hash")
         }
     }
 
-    setTimeout(initTGtoken)
+    setTimeout(initDeviceHash)
 
 
 
-    let tg_session_id;
-    let tg_msg_id;
-    let tg_first = true;
+    let tg_conversation_id
     async function TIANGONG(){
-        showAnserAndHighlightCodeStr("请稍后...使用该线路，请确保已经登天工官网获取token后刷新页面。[天工AI](https://neice.tiangong.cn/interlocutionPage)")
-        console.log("tg_token:",tg_token)
-        console.log("tg_invite_Token:",tg_invite_Token)
-        if(!tg_invite_Token || !tg_token){
-            showAnserAndHighlightCodeStr("token错误了。请确保已经登天工官网获取token后刷新页面。[天工AI](https://neice.tiangong.cn/interlocutionPage)")
+        showAnserAndHighlightCodeStr("请稍后...使用该线路，请确保已经登天工官网获取token后刷新页面。[天工AI](https://www.tiangong.cn/)")
+        console.log("tg_k_device_hash:",tg_k_device_hash)
+        if(!tg_k_device_hash){
+            showAnserAndHighlightCodeStr("device_hash错误了。请确保已经登天工官网获取device_hash后刷新页面。[天工AI](https://www.tiangong.cn/)")
             return
         }
 
-        //校验
+
+
+        //请求
         let req1 = await GM_fetch({
             method: "POST",
-            url: "https://neice.tiangong.cn/api/v1/user/inviteVerify",
+            url: "https://work.tiangong.cn/dialogue-aggregation/dialogue/aggregation/v1/chat/sensitive/words",
             headers: {
                 "accept": "application/json, text/plain, */*",
-                "origin":"https://neice.tiangong.cn",
-                "invite-token": `Bearer ${tg_invite_Token}`,
-                "Content-Type":"application/json",
-                "token": `Bearer ${tg_token}`,
+                "origin":"https://www.tiangong.cn",
+                "referer":"https://www.tiangong.cn/",
+                "channel": "",
+                "content-type": "application/json",
                 "device": "Web",
-                "referer":"https://neice.tiangong.cn/interlocutionPage"
+                "device_hash": tg_k_device_hash,
+                "device_id": tg_k_device_hash,
             },
             data:JSON.stringify({
-                data:{}
+                data:{
+                    content: your_qus,
+                    source: "web"
+                }
             })
         })
-        let r = req1.responseText;
-        console.log(r)
-        if(r.includes("请重新排队")){
-            showAnserAndHighlightCodeStr("invite_Token失效。请至官网获取token后刷新页面。[天工AI](https://neice.tiangong.cn/interlocutionPage)")
-/*            let result = await waitAccess();
-            showAnserAndHighlightCodeStr(result)*/
-            await initTGtoken()
-            return
-        }
-
-        //新会话
-        if(!tg_session_id || tg_first){
-            console.log("新会话")
-            let req1 = await GM_fetch({
-                method: "POST",
-                url: "https://neice.tiangong.cn/api/v1/session/newSession",
-                headers: {
-                    "accept": "application/json, text/plain, */*",
-                    "origin":"https://neice.tiangong.cn",
-                    "invite-token": `Bearer ${tg_invite_Token}`,
-                    "Content-Type":"application/json",
-                    "token": `Bearer ${tg_token}`,
-                    "device": "Web",
-                    "referer":"https://neice.tiangong.cn/interlocutionPage"
-                },
-                data:JSON.stringify({
-                    data:{
-                        content: your_qus
-                    }
-                })
-            })
-            let r = req1.responseText;
-            console.log(r)
-            let rj = JSON.parse(r);
-            tg_session_id = rj.resp_data.session_id
-            tg_msg_id = rj.resp_data.dialogue[rj.resp_data.dialogue.length - 1].message_id
-            console.log("tg_session_id:",tg_session_id)
-            console.log("tg_msg_idg:",tg_msg_id)
-            tg_first = false;
-        }else {
-            console.log("旧会话")
-            let req1 = await GM_fetch({
-                method: "POST",
-                url: "https://neice.tiangong.cn/api/v1/chat/chat",
-                headers: {
-                    "accept": "application/json, text/plain, */*",
-                    "origin":"https://neice.tiangong.cn",
-                    "invite-token": `Bearer ${tg_invite_Token}`,
-                    "Content-Type":"application/json",
-                    "token": `Bearer ${tg_token}`,
-                    "device": "Web",
-                    "referer":"https://neice.tiangong.cn/interlocutionPage"
-                },
-                data:JSON.stringify({
-                    data:{
-                        content: your_qus,
-                        session_id: tg_session_id
-                    }
-                })
-            })
-            let r = req1.responseText;
-            console.log(r)
-            let rj = JSON.parse(r);
-            tg_msg_id = rj.resp_data.result_message.message_id
-            console.log("tg_msg_idg:",tg_msg_id)
-        }
-
+        let req1Text = req1.responseText;
+        console.log(req1Text)
+        //获取对话id
+        let req2 = await GM_fetch({
+            method: "GET",
+            url: "https://work.tiangong.cn/agents_api/user/dialogue_list?offset=0",
+            headers: {
+                "accept": "application/json, text/plain, */*",
+                "origin":"https://www.tiangong.cn",
+                "referer":"https://www.tiangong.cn/",
+                "channel": "",
+                "content-type": "application/json",
+                "device": "Web",
+                "device_hash": tg_k_device_hash,
+                "device_id": tg_k_device_hash,
+            },
+        })
+        let req2Text = req2.responseText;
+        console.log(req2Text)
+        tg_conversation_id = JSON.parse(req2Text).data.datalist[0].session_id
+        console.log("tg_conversation_id",tg_conversation_id)
 
 
         //获取信息信息
-        for (let i = 0; i < 120; i++) {
-            let req2 = await GM_fetch({
-                method: "POST",
-                timeout: 3000,
-                url: "https://neice.tiangong.cn/api/v1/chat/getMessage",
-                headers: {
-                    "accept": "application/json, text/plain, */*",
-                    "origin":"https://neice.tiangong.cn",
-                    "invite-token": `Bearer ${tg_invite_Token}`,
-                    "Content-Type":"application/json",
-                    "token": `Bearer ${tg_token}`,
-                    "device": "Web",
-                    "referer":"https://neice.tiangong.cn/interlocutionPage"
-                },
-                data:JSON.stringify({
-                    "data": {
-                        "message_id": tg_msg_id
-                    }
-                })
-            })
-            let rr = req2.responseText;
-            console.log(rr)
-            let rj = JSON.parse(rr);
-            try {
-                if(rj.resp_data.result_message.content){
-                    showAnserAndHighlightCodeStr(rj.resp_data.result_message.content)
-                }
-                if(rj.resp_data.result_message.status === 3){
-                    break;
-                }
 
-            }catch (e) {}
-            await delay(1000)
+        //连接天工 websocket
 
-        }
+        let wssurl = `wss://work.tiangong.cn/dialogue-aggregation/dialogue/aggregation/v2/agent?device=Web&device_id=${tg_k_device_hash}&device_hash=${tg_k_device_hash}`
+
+        let socket = new WebSocket(wssurl);
+        socket.addEventListener('open', (event) => {
+            console.log('天工 wss 连接成功');
+            socket.send(JSON.stringify({
+                "agent_id": "016",
+                "agent_type": "universal",
+                "conversation_id": tg_conversation_id,
+                "prompt": {
+                    "ask_from": "user",
+                    "ask_id": null,
+                    "content": your_qus,
+                    "prompt_content": null,
+                    "template_id": null,
+                    "action": null,
+                    "file": null,
+                    "template": null,
+                    "copilot": false,
+                    "bubble_text": null,
+                    "publish_agent": null,
+                    "copilot_option": null
+                }
+            }))
+        });
+
+        let tg_result = []
+        socket.addEventListener('message', (event) => {
+            console.log('天工 接收到消息：', event.data);
+            let revData = event.data;
+            try{
+                 let revJSON = JSON.parse(revData);
+                 if(revJSON.type == 1){
+                     try {
+                         tg_result.push(revJSON.arguments[0].messages[0].text)
+                         showAnserAndHighlightCodeStr(tg_result.join(""))
+                     }catch (e) { }
+                 }
+
+            }catch (ex) { }
+
+        });
+
 
 
     }
