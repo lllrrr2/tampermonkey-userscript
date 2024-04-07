@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.3.5
+// @version      3.3.6
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -154,7 +154,8 @@
 // @connect   ohmygpt.com
 // @connect   muspimerol.site
 // @connect   frechat.xyz
-// @compatible   Chrome, Firefox
+// @compatible   Chrome
+// @compatible   Firefox
 // @license    MIT
 // @website    https://yeyu2048.xyz/gpt.html
 
@@ -168,7 +169,7 @@
     'use strict';
 
 
-    const JSver = '3.3.5';
+    const JSver = '3.3.6';
 
 
     function getGPTMode() {
@@ -1120,6 +1121,12 @@
 
             return;
             //end if
+        }else if (GPTMODE && GPTMODE === "ChatGLM4") {
+            console.log("ChatGLM4")
+            ChatGLM4()
+
+            return;
+            //end if
         }else if (GPTMODE && GPTMODE === "ZhipuAI") {
             console.log("ZhipuAI")
             ZhipuAI()
@@ -1201,6 +1208,7 @@
       <option value="TIANGONG">天工AI</option>
       <option value="Hunyuan">腾讯混元</option>
       <option value="ChatGLM">ChatGLM</option>
+      <option value="ChatGLM4">ChatGLM4</option>
       <option value="ZhipuAI">智谱AI</option>
       <option value="Zhinao360">360智脑</option>
       <option value="miniMax">miniMax</option>
@@ -3994,8 +4002,8 @@
                 console.log('invite_Token获取失败，请再次刷新')
             }
 
-        } else if(getGPTMode() === 'ChatGLM') {
-            chatgml_token =  GM_getValue("chatgml_token")
+        } else if(getGPTMode() === 'ChatGLM' || getGPTMode() === 'ChatGLM4') {
+            chatgml_token = await GM_getValue("chatgml_token")
             console.log("chatgml_token:", chatgml_token)
         }
     }
@@ -4121,6 +4129,96 @@
         })
 
 
+    }
+
+    let glm_conversation_id
+    async function ChatGLM4(){
+        console.log("chatgml_token:",chatgml_token)
+        showAnserAndHighlightCodeStr("请稍后...该线路为官网线路，使用该线路，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
+
+        if(!chatgml_token){
+            setTimeout(init_chatgml_token)
+            showAnserAndHighlightCodeStr("init_chatgml_token为空，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
+            return
+        }
+
+        GM_fetch({
+            method: "POST",
+            url: `https://chatglm.cn/chatglm/backend-api/assistant/stream`,
+            headers: {
+                "authorization": `Bearer ${chatgml_token}`,
+                "accept": "text/event-stream",
+                "content-type": "application/json",
+                "origin": "https://chatglm.cn",
+                "referer": `https://chatglm.cn/main/alltoolsdetail`
+            },
+            data:JSON.stringify({
+                "assistant_id": "65940acff94777010aa6b796",
+                "conversation_id": glm_conversation_id ? glm_conversation_id : "",
+                "meta_data": {
+                    "mention_conversation_id": "",
+                    "is_test": false,
+                    "input_question_type": "xxxx",
+                    "channel": "",
+                    "draft_id": ""
+                },
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": your_qus
+                            }
+                        ]
+                    }
+                ]
+            }),
+            responseType:"stream"
+        }).then((stream)=> {
+            let reader = stream.response.getReader()
+            let res = []
+            reader.read().then(function processText({done, value}) {
+                if (done) {
+                    return
+                }
+                let responseItem = new TextDecoder("utf-8").decode(value)
+                 //console.error(responseItem)
+                 responseItem = responseItem.split("\n\n");
+                console.warn(responseItem)
+                if(responseItem.length >= 2 && responseItem[responseItem.length - 2].includes("finish")){
+
+                    responseItem.forEach(item=>{
+                        try {
+                           let resJson =  JSON.parse(item.replace(/event:message\ndata:/gi,""))
+                            let part =  resJson.parts[0].content[0].text
+                            if(resJson.parts[0].status == 'finish'){
+                                res.push(part)
+                                showAnserAndHighlightCodeStr(res.join(""))
+                            }else if (resJson.parts[0].status == 'init'){
+                                showAnserAndHighlightCodeStr(part)
+                            }
+
+                            if(resJson.conversation_id){
+                                glm_conversation_id = resJson.conversation_id
+                            }
+
+                        }catch (ex){
+                            console.error(item)
+                        }
+                    })
+                }
+
+
+                return reader.read().then(processText)
+            },function (reason) {
+                Toast.error("未知错误!")
+                console.log(reason)
+            }).catch((ex)=>{
+                Toast.error("未知错误!")
+                console.log(ex)
+            })
+        })
     }
 
 
