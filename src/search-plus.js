@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.3.4
+// @version      3.3.5
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -168,7 +168,7 @@
     'use strict';
 
 
-    const JSver = '3.3.4';
+    const JSver = '3.3.5';
 
 
     function getGPTMode() {
@@ -1066,9 +1066,9 @@
 
             return;
             //end if
-        }else if (GPTMODE && GPTMODE === "OPENAI-4.0") {
-            console.log("OPENAI-4.0")
-            OPENAI("gpt-4")
+        }else if (GPTMODE && GPTMODE === "OPENAI-OLD") {
+            console.log("OPENAI-OLD")
+            OPENAI_OLD("text-davinci-002-render-sha")
 
             return;
             //end if
@@ -1194,7 +1194,7 @@
       <option value="YeYu">自定义key</option>
       <option style="display: none" value="newBing">New Bing</option>
       <option value="OPENAI-3.5">OPENAI-3.5</option>
-      <option value="OPENAI-4.0">OPENAI-4.0</option>
+      <option value="OPENAI-OLD">OPENAI-OLD</option>
       <option value="TONGYI">通义千问</option>
       <option value="YIYAN">百度文心</option>
       <option value="SPARK">讯飞星火</option>
@@ -3009,6 +3009,177 @@
            })
        })
    }
+
+    //OPENAI fix 2024.4.7
+    let requirements_token
+    async function OPENAI_OLD(GPTModel){
+        // addMessageChain(messageChain_openai,{
+        //     "role": "user",
+        //     "id": uuidv4(),
+        //     "content": {
+        //         "content_type": "text",
+        //         "parts": [
+        //             your_qus
+        //         ]
+        //     },
+        //     "metadata":{}
+        // },20)
+        showAnserAndHighlightCodeStr(`此线路为OpenAI官网线路：${GPTModel}，使用前确定有访问权限且登录账号：[OPENAI官网](https://chat.openai.com/)`)
+        let req1 = await GM_fetch({
+            method: "GET",
+            url: "https://chat.openai.com/api/auth/session"
+        })
+        let r = req1.responseText;
+        console.log(r)
+        let accessToken;
+        try{
+            accessToken = JSON.parse(r).accessToken;
+        }catch (e) {
+            showAnserAndHighlightCodeStr("验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chat.openai.com/)")
+        }
+
+        if(!accessToken){
+            showAnserAndHighlightCodeStr("验证出错,请确认有权限OPENAI官网[OPENAI](https://chat.openai.com/)")
+        }
+
+        let oai_id = uuidv4()
+        if(!requirements_token){
+            let req2 = await GM_fetch({
+                method: 'POST',
+                url: 'https://chat.openai.com/backend-api/sentinel/chat-requirements',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: 'Bearer ' + accessToken,
+                    "oai-device-id": oai_id,
+                    "oai-language": "en-US",
+                    'origin': 'https://chat.openai.com',
+                    'Referer': 'https://chat.openai.com/',
+                },
+                data: {}
+            })
+            let rr = req2.responseText;
+            console.log(rr)
+            try{
+                requirements_token = JSON.parse(rr).token;
+            }catch (e) {
+                showAnserAndHighlightCodeStr("requirements_token 验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chat.openai.com/)")
+            }
+        }
+
+
+
+
+        let paramObj = {
+            action: "next",
+            conversation_mode: {
+                kind: "primary_assistant"
+            },
+            messages: [{
+                "author": {
+                    "role": "user"
+                },
+                "id": uuidv4(),
+                "content": {
+                    "content_type": "text",
+                    "parts": [
+                        your_qus
+                    ]
+                },
+                "metadata":{}
+            }],
+            model: GPTModel,
+            parent_message_id: openai_parent_message_id ? openai_parent_message_id : uuidv4(),
+            suggestions: [],
+            arkose_token: null,
+            history_and_training_disabled: history_disable,
+            timezone_offset_min: new Date().getTimezoneOffset(),
+            force_paragen: false,
+            force_paragen_model_slug: "",
+            force_nulligen: false,
+            force_rate_limit: false,
+            websocket_request_id: uuidv4()
+        }
+        if(openai_conversation_id){
+            try {
+                Reflect.set(paramObj,"conversation_id", openai_conversation_id)
+            }catch (ex) {
+                console.error(ex)
+            }
+        }
+        console.log(paramObj)
+
+        let sendData = JSON.stringify(paramObj)
+        GM_fetch({
+            method: 'POST',
+            url: 'https://chat.openai.com/backend-api/conversation',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + accessToken,
+                "oai-device-id": oai_id,
+                "openai-sentinel-chat-requirements-token": requirements_token,
+                'origin': 'https://chat.openai.com',
+                'Referer': 'https://chat.openai.com/',
+            },
+            responseType: "stream",
+            data: sendData
+        }).then((stream)=> {
+            let reader = stream.response.getReader()
+            let answer;
+            reader.read().then(function processText({done, value}) {
+                if (done) {
+                    console.log("===done==")
+                    // addMessageChain(messageChain_openai,{
+                    //     "role": "assistant",
+                    //     "id": uuidv4(),
+                    //     "content": {
+                    //         "content_type": "text",
+                    //         "parts": [
+                    //             answer
+                    //         ]
+                    //     },
+                    //     "metadata":{}
+                    // }, 20)
+                    return
+                }
+                try{
+                    let responseItem = String.fromCharCode(...Array.from(value))
+                    console.log(responseItem)
+                    let items = responseItem.split('\n\n')
+                    if (items.length > 2) {
+                        let lastItem = items.slice(-3, -2)[0]
+                        if (lastItem.startsWith('data: [DONE]')) {
+                            responseItem = items.slice(-4, -3)[0]
+                        } else {
+                            responseItem = lastItem
+                        }
+                    }
+                    if (responseItem.startsWith('data: {')) {
+                        answer = JSON.parse(responseItem.slice(6)).message.content.parts[0]
+                        showAnserAndHighlightCodeStr(answer)
+                        if(JSON.parse(responseItem.slice(6)).conversation_id){
+                            openai_conversation_id = JSON.parse(responseItem.slice(6)).conversation_id
+                            openai_parent_message_id = JSON.parse(responseItem.slice(6)).message.id
+                        }
+
+                    } else if (responseItem.startsWith('data: [DONE]')) {
+
+                        // return
+                    }
+                }catch (e) {
+                    console.error(e)
+                }
+
+                return reader.read().then(processText)
+            },function (reason) {
+                console.log(reason)
+                Toast.error("未知错误!")
+            }).catch((ex)=>{
+                console.log(ex)
+                Toast.error("未知错误!")
+            })
+        })
+    }
+
 
    let csrfToken;
    async function setCsrfToken(){
