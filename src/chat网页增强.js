@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Chat网页增强
 // @namespace    http://blog.yeyusmile.top/
-// @version      4.89
-// @description  网页增强，使你在网页中可以用GPT, 网址将于2024.2月初更新 https://yeyu2048.xyz/gpt.html
+// @version      4.90
+// @description  网页增强，使你在网页中可以用GPT, 网址 https://yeyu2048.xyz/gpt.html
 // @author       夜雨
 // @match        *://yeyu1024.xyz/gpt.html*
 // @match        *://yeyu1024.xyz/gptlight.html*
@@ -32,7 +32,7 @@
 // @connect   extkj.cn
 // @connect    free.anzz.top
 // @connect   supremes.pro
-// @connect   bnu120.space
+// @connect   onrender.com
 // @connect   free-chat.asia
 // @connect   chat7.aifks001.online
 // @connect   sunls.me
@@ -84,7 +84,7 @@
     'use strict';
     console.log("======AI增强=====")
 
-    const JSVer = "v4.89"
+    const JSVer = "v4.90"
     //将于2024.2月初更新域名，请到：https://yeyu2048.xyz/gpt.html中使用
 
     try {
@@ -692,42 +692,41 @@
 
 
 
-    let bnuKey;
-    let bnuList;
-    let bnuInt = 0;
+
+
     let messageChain9 = []
-    function BNU120(question) {
+    function FRECHAT(question) {
         let your_qus = question;//你的问题
         GM_handleUserInput(null)
         let now = Date.now();
-        // let Baseurl = bnuList[bnuInt].url
-        let Baseurl = "https://demo-onrender.promplate.dev/"
         generateSignatureWithPkey({
             t: now,
             m: your_qus || "",
-            pkey: bnuKey
+            pkey: ""
         }).then(sign => {
             addMessageChain(messageChain9, {role: "user", content: your_qus})//连续话
             console.log(sign)
             GM_fetch({
                 method: "PUT",
-                url: Baseurl + "single/chat_messages",
+                url: "https://demo-yj7h.onrender.com/single/chat_messages",
                 headers: {
                     "Content-Type": "application/json",
-                    "Referer": "https://e3.frechat.xyz/",
-                    "accept":  "*/*"
+                    "Referer": "https://e8.frechat.xyz/",
+                    "accept": "*/*"
                 },
                 data: JSON.stringify({
-                    model: "gpt-3.5-turbo-1106",
-                    messages: messageChain9,
-                    // time: now,
-                    // pass: null,
-                    // sign: sign
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": your_qus
+                        }
+                    ],
+                    "model": "gemma-7b-it"
                 }),
                 responseType: "stream"
             }).then((stream) => {
-                GM_simulateBotResponse("...")
                 let result = [];
+                GM_simulateBotResponse("...")
                 const reader = stream.response.getReader();
                 reader.read().then(function processText({done, value}) {
                     if (done) {
@@ -747,7 +746,8 @@
                     try {
                         let d = new TextDecoder("utf8").decode(new Uint8Array(value));
                         result.push(d)
-                        GM_fillBotResponse(result.join(""))
+                        GM_fillBotResponse(result.join("")
+                            .replace(/muspimerol/gi,""))
                     } catch (e) {
                         console.log(e)
                     }
@@ -756,13 +756,14 @@
                 });
             },function (reason) {
                 console.log(reason)
+                Toast.error("未知错误!")
             }).catch((ex)=>{
                 console.log(ex)
+                Toast.error("未知错误!")
             });
 
         });
     }
-
 
 
     //https://chat7.aifks001.online/v1/chat/gpt/
@@ -1594,8 +1595,8 @@
                 case "tdchat":
                     TDCHAT(qus);
                     break;
-                case "BNU120":
-                    BNU120(qus);
+                case "FRECHAT":
+                    FRECHAT(qus);
                     break;
                 case "CVEOY":
                     console.log("CVEOY")
@@ -1650,8 +1651,8 @@
  <option value="YQCLOUD">YQCLOUD</option>
  <option value="ails">ails</option>
  <option value="tdchat">tdchat</option>
- <option value="LEMURCHAT">Lemur[停用]</option>
- <option value="BNU120">BNU120</option>
+ <option style="display:none;" value="LEMURCHAT">Lemur[停用]</option>
+ <option value="FRECHAT">FRECHAT</option>
  <option value="YUXIN">YUXIN</option>
  <option value="ChatGO">ChatGO</option>
  <option value="MixerBox">MixerBox</option>
