@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.3.7
+// @version      3.3.8
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -169,7 +169,7 @@
     'use strict';
 
 
-    const JSver = '3.3.7';
+    const JSver = '3.3.8';
 
 
     function getGPTMode() {
@@ -3293,6 +3293,9 @@
     let sp_GtToken;
 
     async function init_sp_appId() {
+
+        sp_appId = 'ihuqg3dmuzcr2kmghumvivsk7c3l4joe'
+        return
         //get https://xinghuo.xfyun.cn/chat
         //script defer="defer" src="/static/js/main.04f3ec36.js"></script>
         let req1 = await GM_fetch({
