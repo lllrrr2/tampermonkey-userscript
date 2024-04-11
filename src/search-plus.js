@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.4.0
+// @version      3.4.1
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -55,7 +55,7 @@
 // @resource katexCss  https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.6/katex.css
 // @connect    api.forchange.cn
 // @connect    hunyuan.tencent.com
-// @connect    api.aigcfun.com
+// @connect    baichuan-ai.com
 // @connect    chatbot.theb.ai
 // @connect    cbjtestapi.binjie.site
 // @connect    freechatgpt.xgp.one
@@ -168,7 +168,7 @@
     'use strict';
 
 
-    const JSver = '3.4.0';
+    const JSver = '3.4.1';
 
 
     function getGPTMode() {
@@ -1126,6 +1126,12 @@
 
             return;
             //end if
+        }else if (GPTMODE && GPTMODE === "BAICHUAN") {
+            console.log("BAICHUAN")
+            BAICHUAN()
+
+            return;
+            //end if
         }else if (GPTMODE && GPTMODE === "MixerBox") {
             console.log("MixerBox")
             MixerBox()
@@ -1192,6 +1198,7 @@
       <option value="ChatGLM4">ChatGLM4</option>
       <option value="ZhipuAI">智谱AI</option>
       <option value="Zhinao360">360智脑</option>
+      <option value="BAICHUAN">百川AI</option>
       <option value="miniMax">miniMax</option>
       <option value="AIFREE">AIFREE</option>
       <option value="GPTPLUS">GPTPLUS</option>
@@ -3477,7 +3484,7 @@
     async function SPARK(){
         showAnserAndHighlightCodeStr("请稍后,第一次切换到该线路需要刷新页面，该线路为官网线路,使用前确保已经登录[讯飞星火](https://xinghuo.xfyun.cn/)")
         if(!sp_chatId){
-            showAnserAndHighlightCodeStr("chatId为空，请重试。。。")
+            showAnserAndHighlightCodeStr("chatId为空，请重试。。。使用前确保已经登录[讯飞星火](https://xinghuo.xfyun.cn/)")
             init_sp_chatId()
             return
         }
@@ -4381,6 +4388,182 @@
 
     //360智脑 -------end------
 
+
+
+    //百川AI---start
+
+
+    function getEagleEyeSessionID() {
+        for (var e, t, r = 20, n = new Array(r), a = Date.now().toString(36).split(""); r-- > 0; )
+            t = (e = 36 * Math.random() | 0).toString(36),
+                n[r] = e % 3 ? t : t.toUpperCase();
+        for (var i = 0; i < 8; i++)
+            n.splice(3 * i + 2, 0, a[i]);
+        return n.join("")
+    }
+
+    let EagleEyeSessionID = getEagleEyeSessionID();
+
+    function getRandIP() {
+        for (var e = [], t = 0; t < 4; t++) {
+            var r = Math.floor(256 * Math.random());
+            e[t] = (r > 15 ? "" : "0") + r.toString(16)
+        }
+        return e.join("").replace(/^0/, "1")
+    }
+
+    function getEagleEyeTraceID() {
+        let e = getRandIP()
+            , t = Date.now()
+            , r = 1000
+            , a = e + t + r + "cced8";
+        return a
+    }
+
+    let EagleEyeTraceID = getEagleEyeTraceID()
+
+
+    let bc_session_id = generateRandomString(11)
+    let bc_messageId = generateRandomString(13)
+
+    let bc_userID;
+
+    async function getBCUserID() {
+        let rr = await GM_fetch({
+            method: "GET",
+            url: `https://www.baichuan-ai.com/api/auth/session`
+        });
+        if (rr.status === 200) {
+            console.log(rr)
+            let result = JSON.parse(rr.responseText);
+            bc_userID = result.user.id;
+        } else {
+            console.error(rr)
+        }
+    }
+
+    setTimeout(()=>{
+        if(getGPTMode()==="BAICHUAN"){
+            getBCUserID()
+        }
+    })
+
+
+    let bc_parent_id = 0
+    let bc_session_info_id
+
+    async function BAICHUAN() {
+        console.log("bc_parent_id",bc_parent_id)
+        showAnserAndHighlightCodeStr("请稍后,第一次切换到该线路需要刷新页面，该线路为官网线路,使用前确保已经登录[百川](https://www.baichuan-ai.com/chat)")
+        if(!bc_userID){
+            showAnserAndHighlightCodeStr("userid为空，请重试。。。使用前确保已经登录[百川](https://www.baichuan-ai.com/chat)")
+            getBCUserID()
+            return
+        }
+
+        let now = Date.now()
+        GM_fetch({
+            method: "POST",
+            url: `https://www.baichuan-ai.com/api/chat/v1/chat`,
+            headers: {
+                'Accept': '*/*',
+                'Content-Type': 'application/json',
+                'EagleEye-SessionID': EagleEyeSessionID,
+                'EagleEye-TraceID': EagleEyeTraceID,
+                'EagleEye-pAppName': 'bc7akk1cwt@b6e253f842cced8',
+                'Origin': 'https://www.baichuan-ai.com',
+                'Referer': 'https://www.baichuan-ai.com/chat',
+                'x-requested-with': 'XMLHttpRequest'
+            },
+            data: JSON.stringify({
+                'type': 'input',
+                'request_id': uuidv4(),
+                'stream': true,
+                'prompt': {
+                    'id': null,
+                    'messageId': `Ub${generateRandomString(13)}`,
+                    'session_id': bc_session_id,
+                    'data': your_qus,
+                    'from': 0,
+                    'parent_id': bc_parent_id,
+                    'created_at': now,
+                    'attachments': []
+                },
+                'app_info': {
+                    'id': 10001,
+                    'name': 'baichuan_web'
+                },
+                'user_info': {
+                    'id': bc_userID,
+                    'status': 1
+                },
+                'session_info': {
+                    'id': bc_session_info_id ? bc_session_info_id: null,
+                    'session_id': bc_session_id,
+                    'name': '\u65B0\u7684\u5BF9\u8BDD',
+                    'created_at': now
+                },
+                'assistant_info': {},
+                'parameters': {
+                    'repetition_penalty': -1,
+                    'temperature': -1,
+                    'top_k': -1,
+                    'top_p': -1,
+                    'max_new_tokens': -1,
+                    'do_sample': -1,
+                    'regenerate': 0,
+                    'wse': true
+                },
+                'history': [],
+                'assistant': {},
+                'retry': 3
+            }),
+            responseType:"stream"
+        }).then((stream)=>{
+            let result = []
+            const reader = stream.response.getReader();
+            reader.read().then(function processText({done, value}) {
+                if (done) {
+                    return;
+                }
+                try {
+                    let d = new TextDecoder("utf8").decode(new Uint8Array(value));
+                    console.warn(d)
+
+                    try {
+                        result.push(JSON.parse(d).answer.data)
+                        showAnserAndHighlightCodeStr(result.join(""))
+                    }catch (e) {
+                        console.error(d)
+                    }
+
+                    try {
+                        let v = JSON.parse(d).rds
+                        bc_parent_id = v[v.length - 1].id
+                        bc_session_info_id = v[0].id
+                    }catch (e) {
+                        //console.error(d)
+                    }
+
+
+
+                } catch (e) {
+                    console.log(e)
+                }
+
+                return reader.read().then(processText);
+            });
+        },reason => {
+            console.log(reason)
+            Toast.error("未知错误!")
+        }).catch((ex)=>{
+            console.log(ex)
+            Toast.error("未知错误!")
+        })
+
+
+    }
+    //百川AI---end
 
 
     let messageChain_chatforai = []
