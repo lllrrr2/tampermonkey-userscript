@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Chat网页增强
 // @namespace    http://blog.yeyusmile.top/
-// @version      4.90
+// @version      4.91
 // @description  网页增强，使你在网页中可以用GPT, 网址 https://yeyu2048.xyz/gpt.html
 // @author       夜雨
 // @match        *://yeyu1024.xyz/gpt.html*
@@ -22,7 +22,7 @@
 // @connect    api.aigcfun.com
 // @connect    ai5.wuguokai.top
 // @connect    chat.aidutu.cn
-// @connect    xjai.cc
+// @connect    xjai.pro
 // @connect    wobcw.com
 // @connect    aifree.site
 // @connect    promplate.dev
@@ -84,7 +84,7 @@
     'use strict';
     console.log("======AI增强=====")
 
-    const JSVer = "v4.90"
+    const JSVer = "v4.91"
     //将于2024.2月初更新域名，请到：https://yeyu2048.xyz/gpt.html中使用
 
     try {
@@ -1105,10 +1105,10 @@
         console.log(ops)
         GM_xmlhttpRequest({
             method: "POST",
-            url: "http://w3.xjai.cc/api/chat-process",
+            url: "https://p1api.xjai.pro/freeapi/chat-process",
             headers: {
                 "Content-Type": "application/json",
-                "Referer": "http://w3.xjai.cc/",
+                "Referer": "https://f2.cnote.top/",
                 "accept": "application/json, text/plain, */*"
             },
             data: JSON.stringify({
