@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Chat网页增强
 // @namespace    http://blog.yeyusmile.top/
-// @version      4.91
+// @version      4.92
 // @description  网页增强，使你在网页中可以用GPT, 网址 https://yeyu2048.xyz/gpt.html
 // @author       夜雨
 // @match        *://yeyu1024.xyz/gpt.html*
@@ -84,7 +84,7 @@
     'use strict';
     console.log("======AI增强=====")
 
-    const JSVer = "v4.91"
+    const JSVer = "v4.92"
     //将于2024.2月初更新域名，请到：https://yeyu2048.xyz/gpt.html中使用
 
     try {
@@ -1175,7 +1175,7 @@
         let your_qus = question;//你的问题
         GM_handleUserInput(null)
         let now = Date.now();
-        let Baseurl = `https://s.aifree.site/`
+        let Baseurl = `https://aj.aifree.site/`
         generateSignatureWithPkey({
             t:now,
             m: your_qus || "",
