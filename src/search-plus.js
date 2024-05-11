@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.4.3
+// @version      3.4.4
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -87,7 +87,7 @@
 // @connect   free-chat.asia
 // @connect   chat7.aifks001.online
 // @connect   a0.chat
-// @connect   ai.usesless.com
+// @connect   chatgpt.com
 // @connect   www.ftcl.store
 // @connect   sunls.me
 // @connect   www.pizzagpt.it
@@ -168,7 +168,7 @@
     'use strict';
 
 
-    const JSver = '3.4.3';
+    const JSver = '3.4.4';
 
 
     function getGPTMode() {
@@ -1144,6 +1144,12 @@
 
             return;
             //end if
+        }else if (GPTMODE && GPTMODE === "BUYGPT51") {
+            console.log("BUYGPT51")
+            BUYGPT51()
+
+            return;
+            //end if
         }else if (GPTMODE && GPTMODE === "miniMax") {
             console.log("miniMax")
             miniMax()
@@ -1187,8 +1193,9 @@
       <option value="Default">默认接口</option>
       <option value="YeYu">自定义key</option>
       <option style="display: none" value="newBing">New Bing</option>
-      <option value="OPENAI-3.5">OPENAI-3.5</option>
-      <option value="OPENAI-OLD">OPENAI-OLD</option>
+      <option style="display: none" value="OPENAI-3.5">OPENAI-3.5</option>
+      <option style="display: none" value="OPENAI-OLD">OPENAI-OLD</option>
+      <option value="BUYGPT51">BUYGPT51</option>
       <option value="TONGYI">通义千问</option>
       <option value="YIYAN">百度文心</option>
       <option value="SPARK">讯飞星火</option>
@@ -1240,7 +1247,7 @@
         <a target="_blank"  href="https://hunyuan.tencent.com/">混元</a>
         <a target="_blank"  href="https://www.doubao.com/chat/">豆包</a>
         <hr>
-        <a target="_blank"  href="https://chat.openai.com/chat">OpenAI</a>
+        <a target="_blank"  href="https://chatgpt.com">OpenAI</a>
         <a target="_blank"  href="https://www.bing.com/search?q=Bing+AI&showconv=1">Bing</a>
         <a target="_blank"  href="https://gemini.google.com/app">Gemini</a>
         <a target="_blank"  href="https://claude.ai/">Claude</a>
@@ -2839,10 +2846,10 @@
        //     },
        //     "metadata":{}
        // },20)
-       showAnserAndHighlightCodeStr(`此线路为OpenAI官网线路：${GPTModel}，使用前确定有访问权限且登录账号：[OPENAI官网](https://chat.openai.com/)`)
+       showAnserAndHighlightCodeStr(`此线路为OpenAI官网线路：${GPTModel}，使用前确定有访问权限且登录账号：[OPENAI官网](https://chatgpt.com/)`)
        let req1 = await GM_fetch({
            method: "GET",
-           url: "https://chat.openai.com/api/auth/session"
+           url: "https://chatgpt.com/api/auth/session"
        })
        let r = req1.responseText;
        console.log(r)
@@ -2850,11 +2857,11 @@
        try{
            accessToken = JSON.parse(r).accessToken;
        }catch (e) {
-           showAnserAndHighlightCodeStr("验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chat.openai.com/)")
+           showAnserAndHighlightCodeStr("验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chatgpt.com/)")
        }
 
        if(!accessToken){
-           showAnserAndHighlightCodeStr("验证出错,请确认有权限OPENAI官网[OPENAI](https://chat.openai.com/)")
+           showAnserAndHighlightCodeStr("验证出错,请确认有权限OPENAI官网[OPENAI](https://chatgpt.com/)")
        }
 
        let paramObj = {
@@ -2891,12 +2898,12 @@
        let sendData = JSON.stringify(paramObj)
        GM_fetch({
            method: 'POST',
-           url: 'https://chat.openai.com/backend-api/conversation',
+           url: 'https://chatgpt.com/backend-api/conversation',
            headers: {
                'Content-Type': 'application/json',
                 Authorization: 'Bearer ' + accessToken,
-                'origin': 'https://chat.openai.com',
-                'Referer': 'https://chat.openai.com/',
+                'origin': 'https://chatgpt.com',
+                'Referer': 'https://chatgpt.com/',
            },
            responseType: "stream",
            data: sendData
@@ -3014,10 +3021,10 @@
         //     },
         //     "metadata":{}
         // },20)
-        showAnserAndHighlightCodeStr(`此线路为OpenAI官网线路：${GPTModel}，使用前确定有访问权限且登录账号：[OPENAI官网](https://chat.openai.com/)`)
+        showAnserAndHighlightCodeStr(`此线路为OpenAI官网线路：${GPTModel}，使用前确定有访问权限且登录账号：[OPENAI官网](https://chatgpt.com/)`)
         let req1 = await GM_fetch({
             method: "GET",
-            url: "https://chat.openai.com/api/auth/session"
+            url: "https://chatgpt.com/api/auth/session"
         })
         let r = req1.responseText;
         console.log(r)
@@ -3025,25 +3032,25 @@
         try{
             accessToken = JSON.parse(r).accessToken;
         }catch (e) {
-            showAnserAndHighlightCodeStr("验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chat.openai.com/)")
+            showAnserAndHighlightCodeStr("验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chatgpt.com/)")
         }
 
         if(!accessToken){
-            showAnserAndHighlightCodeStr("验证出错,请确认有权限OPENAI官网[OPENAI](https://chat.openai.com/)")
+            showAnserAndHighlightCodeStr("验证出错,请确认有权限OPENAI官网[OPENAI](https://chatgpt.com/)")
         }
 
         let oai_id = uuidv4()
         if(!requirements_token){
             let req2 = await GM_fetch({
                 method: 'POST',
-                url: 'https://chat.openai.com/backend-api/sentinel/chat-requirements',
+                url: 'https://chatgpt.com/backend-api/sentinel/chat-requirements',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: 'Bearer ' + accessToken,
                     "oai-device-id": oai_id,
                     "oai-language": "en-US",
-                    'origin': 'https://chat.openai.com',
-                    'Referer': 'https://chat.openai.com/',
+                    'origin': 'https://chatgpt.com',
+                    'Referer': 'https://chatgpt.com/',
                 },
                 data: {}
             })
@@ -3052,7 +3059,7 @@
             try{
                 requirements_token = JSON.parse(rr).token;
             }catch (e) {
-                showAnserAndHighlightCodeStr("requirements_token 验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chat.openai.com/)")
+                showAnserAndHighlightCodeStr("requirements_token 验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chatgpt.com/)")
             }
         }
 
@@ -3087,6 +3094,7 @@
             force_paragen_model_slug: "",
             force_nulligen: false,
             force_rate_limit: false,
+            reset_rate_limits: false,
             websocket_request_id: uuidv4()
         }
         if(openai_conversation_id){
@@ -3101,14 +3109,16 @@
         let sendData = JSON.stringify(paramObj)
         GM_fetch({
             method: 'POST',
-            url: 'https://chat.openai.com/backend-api/conversation',
+            url: 'https://chatgpt.com/backend-api/conversation',
             headers: {
+                'authority': 'chatgpt.com',
                 'Content-Type': 'application/json',
                 Authorization: 'Bearer ' + accessToken,
                 "oai-device-id": oai_id,
                 "openai-sentinel-chat-requirements-token": requirements_token,
-                'origin': 'https://chat.openai.com',
-                'Referer': 'https://chat.openai.com/',
+                'openai-sentinel-proof-token':'',
+                'origin': 'https://chatgpt.com',
+                'Referer': 'https://chatgpt.com/',
             },
             responseType: "stream",
             data: sendData
@@ -5121,6 +5131,61 @@
 
 
 
+
+    function BUYGPT51() {
+        GM_xmlhttpRequest({
+            method: "POST",
+            url: "https://chat.51buygpt.com/message.php",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                // "Authorization": "Bearer null",
+                "Referer": "https://chat.51buygpt.com/",
+                "Host": "www.aiai.zone",
+                "accept": "application/json, text/plain, */*"
+            },
+            data: `message=${encodeURI(your_qus)}&context=%5B%5D`,
+            onloadstart: (stream) => {
+                const reader = stream.response.getReader();
+                reader.read().then(function processText({done, value}) {
+                    if (done) {
+                        return;
+                    }
+
+                    try {
+                        // console.log(normalArray)
+                        let byteArray = new Uint8Array(value);
+                        let decoder = new TextDecoder('utf-8');
+                        let nowResult = JSON.parse(decoder.decode(byteArray))
+
+                        if (!nowResult.raw_message) {
+                            //finalResult = nowResult.text
+                            //document.getElementById('gptAnswer').innerHTML = `${mdConverter(finalResult.replace(/\\n+/g, "\n"))}`
+                        } else {
+                            console.log(nowResult)
+                            showAnserAndHighlightCodeStr(nowResult.raw_message)
+                        }
+
+
+                    } catch (e) {
+
+                    }
+
+                    return reader.read().then(processText);
+                });
+            },
+            responseType: "stream",
+            onprogress: function (msg) {
+                //console.log(msg)
+            },
+            onerror: function (err) {
+                console.log(err)
+            },
+            ontimeout: function (err) {
+                console.log(err)
+            }
+        })
+
+    }
 
 
 
