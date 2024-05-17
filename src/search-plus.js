@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.4.4
+// @version      3.4.5
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -76,7 +76,7 @@
 // @connect   powerchat.top
 // @connect   wobcw.com
 // @connect   chat.68686.ltd
-// @connect   t66.ltd
+// @connect   qianwen.biz.aliyun.com
 // @connect   t-chat.cn
 // @connect   www.aitianhu.com
 // @connect   free.anzz.top
@@ -168,7 +168,7 @@
     'use strict';
 
 
-    const JSver = '3.4.4';
+    const JSver = '3.4.5';
 
 
     function getGPTMode() {
@@ -3206,11 +3206,13 @@
        }
    })
 
-    let tongyi_first = true;
-    let tongyi_sessionId;
+
+    let tongyi_sessionId = '';
+    let tongyi_pMsgId;
+
     //通义千问 2023年5月13日
    async function TONGYI(){
-        if(tongyi_first){
+        /*if(tongyi_first){
            let req1 = await GM_fetch({
                method: "POST",
                url: "https://qianwen.aliyun.com/addSession",
@@ -3238,31 +3240,40 @@
                setTimeout(setCsrfToken)
            }
        }
+*/
+
+
 
        let sendData = JSON.stringify({
            "action": "next",
-           "msgId": generateRandomString(32),
-           "parentMsgId": "0",
+           "userAction": tongyi_sessionId ? "chat" : "new_top",
+          // "msgId": generateRandomString(32),
+           "parentMsgId": (tongyi_sessionId && tongyi_pMsgId) ? tongyi_pMsgId : generateRandomString(32),
+           "requestId":   generateRandomString(32),
            "contents": [
                {
                    "contentType": "text",
-                   "content": your_qus
+                   "content": your_qus,
+                   "role": "user"
                }
            ],
-           "timeout": 17,
-           "openSearch": false,
-           "sessionId": tongyi_sessionId,
-           "model": ""
+           "sessionId": tongyi_sessionId ? tongyi_sessionId : '',
+          // "sessionId": "",
+           "sessionType": "text_chat",
+           "model": "",
+           "mode": "chat",
+           "params": {"fileUploadBatchId": ""}
+
        })
+
        GM_fetch({
            method: 'POST',
-           url: 'https://qianwen.aliyun.com/conversation',
+           url:  'https://qianwen.biz.aliyun.com/dialog/conversation',
            headers: {
-               "origin":"https://qianwen.aliyun.com/",
-               "referer":"https://qianwen.aliyun.com/chat",
+               "origin": "https://tongyi.aliyun.com",
+               "referer":"https://tongyi.aliyun.com/qianwen/",
                "Content-Type": "application/json",
                "accept": "text/event-stream",
-               "Bx-V": "2.5.3",
                "x-platform": "pc_tongyi",
                "x-xsrf-token": csrfToken
            },
@@ -3277,13 +3288,54 @@
                    return
                }
                let responseItem = new TextDecoder("utf-8").decode(value)
-               //console.log(responseItem)
+               console.log(responseItem)
+               /*{
+                   "aiDisclaimer": false,
+                   "canFeedback": true,
+                   "canRegenerate": true,
+                   "canShare": true,
+                   "canShow": true,
+                   "contentFrom": "text",
+                   "contentType": "text",
+                   "contents": [
+                   {
+                       "content": "你好！有什么我能帮助你的吗？",
+                       "contentType": "text",
+                       "id": "102416421db845179064dd046d5ce8d4_0",
+                       "role": "assistant",
+                       "status": "generating"
+                   }
+               ],
+                   "msgId": "102416421db845179064dd046d5ce8d4",
+                   "msgStatus": "generating",
+                   "params": {},
+                   "parentMsgId": "4880983feec04eae862ce2e08d67fc09",
+                   "sessionId": "95812ea382de4b4e82051a7272d965cb",
+                   "sessionOpen": true,
+                   "sessionShare": true,
+                   "sessionWarnNew": false,
+                   "stopReason": "null",
+                   "traceId": "0bc3b2e817159180903973007eb266"
+               }*/
 
                responseItem.split("\n").forEach(item=>{
                    try {
-                       let content = JSON.parse(item.replace(/data: /gi,"").trim()).content[0];
+                       let jsonObj = JSON.parse(item.replace(/data: /gi,"").trim())
+                       let content = jsonObj.contents[0].content;
                        console.log(content)
                        showAnserAndHighlightCodeStr(content)
+
+                       if(!tongyi_sessionId){
+                           tongyi_sessionId = jsonObj.sessionId;
+                           console.log("tongyi_sessionId:",tongyi_sessionId)
+                       }
+                       if(tongyi_pMsgId !== jsonObj.msgId){
+                           tongyi_pMsgId = jsonObj.msgId;
+                           console.log("tongyi_pMsgId:",tongyi_sessionId)
+                       }
+
+
+
                    }catch (ex){}
                })
 
