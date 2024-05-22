@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Chat网页增强
 // @namespace    http://blog.yeyusmile.top/
-// @version      4.93
+// @version      4.94
 // @description  网页增强，使你在网页中可以用GPT, 网址 https://yeyu2048.xyz/gpt.html
 // @author       夜雨
 // @match        *://yeyu1024.xyz/gpt.html*
@@ -84,7 +84,7 @@
     'use strict';
     console.log("======AI增强=====")
 
-    const JSVer = "v4.93"
+    const JSVer = "v4.94"
     //将于2024.2月初更新域名，请到：https://yeyu2048.xyz/gpt.html中使用
 
     try {
@@ -715,12 +715,7 @@
                     "accept": "*/*"
                 },
                 data: JSON.stringify({
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": your_qus
-                        }
-                    ],
+                    "messages": messageChain9,
                     "model": "gemma-7b-it"
                 }),
                 responseType: "stream"
@@ -1638,14 +1633,14 @@
         });
 
         document.getElementById("modeSelect").innerHTML = `<option selected value="Defalut">默认</option>
+ <option value="FRECHAT">FRECHAT[推荐]</option>
  <option value="PIZZA">PIZZA</option>
- <option value="XJAI">XJAI</option>
+ <option style="display:none;" value="XJAI">XJAI</option>
  <option value="AIFREE">AIFREE</option>
  <option value="YQCLOUD">YQCLOUD</option>
  <option value="ails">ails</option>
  <option value="tdchat">tdchat</option>
  <option style="display:none;" value="LEMURCHAT">Lemur[停用]</option>
- <option value="FRECHAT">FRECHAT</option>
  <option value="YUXIN">YUXIN</option>
  <option value="ChatGO">ChatGO</option>
  <option value="MixerBox">MixerBox</option>
