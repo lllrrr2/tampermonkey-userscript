@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Chat网页增强
 // @namespace    http://blog.yeyusmile.top/
-// @version      4.92
+// @version      4.93
 // @description  网页增强，使你在网页中可以用GPT, 网址 https://yeyu2048.xyz/gpt.html
 // @author       夜雨
 // @match        *://yeyu1024.xyz/gpt.html*
@@ -84,7 +84,7 @@
     'use strict';
     console.log("======AI增强=====")
 
-    const JSVer = "v4.92"
+    const JSVer = "v4.93"
     //将于2024.2月初更新域名，请到：https://yeyu2048.xyz/gpt.html中使用
 
     try {
@@ -1339,7 +1339,7 @@
             const reader = stream.response.getReader();
             reader.read().then(function processText({done, value}) {
                 if (done) {
-                    let finalResult = result.join("")
+                    let finalResult = result.join("").replaceAll(/gptxyy/gi,"").replace(/aichatos/gi,"")
                     GM_fillBotResponseAndSave(your_qus, finalResult);
                     return;
                 }
@@ -1347,7 +1347,7 @@
                 result.push(d)
                 try {
                     console.log(result.join(""))
-                    GM_fillBotResponse(result.join(""))
+                    GM_fillBotResponse(result.join("").replaceAll(/gptxyy/gi,"").replace(/aichatos/gi,""))
                 } catch (e) {
                     console.log(e)
                 }
@@ -1447,13 +1447,6 @@
             console.log("promptboom_url:",promptboom_url)
             console.log("promptboom_version:",promptboom_version)
 
-
-            //bnuList
-            bnuInt = result.bnu.bnuInt
-            bnuKey = result.bnu.bnukey
-            bnuList = result.bnu.list
-            console.log("bnuInt:",bnuInt)
-            console.log("bnuKey:",bnuKey)
 
             //pizaa
             pizzaSecret = result.pizza.secret
