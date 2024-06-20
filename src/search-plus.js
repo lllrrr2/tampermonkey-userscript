@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.5.0
+// @version      3.5.1
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -169,7 +169,7 @@
     'use strict';
 
 
-    const JSver = '3.5.0';
+    const JSver = '3.5.1';
 
 
     function getGPTMode() {
@@ -1160,7 +1160,7 @@
         }
 
         console.log("默认线路:")
-        YQCLOUD()
+        FRECHAT()
 
     }
 
@@ -1213,7 +1213,7 @@
       <option value="chatforai">chatforai</option>
       <option value="MixerBox">MixerBox</option>
       <option style="display: none" value="THEBAI">XJAI</option>
-      <option value="YQCLOUD">YQCLOUD</option>
+      <option style="display: none" value="YQCLOUD">YQCLOUD</option>
       <option value="YUXIN">YUXIN</option>
       <option value="FRECHAT">FRECHAT[推荐]</option>
       <option value="ANSEAPP">ANSEAPP</option>
@@ -3967,6 +3967,32 @@
         console.error("hunyuan_chatId:",r)
     }
 
+   /* fetch('https://yuanbao.tencent.com/api/chat/ca7b253f-a1a7-4e24-82ca-667cc0fbd98d', {
+        method: 'POST',
+        headers: {
+            'authority': 'yuanbao.tencent.com',
+            'accept': '*!/!*',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'cache-control': 'no-cache',
+            'chat_version': 'v1',
+            'content-type': 'text/plain;charset=UTF-8',
+            'cookie': '_ga=GA1.2.1033776250.1698727525; _gcl_au=1.1.484286265.1713846526; hy_source=web; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2229491242%22%2C%22first_id%22%3A%2218b840cf7219d8-044a60801af8344-1f7e152e-1440000-18b840cf7229ea%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E5%BC%95%E8%8D%90%E6%B5%81%E9%87%8F%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMThiODQwY2Y3MjE5ZDgtMDQ0YTYwODAxYWY4MzQ0LTFmN2UxNTJlLTE0NDAwMDAtMThiODQwY2Y3MjI5ZWEiLCIkaWRlbnRpdHlfbG9naW5faWQiOiIyOTQ5MTI0MiJ9%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%24identity_login_id%22%2C%22value%22%3A%2229491242%22%7D%2C%22%24device_id%22%3A%2218b840cf7219d8-044a60801af8344-1f7e152e-1440000-18b840cf7229ea%22%7D; hy_user=Bcw9KJaWemFaQ9iL; hy_token=bP9sp/yaXedZmIELMZz0hGSfpb6zW8UN7hFQeec8RFQIVAhWHCHLbFxq0tF5U6pO',
+            'origin': 'https://yuanbao.tencent.com',
+            'pragma': 'no-cache',
+            'referer': 'https://yuanbao.tencent.com/chat/naQivTmsDa',
+            'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-origin',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36',
+            'x-requested-with': 'XMLHttpRequest',
+            'x-source': 'web'
+        },
+        body: '{"model":"gpt_175B_0404","prompt":"你叫我什么","plugin":"Adaptive","displayPrompt":"你很牛吗","displayPromptType":1,"options":{},"multimedia":[],"agentId":"naQivTmsDa","version":"v2"}'
+    });
+    */
     async function Hunyuan() {
 
         showAnserAndHighlightCodeStr("该线路为官网线路，请确保登录[混元](https://yuanbao.tencent.com/chat)并成功获得tuserid")
@@ -5374,15 +5400,15 @@
             console.log(sign)
             GM_fetch({
                 method: "PUT",
-                url: "https://demo-yj7h.onrender.com/single/chat_messages",
+                url: "https://promplate-demo.onrender.com/please-dont-hack-me-but-you-can-contact-me/single/chat_messages",
                 headers: {
                     "Content-Type": "application/json",
-                    "Referer": "https://e8.frechat.xyz/",
+                    "Referer": "https://e9.free-chat.asia/",
                     "accept": "*/*"
                 },
                 data: JSON.stringify({
                     "messages": messageChain9,
-                    "model": "gemma-7b-it"
+                    "model": "claude-3-sonnet-20240229"
                 }),
                 responseType: "stream"
             }).then((stream) => {

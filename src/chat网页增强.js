@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Chat网页增强
 // @namespace    http://blog.yeyusmile.top/
-// @version      4.94
+// @version      4.95
 // @description  网页增强，使你在网页中可以用GPT, 网址 https://yeyu2048.xyz/gpt.html
 // @author       夜雨
 // @match        *://yeyu1024.xyz/gpt.html*
@@ -84,7 +84,7 @@
     'use strict';
     console.log("======AI增强=====")
 
-    const JSVer = "v4.94"
+    const JSVer = "v4.95"
     //将于2024.2月初更新域名，请到：https://yeyu2048.xyz/gpt.html中使用
 
     try {
@@ -708,15 +708,15 @@
             console.log(sign)
             GM_fetch({
                 method: "PUT",
-                url: "https://demo-yj7h.onrender.com/single/chat_messages",
+                url: "https://promplate-demo.onrender.com/please-dont-hack-me-but-you-can-contact-me/single/chat_messages",
                 headers: {
                     "Content-Type": "application/json",
-                    "Referer": "https://e8.frechat.xyz/",
+                    "Referer": "https://e9.free-chat.asia/",
                     "accept": "*/*"
                 },
                 data: JSON.stringify({
                     "messages": messageChain9,
-                    "model": "gemma-7b-it"
+                    "model": "claude-3-sonnet-20240229"
                 }),
                 responseType: "stream"
             }).then((stream) => {
@@ -1315,8 +1315,10 @@
             url: "https://api.binjie.fun/api/generateStream",
             headers: {
                 "Content-Type": "application/json",
-                "Referer": "https://chat18.aichatos.xyz",
-                "origin": "https://chat18.aichatos.xyz",
+                "Referer": "https://chat18.aichatos8.com",
+                "origin": "https://chat18.aichatos8.com",
+                "X-Forwarded-For": generateRandomIP(),
+                "X-Real-IP": generateRandomIP(),
                 "accept": "application/json, text/plain, */*"
             },
             data: JSON.stringify({
@@ -1627,7 +1629,7 @@
                     AIFREE(qus);
                     break;
              default:
-                    YQCLOUD(qus);
+                    AIFREE(qus);
             }
 
         });
@@ -1637,7 +1639,7 @@
  <option value="PIZZA">PIZZA</option>
  <option style="display:none;" value="XJAI">XJAI</option>
  <option value="AIFREE">AIFREE</option>
- <option value="YQCLOUD">YQCLOUD</option>
+ <option style="display: none" value="YQCLOUD">YQCLOUD</option>
  <option value="ails">ails</option>
  <option value="tdchat">tdchat</option>
  <option style="display:none;" value="LEMURCHAT">Lemur[停用]</option>
