@@ -2,7 +2,7 @@
 // @name         网页中英双显互译
 // @name:en      Translation between Chinese and English
 // @namespace    http://yeyu1024.xyz
-// @version      1.8.2
+// @version      1.8.3
 // @description  中-英-外互转，双语显示。支持谷歌，微软等API，为用户提供了快速准确的中英文翻译服务。无论是在工作中处理文件、学习外语、还是在日常生活中与国际友人交流，这个脚本都能够帮助用户轻松应对语言障碍。通过简单的操作，用户只需点击就会立即把网页翻译，节省了用户手动查词或使用在线翻译工具的时间，提高工作效率。
 // @description:en  Web pages translated into Chinese, English and foreign languages
 // @description:de  Webseite in Chinesisch, Englisch, Fremdsprachen
@@ -17,7 +17,6 @@
 // @exclude      *://*.baidu.com/*
 // @exclude      *://localhost:*/*
 // @exclude      *://127.0.0.1:*/*
-// @exclude      *://*.qq.com/*
 // @exclude      *://*.bilibili.com/*
 // @exclude      *://*.jd.com/*
 // @exclude      *://*.taobao.com/*
@@ -47,6 +46,7 @@
 // @grant        GM_setClipboard
 // @grant        GM_registerMenuCommand
 // @grant        GM_getResourceText
+// @grant        unsafeWindow
 // @connect      api-edge.cognitive.microsofttranslator.com
 // @connect      edge.microsoft.com
 // @connect      fanyi-api.baidu.com
@@ -227,6 +227,8 @@
         }
 
     }
+    let TRANSMART_CLIENT_KEY = '';
+
     let currentAPI = APIConst.MicrosoftAPI //默认微软
     let isDoubleShow = true //是否双显 true/false
     let isHighlight = true //是否译文高亮 true/false
@@ -784,6 +786,17 @@
 
     //载入配置
     async function loadConfig() {
+
+        //载入腾讯
+        setTimeout(()=>{
+          if(location.host.includes("transmart.qq.com")){
+              GM_setValue("TRANSMART_CLIENT_KEY", unsafeWindow.TRANSMART_CLIENT_KEY)
+              Toast.info(`获取权信息${unsafeWindow.TRANSMART_CLIENT_KEY}，请返回重新:`)
+          }
+        },3000)
+
+        TRANSMART_CLIENT_KEY = await GM_getValue("TRANSMART_CLIENT_KEY", `browser-chrome-122.0.6261-Windows_10-${uuidv4()}-${Date.now()}`)
+
         isDoubleShow = await GM_getValue("isDoubleShow", true)
         isHighlight = await GM_getValue("isHighlight", true)
         englishAutoTranslate = await GM_getValue("englishAutoTranslate", false)
@@ -1006,7 +1019,14 @@
                     break
                 case 8:
                     currentAPI = APIConst.TransmartWebAPI
-                    Toast.success('已经切换腾讯交互式翻译')
+                    Toast.success('已经切换腾讯交互式翻译.需鉴权')
+                    if(openWeb){
+                        try {
+                            GM_openInTab("https://transmart.qq.com/")
+                        }catch (e) {
+                            location.href = 'https://transmart.qq.com/'
+                        }
+                    }
                     break
                 case 9:
                     currentAPI = APIConst.AlibabaWebAPI
@@ -1914,6 +1934,17 @@
 
     }
 
+    //获取chrome版本
+    function getChromeVersion() {
+        const userAgent = navigator.userAgent;
+        const match = userAgent.match(/Chrome\/([\d.]+)/);
+        if (match && match[1]) {
+            return match[1]; // 返回版本号，例如 "93.0.4577.63"
+        } else {
+            return '122.0.6261.95'; // 如果不是Chrome浏览器或者无法解析版本号，则返回null
+        }
+    }
+
 
     //腾讯交互翻译
     function translatTransmartWebAPI(text, node, lang) {
@@ -1932,13 +1963,17 @@
             'Referer': 'https://transmart.qq.com/'
         }
 
+        //TODO
         GM_fetch({
             method: "POST",
             url: `https://transmart.qq.com/api/imt`,
             headers: header,
             data: JSON.stringify({
                 "header": {
-                    "fn": "auto_translation"
+                    "fn": "auto_translation",
+                    "session": "",
+                    "client_key": TRANSMART_CLIENT_KEY ? TRANSMART_CLIENT_KEY: `browser-chrome-${getChromeVersion()}-Windows_10-${uuidv4()}-${Date.now()}`,
+                    "user": ""
                 },
                 "type": "plain",
                 "model_category": "normal",
