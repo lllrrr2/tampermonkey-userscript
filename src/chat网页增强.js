@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Chat网页增强
 // @namespace    http://blog.yeyusmile.top/
-// @version      4.95
+// @version      4.96
 // @description  网页增强，使你在网页中可以用GPT, 网址 https://yeyu2048.xyz/gpt.html
 // @author       夜雨
 // @match        *://yeyu1024.xyz/gpt.html*
@@ -84,7 +84,7 @@
     'use strict';
     console.log("======AI增强=====")
 
-    const JSVer = "v4.95"
+    const JSVer = "v4.96"
     //将于2024.2月初更新域名，请到：https://yeyu2048.xyz/gpt.html中使用
 
     try {
@@ -1336,7 +1336,8 @@
             const reader = stream.response.getReader();
             reader.read().then(function processText({done, value}) {
                 if (done) {
-                    let finalResult = result.join("").replaceAll(/gptxyy/gi,"").replace(/aichatos/gi,"")
+                    let finalResult = result.join("").replaceAll(/gptxyy/gi,"")
+                        .replace(/aichatos/gi,"").replace(/https?:\/\/[^\s]+/g,"")
                     GM_fillBotResponseAndSave(your_qus, finalResult);
                     return;
                 }
@@ -1344,7 +1345,10 @@
                 result.push(d)
                 try {
                     console.log(result.join(""))
-                    GM_fillBotResponse(result.join("").replaceAll(/gptxyy/gi,"").replace(/aichatos/gi,""))
+                    GM_fillBotResponse(result.join("").
+                    replaceAll(/gptxyy/gi,"")
+                        .replace(/aichatos/gi,"")
+                        .replace(/https?:\/\/[^\s]+/g,""))
                 } catch (e) {
                     console.log(e)
                 }
@@ -1639,7 +1643,7 @@
  <option value="PIZZA">PIZZA</option>
  <option style="display:none;" value="XJAI">XJAI</option>
  <option value="AIFREE">AIFREE</option>
- <option style="display: none" value="YQCLOUD">YQCLOUD</option>
+ <option value="YQCLOUD">YQCLOUD</option>
  <option value="ails">ails</option>
  <option value="tdchat">tdchat</option>
  <option style="display:none;" value="LEMURCHAT">Lemur[停用]</option>

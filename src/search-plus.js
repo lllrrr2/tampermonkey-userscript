@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.5.2
+// @version      3.5.3
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -45,6 +45,7 @@
 // @grant      GM_getValue
 // @grant      GM_getResourceText
 // @grant      GM_setClipboard
+// @grant      GM_info
 // @run-at     document-end
 // @require    https://cdn.staticfile.org/jquery/3.4.0/jquery.min.js
 // @require    https://cdn.bootcdn.net/ajax/libs/showdown/2.1.0/showdown.min.js
@@ -169,7 +170,7 @@
     'use strict';
 
 
-    const JSver = '3.5.2';
+    const JSver = '3.5.3';
 
 
     function getGPTMode() {
@@ -371,6 +372,34 @@
 
     //封装GM_xmlhttpRequest ---end---
 
+
+    //is TM
+    function isTM(){
+        try{
+            if(/Tampermonkey/gi.test(GM_info.scriptHandler)){
+                return true;
+            }else{
+                return false;
+            }
+        }catch (e) {
+            return false;
+        }
+    }
+
+    //获取chrome版本
+    function getChromeVersion() {
+        try {
+            const brands = navigator.userAgentData.brands
+            for (let i = 0; i < brands.length; i++) {
+               if(/Chromium/gi.test(brand[i].brand )){
+                   return Number(brand[i].version)
+               }
+            }
+        }catch (e) {
+            return 0
+        }
+        return 0
+    }
 
     const generateRandomIP = () => {
         const ip = [];
@@ -1213,7 +1242,7 @@
       <option value="chatforai">chatforai</option>
       <option value="MixerBox">MixerBox</option>
       <option style="display: none" value="THEBAI">XJAI</option>
-      <option style="display: none" value="YQCLOUD">YQCLOUD</option>
+      <option value="YQCLOUD">YQCLOUD</option>
       <option value="YUXIN">YUXIN</option>
       <option value="FRECHAT">FRECHAT[推荐]</option>
       <option value="ANSEAPP">ANSEAPP</option>
@@ -2413,7 +2442,10 @@
                 const reader = stream.response.getReader();
                 reader.read().then(function processText({done, value}) {
                     if (done) {
-                        let finalResult = result.join("").replace(/gptxyy/gi,"").replace(/aichatos/gi,"")
+                        let finalResult = result.join("").
+                        replace(/gptxyy/gi,"")
+                            .replace(/aichatos/gi,"")
+                            .replace(/https?:\/\/[^\s]+/g,"")
                         showAnserAndHighlightCodeStr(finalResult)
                         return;
                     }
@@ -2421,7 +2453,10 @@
                     result.push(d)
                     try {
                         console.log(result.join(""))
-                        showAnserAndHighlightCodeStr(result.join("").replace(/gptxyy/gi,"").replace(/aichatos/gi,""))
+                        showAnserAndHighlightCodeStr(result.join("").
+                        replace(/gptxyy/gi,"")
+                            .replace(/aichatos/gi,"")
+                            .replace(/https?:\/\/[^\s]+/g,""))
                     } catch (e) {
                         console.log(e)
                     }
