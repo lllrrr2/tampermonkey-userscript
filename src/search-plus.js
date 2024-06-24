@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.5.4
+// @version      3.5.5
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -143,7 +143,6 @@
 // @connect   neice.tiangong.cn
 // @connect   chat.tiangong.cn
 // @connect   work.tiangong.cn
-// @connect   yeyu1024.xyz
 // @connect   yeyu2048.xyz
 // @connect   chatglm.cn
 // @connect   open.bigmodel.cn
@@ -168,7 +167,7 @@
     'use strict';
 
 
-    const JSver = '3.5.4';
+    const JSver = '3.5.5';
 
 
     function getGPTMode() {
@@ -412,14 +411,7 @@
     //动态pubkey
     function setPubkey() {
         let GPTMODE = getGPTMode()
-        if (GPTMODE === "YeYu") {
-            localStorage.removeItem("openAIkey")
-            let manualInput = confirm("openAIkey不存在,请输入你自己的key");
-            if (manualInput) {
-                let aikey = prompt("请输入您的openAIkey", "");
-                if (aikey) localStorage.setItem("openAIkey", aikey)
-            }
-        }else if(GPTMODE === "ZhipuAI"){
+        if(GPTMODE === "ZhipuAI"){
             localStorage.removeItem("ZhipuapiKey")
             let manualInput = confirm("请输入你自己的apiKey");
             if (manualInput) {
@@ -974,7 +966,7 @@
         let GPTMODE = getGPTMode()
         if (GPTMODE && GPTMODE === "YeYu") {
             console.log("当前模YeYu")
-            YeYu()
+            //YeYu()
             //end if
             return;
         } else if (GPTMODE && GPTMODE === "THEBAI") {
@@ -1219,7 +1211,6 @@
     <p class="chatHide" id="gptStatus">
    <select id="modeSelect">
       <option value="Default">默认接口</option>
-      <option value="YeYu">自定义key</option>
       <option style="display: none" value="newBing">New Bing</option>
       <option style="display: none" value="OPENAI-3.5">OPENAI-3.5</option>
       <option style="display: none" value="OPENAI-OLD">OPENAI-OLD</option>
@@ -1228,7 +1219,7 @@
       <option value="YIYAN">百度文心</option>
       <option value="SPARK">讯飞星火</option>
       <option value="TIANGONG">天工AI</option>
-      <option value="Hunyuan">腾讯混元</option>
+      <option value="Hunyuan">腾讯元宝</option>
       <option value="ChatGLM">ChatGLM</option>
       <option value="ChatGLM4">ChatGLM4</option>
       <option value="ZhipuAI">智谱AI</option>
@@ -1272,7 +1263,7 @@
         <a target="_blank"  href="https://qianwen.aliyun.com/">通义</a>
         <a target="_blank"  href="https://www.tiangong.cn/">天工</a>
         <a target="_blank"  href="https://xinghuo.xfyun.cn/">讯飞</a>
-        <a target="_blank"  href="https://hunyuan.tencent.com/">混元</a>
+        <a target="_blank"  href="https://hunyuan.tencent.com/">元宝</a>
         <a target="_blank"  href="https://www.doubao.com/chat/">豆包</a>
         <hr>
         <a target="_blank"  href="https://chatgpt.com">OpenAI</a>
@@ -4028,7 +4019,7 @@
     */
     async function Hunyuan() {
 
-        showAnserAndHighlightCodeStr("该线路为官网线路，请确保登录[混元](https://yuanbao.tencent.com/chat)")
+        showAnserAndHighlightCodeStr("该线路为官网线路，请确保登录[元宝](https://yuanbao.tencent.com/chat)")
 
         if(!hunyuan_tUserId){
             let req1 = await GM_fetch({
@@ -4044,9 +4035,10 @@
             hunyuan_tUserId = JSON.parse(r).userId
             console.warn("hunyuan_tUserId:",hunyuan_tUserId)
             if(!hunyuan_tUserId){
-                showAnserAndHighlightCodeStr("hunyuan_tUserId获取失败，请登录[混元](https://yuanbao.tencent.com/chat)")
+                showAnserAndHighlightCodeStr("UserId获取失败，请登录[元宝](https://yuanbao.tencent.com/chat)")
+                return
             }
-           return
+
         }
 
         if(hunyuan_isfirst && !hunyuan_chatId){
@@ -5498,79 +5490,7 @@
         });
     }
 
-    let messageChain_yeyu = []
-    function YeYu() {
-        let sk = localStorage.getItem("openAIkey");
-        if(!sk){
-            setPubkey()
-        }
-        let now = Date.now();
-        let Baseurl = `https://chat.yeyu1024.xyz/`
-        generateSignatureWithPkey({
-            t:now,
-            m: your_qus || "",
-            pkey: ""
-        }).then(sign => {
-            addMessageChain(messageChain_yeyu, {role: "user", content: your_qus})//连续话
-            console.log(sign)
-            GM_fetch({
-                method: "POST",
-                url: Baseurl + "api/generate",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Referer": Baseurl,
-                    "accept": "application/json, text/plain, */*"
-                },
-                data: JSON.stringify({
-                    messages: messageChain_yeyu,
-                    time: now,
-                    pass: null,
-                    skey: sk ? sk : '',
-                    sign: sign
-                }),
-                responseType: "stream"
-            }).then((stream) => {
-                let result = [];
-                const reader = stream.response.getReader();
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        let finalResult = result.join("")
-                        try {
-                            console.log(finalResult)
-                            addMessageChain(messageChain_yeyu, {
-                                role: "assistant",
-                                content: finalResult
-                            })
-                            showAnserAndHighlightCodeStr(finalResult)
-                            if(finalResult.includes("Invalid signature") || finalResult.includes("exceeded your current")){
-                                Toast.error(`无效或过期，请到设置更新key`)
-                            }
-                        } catch (e) {
-                            console.log(e)
-                        }
-                        return;
-                    }
-                    try {
-                        let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                        result.push(d)
-                        showAnserAndHighlightCodeStr(result.join(""))
-                    } catch (e) {
-                        console.log(e)
-                    }
 
-                    return reader.read().then(processText);
-                });
-            },function (reason) {
-                console.log(reason)
-                Toast.error("未知错误!" + reason.message)
-
-            }).catch((ex)=>{
-                console.log(ex)
-                Toast.error("未知错误!" + ex.message)
-            });
-
-        });
-    }
 
     //https://s.aifree.site/
     let messageChain_aifree = []
