@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.5.3
+// @version      3.5.4
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -34,8 +34,6 @@
 // @match      *://www.bilibili.com/video/*
 // @match      *://blog.csdn.net/*/article/details/*
 // @match      *://chatglm.cn/*
-// @match      *://hunyuan.tencent.com/*
-// @match      *://yuanbao.tencent.com/*
 // @icon64      data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAAZlBMVEUAAAD///+hoaFoaGhsbGy7u7vd3d2+vr76+vra2tr29va2trYrKyvg4ODs7OxXV1dgYGCtra0xMTGXl5fExMQ6OjqOjo7R0dEVFRWnp6dSUlIiIiIcHBwLCwt4eHhycnKEhIRHR0f14+hfAAADN0lEQVRYhe1WyZajMAyEsMQshgABEwIJ+f+fbC02W0yHnjnNvNYFDFbZKpUlO86v/e/Wpve/8M4TFckwSvI/cx8z11g2/tw9vZKrEIKe159GUkvwipPxVb4eQQzvYV12XX3Y/x6BT5LqUZkgWixEHF/9/hAAeozz0I8nOtzoccDfg8CbaZQrYkOGYUaEFO2RDUTT4MZefjkMpVcQo5/Wr2DSi9/bhlYPhukvZqf41l3hiiFv8xJR2CslIT+XXfc+YapojY60kG1ZA0rknj+lL4YtnGCQ4lbESSczf5R6Ugc5ee4AoL9KAwbwYXDWXJTXhaDhf2L3R44rxzkbgFgHn55Y0JJjzyeONpYLDn4CCPn7A46VaggjwIB6eEltAOConCUAcZVDXBKIHHgbp9IZ4KW0AZj8LAHaQEzaY0lmHk60AXiQ8XYFEDoVrRpXOmSfdQFfbMe7MuTOJMLU6IJqkh7PuTMVrhosAJCp2xrApA6Lk+p4VllMQjsAcNNkpzeQlKkPHhQb0VkAEgO8TSMaVqhMH/EyW57W2R7moNoBCjwDPg1QzM07QAk7o+wUrIcNwAVZ1ktAROE7gBMaEq4kaW8NgHlQOsrULiUoHjGT40PIqngHOIGYzRK22ggJz3TpbrCt7AMU9gPZwc4y5slJC7FO4woAxmcLgMMi0dF1ymSOtnMEYFDczxqtdJRM6HlAbhSvARIqHG+G5BJGqONoK2opooIMLQFaYMvWs0EJruNRV1b8vy+wqDtbEj2caAcQg5NWdIQL6IJPjIGg1gDKhLINARyxed4DpgLFq+vvKoRiEszGWmlCy0OmcyrqSxKr/eaUzFvDGnDWCX2d5zQmNdJsO4xoz8XeyqcpIdRexZ0BBOYl2r2wyHfwB2WFO0zBjS/Zv2Vc8Pey3l3kor0iR65Q+61Vr6GmttNSOtxRf+jgvfnW3eFa4CZ+3fb1k1q1uC0D3GmKC2s5zkxKvieqWbKQPvFpfbRnNF+pYn/+3ny6m0zW+9eYDIMxlQsbvKuO3zfrV5fWKMc4GLu6G+m2KY/fNNnu6/vu2drTv7fFjVuOP3dHy5MolJEqrKfvoPXp57vpr/3r9gUxwiW4OiuC3wAAAABJRU5ErkJggg==
 // @grant       GM_xmlhttpRequest
 // @grant       GM_addStyle
@@ -170,7 +168,7 @@
     'use strict';
 
 
-    const JSver = '3.5.3';
+    const JSver = '3.5.4';
 
 
     function getGPTMode() {
@@ -1296,7 +1294,7 @@
         <a target="_blank"  href="https://yeyu2048.xyz/zfb.html?from=js&ver=${JSver}">领红包</a>
         <hr>
 	</div>
-   <article id="gptAnswer" class="markdown-body"><div id="gptAnswer_inner">版本: ${JSver} 已启动,部分线路需要科学上网,更换线路请点击"设置"。当前线路: ${getGPTMode() || "Default"};当前自动点击状态: ${localStorage.getItem("autoClick") || "关闭"}<div></article>
+   <article id="gptAnswer" class="markdown-body"><div id="gptAnswer_inner">版本: ${JSver} 已启动,部分线路需要科学上网,更换线路请点击"设置"。当前线路: ${getGPTMode() || "Default"};当前自动点击状态: ${localStorage.getItem("autoClick") || "关闭"}<div> chrome内核126以上请用<a target="_blank" href="https://docs.scriptcat.org/">脚本猫(存在渲染问题)</a>或低于126内核的浏览器，否则可能产生崩溃。(等官方修复)</article>
     </div>
     <span class="speak" style="margin-right: 10px;text-align: right">
     <a id="speakAnser" style="cursor: pointer" href="javascript:void(0)" >
@@ -3976,7 +3974,7 @@
             hunyuan_tUserId =  GM_getValue("hunyuan_tUserId")
         }
     }
-    setTimeout(initHunyuanID)
+    //setTimeout(initHunyuanID)
 
 
     let hunyuan_isfirst = true;
@@ -4030,10 +4028,24 @@
     */
     async function Hunyuan() {
 
-        showAnserAndHighlightCodeStr("该线路为官网线路，请确保登录[混元](https://yuanbao.tencent.com/chat)并成功获得tuserid")
+        showAnserAndHighlightCodeStr("该线路为官网线路，请确保登录[混元](https://yuanbao.tencent.com/chat)")
 
         if(!hunyuan_tUserId){
-           showAnserAndHighlightCodeStr("hunyuan_tUserId为空，请登录[混元](https://yuanbao.tencent.com/chat)获取，再刷新页面")
+            let req1 = await GM_fetch({
+                method: "GET",
+                url: `https://yuanbao.tencent.com/api/getuserinfo`,
+                headers: {
+                    "accept": "application/json, text/plain, */*",
+                    "origin":"https://yuanbao.tencent.com",
+                    "referer":`https://yuanbao.tencent.com`
+                }
+            })
+            let r = req1.responseText;
+            hunyuan_tUserId = JSON.parse(r).userId
+            console.warn("hunyuan_tUserId:",hunyuan_tUserId)
+            if(!hunyuan_tUserId){
+                showAnserAndHighlightCodeStr("hunyuan_tUserId获取失败，请登录[混元](https://yuanbao.tencent.com/chat)")
+            }
            return
         }
 
