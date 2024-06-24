@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.5.6
+// @version      3.5.7
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -56,6 +56,7 @@
 // @resource katexCss  https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.6/katex.css
 // @connect    api.forchange.cn
 // @connect    hunyuan.tencent.com
+// @connect    yuanbao.tencent.com
 // @connect    baichuan-ai.com
 // @connect    chatbot.theb.ai
 // @connect    cbjtestapi.binjie.site
@@ -92,7 +93,6 @@
 // @connect   www.ftcl.store
 // @connect   sunls.me
 // @connect   www.pizzagpt.it
-// @connect   www.phind.com
 // @connect   chat.bushiai.com
 // @connect   chatgpt.qdymys.cn
 // @connect   pp2pdf.com
@@ -168,7 +168,7 @@
     'use strict';
 
 
-    const JSver = '3.5.6';
+    const JSver = '3.5.7';
 
 
     function getGPTMode() {
@@ -1009,12 +1009,6 @@
 
             return;
             //end if
-        } else if (GPTMODE && GPTMODE === "PHIND") {
-            console.log("PHIND")
-            PHIND();
-
-            return;
-            //end if
         } else if (GPTMODE && GPTMODE === "PRTBOOM") {
             console.log("PRTBOOM")
             PRTBOOM();
@@ -1242,7 +1236,6 @@
       <option style="display: none" value="GEEKR">GEEKR</option>
       <option value="OhMyGPT">OhMyGPT</option>
       <option value="AILS">AILS</option>
-      <option value="PHIND">PHIND</option>
       <option value="PRTBOOM">PRTBOOM</option>
       <option value="CLEANDX">CLEANDX</option>
       <option value="CVEOY">CVEOY</option>
@@ -5059,115 +5052,6 @@
             }
         });
     }
-
-
-
-    function PHIND() {
-
-
-        GM_xmlhttpRequest({
-            method: "POST",
-            url: "https://www.phind.com/api/web/search",
-            headers: {
-                "Content-Type": "application/json",
-                "Referer": `https://www.phind.com`
-            },
-            data: JSON.stringify({
-                "q": your_qus,
-                "userRankList": {},
-                "browserLanguage": "zh-CN"
-            }),
-            onload: function (res) {
-                if (res.status === 200) {
-                    console.log('成功....')
-                    console.log(res)
-                    let rest = res.responseText
-                    //console.log(rest.choices[0].text.replaceAll("\n","</br>"))
-                    let rjson = JSON.parse(rest);
-                    let _bingResults = rjson.processedBingResults;
-                    console.log(_bingResults)
-
-                    GM_xmlhttpRequest({
-                        method: "POST",
-                        url: "https://www.phind.com/api/infer/answer",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Referer": "https://www.phind.com/",
-                            "accept": "*/*"
-                        },
-                        data: JSON.stringify({
-                            "question": your_qus,
-                            "bingResults": _bingResults,
-                            "codeContext": "",
-                            "options": {
-                                "skill": "intermediate",
-                                "date": formatTime(),
-                                "language": "zh-CN",
-                                "detailed": true,
-                                "creative": false
-                            }
-                        }),
-                        onloadstart: (stream) => {
-                            let result = [];
-                            const reader = stream.response.getReader();
-                            reader.read().then(function processText({done, value}) {
-                                if (done) {
-                                    let finalResult = result.join("")
-                                    try {
-                                        console.log(finalResult)
-                                        showAnserAndHighlightCodeStr(finalResult)
-                                    } catch (e) {
-                                        console.log(e)
-                                    }
-                                    return;
-                                }
-                                try {
-                                    let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                                    console.log(d)
-                                    let dd = d.replace(/data: /g, "").split("\r\n\r\n")
-                                    console.log("dd:",dd)
-                                    dd.forEach(item=>{
-                                        try {
-                                            result.push(item)
-                                            showAnserAndHighlightCodeStr(result.join(""))
-                                        }catch (e) {
-
-                                        }
-                                    })
-
-                                } catch (e) {
-                                    console.log(e)
-                                }
-
-                                return reader.read().then(processText);
-                            });
-                        },
-                        responseType: "stream",
-                        onerror: function (err) {
-                            console.log(err)
-                            Toast.error("未知错误!")
-                        }
-                    });
-
-
-                } else {
-                    console.log('失败')
-                    console.log(res)
-                    showAnserAndHighlightCodeStr('访问失败了,[phind](https://www.phind.com/api/web/search)')
-                }
-            },
-
-            responseType: "application/json;charset=UTF-8",
-            onerror: function (err) {
-                Toast.error(`some err happends,errinfo :${err.messages}`)
-            }
-        });
-
-
-
-
-    }
-
 
 
 
