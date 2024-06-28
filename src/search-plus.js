@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.5.7
+// @version      3.5.8
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -168,7 +168,7 @@
     'use strict';
 
 
-    const JSver = '3.5.7';
+    const JSver = '3.5.8';
 
 
     function getGPTMode() {
@@ -4591,7 +4591,7 @@
 
     async function BAICHUAN() {
         console.log("bc_parent_id",bc_parent_id)
-        showAnserAndHighlightCodeStr("请稍后,第一次切换到该线路需要刷新页面，该线路为官网线路,使用前确保已经登录[百川](https://www.baichuan-ai.com/chat)")
+        showAnserAndHighlightCodeStr("请耐心等待,该线路为非流式传输较慢,第一次切换到该线路需要刷新页面，该线路为官网线路,使用前确保已经登录[百川](https://www.baichuan-ai.com/chat)")
         if(!bc_userID){
             showAnserAndHighlightCodeStr("userid为空，请重试。。。使用前确保已经登录[百川](https://www.baichuan-ai.com/chat)")
             getBCUserID()
@@ -4655,41 +4655,53 @@
                 'assistant': {},
                 'retry': 3
             }),
-            responseType:"stream"
+           // responseType:"stream"
         }).then((stream)=>{
+            let responseText =  stream.responseText
             let result = []
-            const reader = stream.response.getReader();
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    return;
-                }
+            //console.warn(responseText)
+            let arr = responseText.split("\n")
+            for (let i = 0; i < arr.length; i++) {
                 try {
-                    let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                    console.warn(d)
+                    result.push(JSON.parse(arr[i]).answer.data)
+                    showAnserAndHighlightCodeStr(result.join(""))
+                }catch (e) { }
+            }
+            showAnserAndHighlightCodeStr(result.join(""))
 
-                    try {
-                        result.push(JSON.parse(d).answer.data)
-                        showAnserAndHighlightCodeStr(result.join(""))
-                    }catch (e) {
-                        console.error(d)
-                    }
-
-                    try {
-                        let v = JSON.parse(d).rds
-                        bc_parent_id = v[v.length - 1].id
-                        bc_session_info_id = v[0].id
-                    }catch (e) {
-                        //console.error(d)
-                    }
-
-
-
-                } catch (e) {
-                    console.log(e)
-                }
-
-                return reader.read().then(processText);
-            });
+            // let result = []
+            // const reader = stream.response.getReader();
+            // reader.read().then(function processText({done, value}) {
+            //     if (done) {
+            //         return;
+            //     }
+            //     try {
+            //         let d = new TextDecoder("utf8").decode(new Uint8Array(value));
+            //         console.warn(d)
+            //
+            //         try {
+            //             result.push(JSON.parse(d).answer.data)
+            //             showAnserAndHighlightCodeStr(result.join(""))
+            //         }catch (e) {
+            //             console.error(d)
+            //         }
+            //
+            //         try {
+            //             let v = JSON.parse(d).rds
+            //             bc_parent_id = v[v.length - 1].id
+            //             bc_session_info_id = v[0].id
+            //         }catch (e) {
+            //             //console.error(d)
+            //         }
+            //
+            //
+            //
+            //     } catch (e) {
+            //         console.log(e)
+            //     }
+            //
+            //     return reader.read().then(processText);
+            // });
         },reason => {
             console.log(reason)
             Toast.error("未知错误!")
