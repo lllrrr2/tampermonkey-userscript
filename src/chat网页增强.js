@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Chat网页增强
 // @namespace    http://blog.yeyusmile.top/
-// @version      4.96
+// @version      4.97
 // @description  网页增强，使你在网页中可以用GPT, 网址 https://yeyu2048.xyz/gpt.html
 // @author       夜雨
 // @match        *://yeyu1024.xyz/gpt.html*
@@ -84,7 +84,7 @@
     'use strict';
     console.log("======AI增强=====")
 
-    const JSVer = "v4.96"
+    const JSVer = "v4.97"
     //将于2024.2月初更新域名，请到：https://yeyu2048.xyz/gpt.html中使用
 
     try {
@@ -708,15 +708,15 @@
             console.log(sign)
             GM_fetch({
                 method: "PUT",
-                url: "https://promplate-demo.onrender.com/please-dont-hack-me-but-you-can-contact-me/single/chat_messages",
+                url: "https://demo-9elp.onrender.com/single/chat_messages",
                 headers: {
                     "Content-Type": "application/json",
-                    "Referer": "https://e9.free-chat.asia/",
+                    "Referer": "https://e10.frechat.xyz",
                     "accept": "*/*"
                 },
                 data: JSON.stringify({
                     "messages": messageChain9,
-                    "model": "claude-3-sonnet-20240229"
+                    "model": "THUDM/glm-4-9b-chat"
                 }),
                 responseType: "stream"
             }).then((stream) => {
@@ -1170,7 +1170,7 @@
         let your_qus = question;//你的问题
         GM_handleUserInput(null)
         let now = Date.now();
-        let Baseurl = `https://aj.aifree.site/`
+        let Baseurl = `https://al.aifree.site/`
         generateSignatureWithPkey({
             t:now,
             m: your_qus || "",
@@ -1485,73 +1485,6 @@
     }
 
 
-    let message_yuxin = []
-    let yuxin_newid = generateRandomString(21)
-    function YUXIN(question) {
-
-        let your_qus = question;
-        GM_handleUserInput(null)
-        message_yuxin.push({
-            "role": "user",
-            "content": your_qus
-        })
-
-        GM_httpRequest({
-            method: "POST",
-            url: "https://www.yuxin-ai.com/fastapi/api/chat",
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                "Referer": `https://www.yuxin-ai.com/chat/new?id=${yuxin_newid}`,
-                "origin": "https://www.yuxin-ai.com"
-            },
-            data: JSON.stringify({
-                "user_id": 0,
-                "token": 0,
-                "msg": message_yuxin,
-                "model": "gpt-3.5-turbo"
-            }),
-            responseType: "stream"
-        },(stream) => {
-            let result = []
-            const reader = stream.response.getReader();
-            GM_simulateBotResponse("。。。")
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    message_yuxin.push({
-                        "role": "assistant",
-                        "content": result.join("")
-                    })
-                    GM_fillBotResponseAndSave(your_qus, result.join(""))
-                    return;
-                }
-                try {
-
-                    let byteArray = new Uint8Array(value);
-                    let decoder = new TextDecoder('utf-8');
-                    console.log(decoder.decode(byteArray))
-                    let items = decoder.decode(byteArray).split("data:");
-                    console.log(items)
-                    items.forEach((item) =>{
-                        try{
-                            let dataVal = JSON.parse(item)
-                            if (dataVal.choices[0].delta.content) {
-                                result.push(dataVal.choices[0].delta.content)
-                            }
-                        }catch (e) {
-
-                        }
-                    })
-                    GM_fillBotResponse(result.join(""))
-
-                } catch (e) {
-                    // console.log(e)
-                }
-
-                return reader.read().then(processText);
-            });
-        })
-    }
-
 
 
 
@@ -1612,10 +1545,6 @@
                     console.log("LEMURCHAT")
                    LEMURCHAT(qus);
                     break;
-               case "YUXIN":
-                    console.log("YUXIN")
-                   YUXIN(qus);
-                    break;
              case "ChatGO":
                     console.log("ChatGO")
                     ChatGO(qus);
@@ -1640,19 +1569,18 @@
 
         document.getElementById("modeSelect").innerHTML = `<option selected value="Defalut">默认</option>
  <option value="FRECHAT">FRECHAT[推荐]</option>
- <option value="PIZZA">PIZZA</option>
  <option style="display:none;" value="XJAI">XJAI</option>
  <option value="AIFREE">AIFREE</option>
  <option value="YQCLOUD">YQCLOUD</option>
  <option value="ails">ails</option>
  <option value="tdchat">tdchat</option>
  <option style="display:none;" value="LEMURCHAT">Lemur[停用]</option>
- <option value="YUXIN">YUXIN</option>
  <option value="ChatGO">ChatGO</option>
  <option value="MixerBox">MixerBox</option>
  <option value="PRTBOOM">PRTBOOM</option>
   <option value="CVEOY">CVEOY</option>
   <option value="TOYAML">TOYAML</option>
+  <option value="PIZZA">PIZZA</option>
 `;
 
         document.getElementById('modeSelect').addEventListener('change', () => {

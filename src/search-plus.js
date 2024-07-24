@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.5.8
+// @version      3.5.9
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -62,7 +62,6 @@
 // @connect    cbjtestapi.binjie.site
 // @connect    freechatgpt.xgp.one
 // @connect    luntianxia.uk
-// @connect    chat.51buygpt.com
 // @connect    aitianhu1.top
 // @connect    xjai.pro
 // @connect    zw7.lol
@@ -137,7 +136,6 @@
 // @connect   openai.com
 // @connect   tongyi.aliyun.com
 // @connect   qianwen.aliyun.com
-// @connect   ai-yuxin.space
 // @connect   yuxin-ai.com
 // @connect   xinghuo.xfyun.cn
 // @connect   geetest.com
@@ -168,7 +166,7 @@
     'use strict';
 
 
-    const JSver = '3.5.8';
+    const JSver = '3.5.9';
 
 
     function getGPTMode() {
@@ -980,14 +978,7 @@
             YQCLOUD()
             //end if
             return;
-        } else if (GPTMODE && GPTMODE === "YUXIN") {
-            console.log("YUXIN")
-
-            YUXIN();
-
-            //end if
-            return;
-        } else if (GPTMODE && GPTMODE === "PIZZA") {
+        }  else if (GPTMODE && GPTMODE === "PIZZA") {
             console.log("当前模式PIZZA")
             PIZZA();
             //end if
@@ -1159,12 +1150,6 @@
 
             return;
             //end if
-        }else if (GPTMODE && GPTMODE === "BUYGPT51") {
-            console.log("BUYGPT51")
-            BUYGPT51()
-
-            return;
-            //end if
         }else if (GPTMODE && GPTMODE === "miniMax") {
             console.log("miniMax")
             miniMax()
@@ -1174,7 +1159,7 @@
         }
 
         console.log("默认线路:")
-        AIFREE()
+        FRECHAT()
 
     }
 
@@ -1209,7 +1194,6 @@
       <option style="display: none" value="newBing">New Bing</option>
       <option style="display: none" value="OPENAI-3.5">OPENAI-3.5</option>
       <option style="display: none" value="OPENAI-OLD">OPENAI-OLD</option>
-      <option value="BUYGPT51">BUYGPT51</option>
       <option value="TONGYI">通义千问</option>
       <option value="YIYAN">百度文心</option>
       <option value="SPARK">讯飞星火</option>
@@ -1227,7 +1211,6 @@
       <option value="MixerBox">MixerBox</option>
       <option style="display: none" value="THEBAI">XJAI</option>
       <option value="YQCLOUD">YQCLOUD</option>
-      <option value="YUXIN">YUXIN</option>
       <option value="FRECHAT">FRECHAT[推荐]</option>
       <option value="ANSEAPP">ANSEAPP</option>
       <option value="PIZZA">PIZZA[兼容]</option>
@@ -2095,7 +2078,7 @@
         let nn = Math.floor(new Date().getTime() / 1e3);
         const fD = e=>{
             let t = CryptoJS.enc.Utf8.parse(e)
-                , o = CryptoJS.AES.encrypt(t, "fjfsd我w4真3dd服iuhf了wf", {
+                , o = CryptoJS.AES.encrypt(t, "brhbtehbwrb3274grhvHR诶ur3i", {
                 mode: CryptoJS.mode.ECB,
                 padding: CryptoJS.pad.Pkcs7
             });
@@ -2110,7 +2093,7 @@
             ops = {parentMessageId: parentID_gptplus};
         }
 
-
+        https://ai27.gptforlove.com/#/
         GM_fetch({
             method: "POST",
             url: "https://api11.gptforlove.com/chat-process",
@@ -2235,7 +2218,7 @@
                     "from-url": "https://ai.ls/?chat=1",
                     "origin": "https://ai.ls",
                     "X-Forwarded-For": generateRandomIP(),
-                    "accept": "*/*"
+                    "accept": "application/json"
                 },
                 data: JSON.stringify({
                     model: "gpt-3.5-turbo",
@@ -2604,80 +2587,6 @@
 
         return true;
     }
-
-
-    // 2023年8月14日 https://www.ai-yuxin.space/chat/gpt3.5.html?InvitationCode=uTEdfRwk
-
-    let message_yuxin = []
-    let yuxin_newid = generateRandomString(21)
-    function YUXIN() {
-        message_yuxin.push({
-            "content": your_qus,
-            "role": "user"
-        })
-        GM_httpRequest({
-            method: "POST",
-            url: "https://www.yuxin-ai.com/fastapi/api/chat",
-            headers: {
-                "accept": "*/*",
-                "Content-Type": "application/json",
-                "Referer": `https://www.yuxin-ai.com/chat/new?id=${yuxin_newid}`,
-                "origin": "https://https://www.yuxin-ai.com"
-            },
-            data: JSON.stringify({
-                "model": "gpt-3.5-turbo",
-                "msg": message_yuxin,
-                "token": 0,
-                "user_id": 0
-            }),
-            responseType: "stream"
-        },(stream) => {
-            let result = []
-            const reader = stream.response.getReader();
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    message_yuxin.push({
-                        "content": result.join(""),
-                        "role": "assistant"
-                    })
-                    return;
-                }
-                try {
-
-                    let byteArray = new Uint8Array(value);
-                    let decoder = new TextDecoder('utf-8');
-                    console.log(decoder.decode(byteArray))
-                    let items = decoder.decode(byteArray).split("data:");
-                    console.log(items)
-                    items.forEach((item) =>{
-                        try{
-                            let dataVal = JSON.parse(item)
-                            if (dataVal.choices[0].delta.content) {
-                                result.push(dataVal.choices[0].delta.content)
-                            }
-                        }catch (e) {
-
-                        }
-                    })
-                    showAnserAndHighlightCodeStr(result.join(""))
-
-                } catch (e) {
-                   // console.log(e)
-                }
-
-                return reader.read().then(processText);
-            });
-        })
-    }
-
-
-
-
-
-
-
-
-
 
 
     let bingSocket;
@@ -5161,60 +5070,6 @@
 
 
 
-    function BUYGPT51() {
-        GM_xmlhttpRequest({
-            method: "POST",
-            url: "https://chat.51buygpt.com/message.php",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                // "Authorization": "Bearer null",
-                "Referer": "https://chat.51buygpt.com/",
-                "Host": "www.aiai.zone",
-                "accept": "application/json, text/plain, */*"
-            },
-            data: `message=${encodeURI(your_qus)}&context=%5B%5D`,
-            onloadstart: (stream) => {
-                const reader = stream.response.getReader();
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        return;
-                    }
-
-                    try {
-                        // console.log(normalArray)
-                        let byteArray = new Uint8Array(value);
-                        let decoder = new TextDecoder('utf-8');
-                        let nowResult = JSON.parse(decoder.decode(byteArray))
-
-                        if (!nowResult.raw_message) {
-                            //finalResult = nowResult.text
-                            //document.getElementById('gptAnswer').innerHTML = `${mdConverter(finalResult.replace(/\\n+/g, "\n"))}`
-                        } else {
-                            console.log(nowResult)
-                            showAnserAndHighlightCodeStr(nowResult.raw_message)
-                        }
-
-
-                    } catch (e) {
-
-                    }
-
-                    return reader.read().then(processText);
-                });
-            },
-            responseType: "stream",
-            onprogress: function (msg) {
-                //console.log(msg)
-            },
-            onerror: function (err) {
-                console.log(err)
-            },
-            ontimeout: function (err) {
-                console.log(err)
-            }
-        })
-
-    }
 
 
 
@@ -5343,15 +5198,15 @@
             console.log(sign)
             GM_fetch({
                 method: "PUT",
-                url: "https://promplate-demo.onrender.com/please-dont-hack-me-but-you-can-contact-me/single/chat_messages",
+                url: "https://demo-9elp.onrender.com/single/chat_messages",
                 headers: {
                     "Content-Type": "application/json",
-                    "Referer": "https://e9.free-chat.asia/",
+                    "Referer": "https://e10.frechat.xyz",
                     "accept": "*/*"
                 },
                 data: JSON.stringify({
                     "messages": messageChain9,
-                    "model": "claude-3-sonnet-20240229"
+                    "model": "THUDM/glm-4-9b-chat"
                 }),
                 responseType: "stream"
             }).then((stream) => {
@@ -5401,7 +5256,7 @@
     function AIFREE() {
 
         let now = Date.now();
-        let Baseurl = `https://aj.aifree.site/`
+        let Baseurl = `https://al.aifree.site/`
         generateSignatureWithPkey({
             t:now,
             m: your_qus || "",
