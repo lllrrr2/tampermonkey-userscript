@@ -2,7 +2,7 @@
 // @name         网页中英双显互译
 // @name:en      Translation between Chinese and English
 // @namespace    http://yeyu1024.xyz
-// @version      1.8.5
+// @version      1.8.6
 // @description  中-英-外互转，双语显示。支持谷歌，微软等API，为用户提供了快速准确的中英文翻译服务。无论是在工作中处理文件、学习外语、还是在日常生活中与国际友人交流，这个脚本都能够帮助用户轻松应对语言障碍。通过简单的操作，用户只需点击就会立即把网页翻译，节省了用户手动查词或使用在线翻译工具的时间，提高工作效率。
 // @description:en  Web pages translated into Chinese, English and foreign languages
 // @description:de  Webseite in Chinesisch, Englisch, Fremdsprachen
@@ -617,7 +617,7 @@
                   <option value="16">福昕</option>
                   <option value="17">CNKI</option>
                   <option  value="18">讯飞[需key]</option>
-                  <option value="19">金山快译</option>
+                  <option style="display: none" value="19">金山快译</option>
               </select>
                <button style="cursor: pointer;color: white;border: 6px;outline: none;background: #4caf50;padding: 8px 0;border-radius: 6px;font-size: 14px;margin: 0 auto;margin-top: 6px;width: 70px;" id="selectAPIBtn">选择</button>
             </div>
@@ -1896,7 +1896,7 @@
             "Referer": `https://fanyi.caiyunapp.com/`,
             "origin": "https://fanyi.caiyunapp.com",
             "accept": "application/json, text/plain, */*",
-            "app-name": "xy",
+            "app-name": "xiaoyi",
             "content-type": "application/json;charset=UTF-8",
             "device-id": caiyun_deviceID,
             "os-type": "web",
@@ -3264,7 +3264,7 @@ ${ali_uuid}\r
             //debugger
             let res1 = await GM_fetch({
                 method: "GET",
-                url: `https://fanyi.caiyunapp.com/${tkjs}`,
+                url: `https://fanyi.caiyunapp.com/dist/${tkjs}`,
                 responseType: "text",
             })
             if (res1.status === 200) {
