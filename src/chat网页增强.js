@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Chat网页增强
 // @namespace    http://blog.yeyusmile.top/
-// @version      4.97
+// @version      4.98
 // @description  网页增强，使你在网页中可以用GPT, 网址 https://yeyu2048.xyz/gpt.html
 // @author       夜雨
 // @match        *://yeyu1024.xyz/gpt.html*
@@ -84,7 +84,8 @@
     'use strict';
     console.log("======AI增强=====")
 
-    const JSVer = "v4.97"
+    const JSVer = "v4.98"
+    //ai差不多停止更新 请移步 https://greasyfork.org/scripts/459997
     //将于2024.2月初更新域名，请到：https://yeyu2048.xyz/gpt.html中使用
 
     try {
@@ -1170,7 +1171,7 @@
         let your_qus = question;//你的问题
         GM_handleUserInput(null)
         let now = Date.now();
-        let Baseurl = `https://al.aifree.site/`
+        let Baseurl = `https://am.aifree.site/`
         generateSignatureWithPkey({
             t:now,
             m: your_qus || "",
@@ -1182,7 +1183,7 @@
                 method: "POST",
                 url: Baseurl + "api/generate",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "text/plain;charset=UTF-8",
                     "Referer": Baseurl,
                     "X-Forwarded-For": generateRandomIP(),
                     "accept": "application/json, text/plain, */*"
