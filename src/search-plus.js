@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.0
+// @version      3.6.1
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -166,7 +166,7 @@
     'use strict';
 
 
-    const JSver = '3.6.0';
+    const JSver = '3.6.1';
 
 
     function getGPTMode() {
@@ -1262,7 +1262,7 @@
         <a target="_blank"  href="https://yeyu2048.xyz/zfb.html?from=js&ver=${JSver}">领红包</a>
         <hr>
 	</div>
-   <article id="gptAnswer" class="markdown-body"><div id="gptAnswer_inner">版本: ${JSver} 已启动,部分线路需要科学上网,更换线路请点击"设置"。当前线路: ${getGPTMode() || "Default"};当前自动点击状态: ${localStorage.getItem("autoClick") || "关闭"}<div> chrome内核126以上请用<a target="_blank" href="https://docs.scriptcat.org/">脚本猫</a>或低于126内核的浏览器，否则可能产生崩溃。(等官方修复)</article>
+   <article id="gptAnswer" class="markdown-body"><div id="gptAnswer_inner">版本: ${JSver} 已启动,部分线路需要科学上网,更换AI接口请点击"设置"。当前线路: ${getGPTMode() || "Default"};当前自动点击状态: ${localStorage.getItem("autoClick") || "关闭"}</article>
     </div>
     <span class="speak" style="margin-right: 10px;text-align: right">
     <a id="speakAnser" style="cursor: pointer" href="javascript:void(0)" >
@@ -5256,7 +5256,7 @@
     function AIFREE() {
 
         let now = Date.now();
-        let Baseurl = `https://al.aifree.site/`
+        let Baseurl = `https://am.aifree.site/`
         generateSignatureWithPkey({
             t:now,
             m: your_qus || "",
@@ -5268,7 +5268,7 @@
                 method: "POST",
                 url: Baseurl + "api/generate",
                 headers: {
-                    "Content-Type": "application/json",
+                    "Content-Type": "text/plain;charset=UTF-8",
                     "Referer": Baseurl,
                     "accept": "application/json, text/plain, */*"
                 },
