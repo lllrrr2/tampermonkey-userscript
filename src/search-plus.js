@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.1
+// @version      3.6.2
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -62,7 +62,6 @@
 // @connect    cbjtestapi.binjie.site
 // @connect    freechatgpt.xgp.one
 // @connect    luntianxia.uk
-// @connect    aitianhu1.top
 // @connect    xjai.pro
 // @connect    zw7.lol
 // @connect    chatforai.store
@@ -79,7 +78,6 @@
 // @connect   chat.68686.ltd
 // @connect   qianwen.biz.aliyun.com
 // @connect   t-chat.cn
-// @connect   www.aitianhu.com
 // @connect   free.anzz.top
 // @connect   chat.ohtoai.com
 // @connect   freeopenai.xyz
@@ -91,7 +89,6 @@
 // @connect   chatgpt.com
 // @connect   www.ftcl.store
 // @connect   sunls.me
-// @connect   www.pizzagpt.it
 // @connect   chat.bushiai.com
 // @connect   chatgpt.qdymys.cn
 // @connect   pp2pdf.com
@@ -166,7 +163,7 @@
     'use strict';
 
 
-    const JSver = '3.6.1';
+    const JSver = '3.6.2';
 
 
     function getGPTMode() {
@@ -978,16 +975,6 @@
             YQCLOUD()
             //end if
             return;
-        }  else if (GPTMODE && GPTMODE === "PIZZA") {
-            console.log("当前模式PIZZA")
-            PIZZA();
-            //end if
-            return;
-        } else if (GPTMODE && GPTMODE === "AITIANHU") {
-            console.log("当前模式AITIANHU")
-            AITIANHU()
-            //end if
-            return;
         } else if (GPTMODE && GPTMODE === "TDCHAT") {
             console.log("当前模式TDCHAT")
             TDCHAT()
@@ -1000,19 +987,7 @@
 
             return;
             //end if
-        } else if (GPTMODE && GPTMODE === "PRTBOOM") {
-            console.log("PRTBOOM")
-            PRTBOOM();
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "CLEANDX") {
-            console.log("CLEANDX")
-            CLEANDX();
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "CVEOY") {
+        } else if (GPTMODE && GPTMODE === "CVEOY") {
             console.log("CVEOY")
             CVEOY();
 
@@ -1027,12 +1002,6 @@
         }else if (GPTMODE && GPTMODE === "newBing") {
             console.log("newBing")
             newBing();
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "FRECHAT") {
-            console.log("FRECHAT：")
-            FRECHAT();
 
             return;
             //end if
@@ -1096,12 +1065,6 @@
 
             return;
             //end if
-        }else if (GPTMODE && GPTMODE === "ANSEAPP") {
-            console.log("ANSEAPP")
-            ANSEAPP()
-
-            return;
-            //end if
         }else if (GPTMODE && GPTMODE === "ChatGLM") {
             console.log("ChatGLM")
             ChatGLM()
@@ -1141,12 +1104,6 @@
         }else if (GPTMODE && GPTMODE === "MixerBox") {
             console.log("MixerBox")
             MixerBox()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "OhMyGPT") {
-            console.log("OhMyGPT")
-            OhMyGPT()
 
             return;
             //end if
@@ -1211,16 +1168,9 @@
       <option value="MixerBox">MixerBox</option>
       <option style="display: none" value="THEBAI">XJAI</option>
       <option value="YQCLOUD">YQCLOUD</option>
-      <option value="FRECHAT">FRECHAT[推荐]</option>
-      <option value="ANSEAPP">ANSEAPP</option>
-      <option value="PIZZA">PIZZA[兼容]</option>
-      <option value="AITIANHU">AITIANHU</option>
       <option value="TDCHAT">TDCHAT</option>
       <option style="display: none" value="GEEKR">GEEKR</option>
-      <option value="OhMyGPT">OhMyGPT</option>
       <option value="AILS">AILS</option>
-      <option value="PRTBOOM">PRTBOOM</option>
-      <option value="CLEANDX">CLEANDX</option>
       <option value="CVEOY">CVEOY</option>
       <option value="TOYAML">TOYAML</option>
     </select> 部分线路需要科学上网</p>
@@ -2535,28 +2485,9 @@
             console.log("ails_signKey:",ails_signKey)
 
 
-            //ptrboom
-            promptboom_did = result.ptrboom.did
-            promptboom_token = result.ptrboom.token
-            promptboom_url = result.ptrboom.url
-            promptboom_version = result.ptrboom.version
-            console.log("promptboom_did:",promptboom_did)
-            console.log("promptboom_url:",promptboom_url)
-            console.log("promptboom_version:",promptboom_version)
 
 
 
-
-            //pizaa
-            pizzaSecret = result.pizza.secret
-            console.log("pizzaSecret:",pizzaSecret)
-
-
-            //ohmygpt_token
-            ohmygpt_token = result.ohmygpt.token
-            ohmygpt_session_id = result.ohmygpt.sessionId
-            console.log("ohmygpt_token:",ohmygpt_token)
-            console.log("ohmygpt_session_id:",ohmygpt_session_id)
 
         } else {
             console.error(rr)
@@ -3176,7 +3107,7 @@
            }
        }
 */
-
+       showAnserAndHighlightCodeStr("请稍后....该接口需登录通义官网[通义](https://tongyi.aliyun.com/qianwen/)")
 
 
        let sendData = JSON.stringify({
@@ -4786,67 +4717,6 @@
     }
 
 
-    let ohmygpt_session_id = 'e0df5f92-0973-4465-93e1-dcb7cf482d7d';
-    let ohmygpt_token = '';
-    let ohmygpt_messageChain = [{"role":"system","content":"You are ChatGPT, a large language model trained by OpenAI."}]
-    async function OhMyGPT() {
-        addMessageChain(ohmygpt_messageChain, {"role":"user","content":your_qus},10)
-        const params = new URLSearchParams();
-        let sendData = {
-            session_id: ohmygpt_session_id ? ohmygpt_session_id:'e0df5f92-0973-4465-93e1-dcb7cf482d7d',
-            content: JSON.stringify(ohmygpt_messageChain),
-            max_context_length: '5',
-            params: '{"model":"gpt-3.5-turbo","temperature":1,"max_tokens":2048,"presence_penalty":0,"frequency_penalty":0,"max_context_length":5,"voiceShortName":"zh-CN-XiaoxiaoNeural","rate":1,"pitch":1}'
-        }
-        for (const key in sendData) {
-            params.append(key, sendData[key]);
-        }
-        const encodedData = params.toString();
-
-        GM_fetch({
-            method: "POST",
-            url: `https://www.ohmygpt.com/api/v1/ai/chatgpt/chat`,
-            headers: {
-                "Referer": "https://www.ohmygpt.com/",
-                "authorization": ohmygpt_token,
-                "origin": "https://www.ohmygpt.com",
-                "accept": "text/event-stream",
-                "content-type": 'application/x-www-form-urlencoded',
-            },
-            data: encodedData,
-            responseType:"stream"
-        }).then((stream)=>{
-            let result = []
-            const reader = stream.response.getReader();
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    return;
-                }
-                try {
-                    let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                    console.warn(d)
-                    result.push(d)
-                    showAnserAndHighlightCodeStr(result.join(""))
-
-                } catch (e) {
-                    console.log(e)
-                }
-
-                return reader.read().then(processText);
-            });
-        },reason => {
-            console.log(reason)
-            Toast.error("未知错误!")
-        }).catch((ex)=>{
-            console.log(ex)
-            Toast.error("未知错误!")
-        })
-
-
-    }
-
-
-
 
     let minimax_group_id = localStorage.getItem("minimax_group_id")//"172531245...";
     let minimax_api_key = localStorage.getItem("minimax_api_key")// "eyJhbGciOi.....
@@ -4929,149 +4799,6 @@
 
 
     }
-
-
-    let pizzaSecret;
-    function PIZZA() {
-        abortXml = GM_xmlhttpRequest({
-            method: "POST",
-            url: "https://www.pizzagpt.it/api/chatx-completion",
-            headers: {
-                "content-type": "application/json",
-                "Referer": `https://www.pizzagpt.it/`,
-                "origin": `https://www.pizzagpt.it`,
-                "x-secret": pizzaSecret
-            },
-            data: JSON.stringify({
-                question: your_qus
-            }),
-            onload: function (res) {
-                if (res.status === 200) {
-                    console.log('成功....')
-                    console.log(res)
-                    let rest = res.responseText
-                    //console.log(rest.choices[0].text.replaceAll("\n","</br>"))
-
-                    try {
-                        showAnserAndHighlightCodeStr(JSON.parse(rest).answer.content)
-                    } catch (e) {
-                        console.log(e)
-                        Toast.error(rest)
-                    }
-
-                } else {
-                    console.log('失败')
-                    console.log(res)
-                    Toast.error('访问失败了')
-                }
-            },
-
-            responseType: "text",
-            onerror: function (err) {
-                console.error(err)
-                showAnserAndHighlightCodeStr("出错，[访问](https://www.pizzagpt.it/)")
-            }
-        });
-    }
-
-
-
-    let parentID_tianhu;
-    let tianhu_first = true;
-
-    function AITIANHU() {
-        let ops = {};
-        if (parentID_tianhu) {
-            ops = {parentMessageId: parentID_tianhu};
-        }
-        console.log(ops)
-
-        if (tianhu_first) {
-            GM_xmlhttpRequest({
-                method: "POST",
-                synchronous: true,
-                url: "https://www.aitianhu.com/api/session",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Referer": "https://www.aitianhu.com/",
-                    "origin": "https://www.aitianhu.com",
-                    "accept": "application/json, text/plain, */*"
-                },
-                onload: function (res) {
-                    console.log(res)
-                }
-            })
-            tianhu_first = false;
-        }
-
-        abortXml = GM_xmlhttpRequest({
-            method: "POST",
-            url: "https://5i6kbc.aitianhu1.top/api/please-donot-reverse-engineering-me-thank-you",
-            headers: {
-                "Content-Type": "application/json",
-                "Referer": "https://5i6kbc.aitianhu1.top",
-                "origin": "https://5i6kbc.aitianhu1.top",
-                "accept": "application/json, text/plain, */*"
-            },
-            data: JSON.stringify({
-                "prompt": your_qus,
-                "options": ops,
-                "model": "gpt-3.5-turbo",
-                "OPENAI_API_KEY": "sk-AItianhuFreeForEveryone",
-                "systemMessage": "You are ChatGPT, a large language model trained by OpenAI. Follow the user's instructions carefully. Respond using markdown.",
-                "temperature": 0.8,
-                "top_p": 1
-            }),
-            onloadstart: (stream) => {
-                let result = "";
-                const reader = stream.response.getReader();
-                //     console.log(reader.read)
-                let finalResult;
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        return;
-                    }
-
-                    const chunk = value;
-                    result += chunk;
-                    try {
-                        // console.log(normalArray)
-                        let byteArray = new Uint8Array(chunk);
-                        let decoder = new TextDecoder('utf-8');
-                        console.log(decoder.decode(byteArray))
-                        let jsonLines = decoder.decode(byteArray).split("\n");
-                        let nowResult = JSON.parse(jsonLines[jsonLines.length - 1])
-
-                        if (nowResult.text) {
-                            console.log(nowResult)
-                            finalResult = nowResult.text
-                            showAnserAndHighlightCodeStr(finalResult)
-                        }
-                        if (nowResult.id) {
-                            parentID_tianhu = nowResult.id;
-                        }
-
-                    } catch (e) {
-
-                    }
-
-                    return reader.read().then(processText);
-                });
-            },
-            responseType: "stream",
-            onerror: function (err) {
-                console.log(err)
-                Toast.error("未知错误!")
-            }
-        })
-
-    }
-
-
-
-
-
-
 
 
     //https://ai1.chagpt.fun/
@@ -5185,70 +4912,6 @@
     }
 
 
-    let messageChain9 = [];//FRECHAT
-    function FRECHAT() {
-
-        let now = Date.now();
-        generateSignatureWithPkey({
-            t: now,
-            m: your_qus || "",
-            pkey: ""
-        }).then(sign => {
-            addMessageChain(messageChain9, {role: "user", content: your_qus})//连续话
-            console.log(sign)
-            GM_fetch({
-                method: "PUT",
-                url: "https://demo-9elp.onrender.com/single/chat_messages",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Referer": "https://e10.frechat.xyz",
-                    "accept": "*/*"
-                },
-                data: JSON.stringify({
-                    "messages": messageChain9,
-                    "model": "THUDM/glm-4-9b-chat"
-                }),
-                responseType: "stream"
-            }).then((stream) => {
-                let result = [];
-                const reader = stream.response.getReader();
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        let finalResult = result.join("")
-                        try {
-                            console.log(finalResult)
-                            addMessageChain(messageChain9, {
-                                role: "assistant",
-                                content: finalResult
-                            })
-                            showAnserAndHighlightCodeStr(finalResult)
-                        } catch (e) {
-                            console.log(e)
-                        }
-                        return;
-                    }
-                    try {
-                        let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                        result.push(d)
-                        showAnserAndHighlightCodeStr(result.join("")
-                            .replace(/muspimerol/gi,""))
-                    } catch (e) {
-                        console.log(e)
-                    }
-
-                    return reader.read().then(processText);
-                });
-            },function (reason) {
-                console.log(reason)
-                Toast.error("未知错误!")
-            }).catch((ex)=>{
-                console.log(ex)
-                Toast.error("未知错误!")
-            });
-
-        });
-    }
-
 
 
     //https://s.aifree.site/
@@ -5339,250 +5002,6 @@
 
 
 
-    let cleandxid = generateRandomString(21);
-    let cleandxList = [];
-    function CLEANDX() {
-        let Baseurl = "https://c3.a0.chat/";
-
-        console.log(formatTime())
-        cleandxList.push({"content": your_qus, "role": "user", "nickname": "我", "time": `${formattedDate()} ${formatTime()}`, "isMe": true})
-        cleandxList.push({"content":"正在思考中...","role":"assistant","nickname":"小助手","time": `${formattedDate()} ${formatTime()}`,"isMe":false})
-        console.log(cleandxList)
-        console.log(cleandxid)
-        if (cleandxList.length > 6){
-            cleandxList = cleandxList.shift();
-        }
-        abortXml= GM_xmlhttpRequest({
-            method: "POST",
-            url: Baseurl + "v1/chat/gpt/",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Forwarded-For": generateRandomIP(),
-                "Referer": Baseurl,
-                "accept": "application/json, text/plain, */*"
-            },
-            data: JSON.stringify({
-                "list": cleandxList,
-                "id": cleandxid,
-                "title": your_qus,
-                "prompt": "",
-                "temperature": 0.5,
-                "models": "0",
-                "time": `${formattedDate()} ${formatTime()}`,
-                "continuous": true
-            }),
-            onloadstart: (stream) => {
-                let result = [];
-                const reader = stream.response.getReader();
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        let finalResult = result.join("")
-                        try {
-                            console.log(finalResult)
-                            cleandxList[cleandxList.length - 1] = {
-                                "content": finalResult,
-                                "role": "assistant",
-                                "nickname": "小助手",
-                                "time": `${formattedDate()} ${formatTime()}`,
-                                "isMe": false
-                            };
-                            showAnserAndHighlightCodeStr(finalResult)
-                        } catch (e) {
-                            console.log(e)
-                        }
-                        return;
-                    }
-                    try {
-                        let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                        console.log(d)
-                        result.push(d)
-                        showAnserAndHighlightCodeStr(result.join(""))
-                    } catch (e) {
-                        console.log(e)
-                    }
-                    return reader.read().then(processText);
-                });
-            },
-            responseType: "stream",
-            onerror: function (err) {
-                console.log(err)
-                Toast.error("未知错误!" + err.message)
-            }
-        });
-
-    }
-
-
-
-    //https://www.promptboom.com/
-
-    //var promptboom_did = generateRandomString(32)
-    let promptboom_did = 'dd633043916550bea93f56e1af08debd'
-    let promptboom_token = ''
-    let promptboom_url = ''
-    let promptboom_version = '1.0'
-    async function PRTBOOM() {
-
-        addMessageChain(messageChain10, {role: "user", content: your_qus})//连续话
-
-        const t = Date.now()
-        const r = t + ":" + "question:" + promptboom_token
-        const sign = CryptoJS.SHA256(r).toString();
-        console.log(sign)
-        let request_json = {
-            'did': promptboom_did ? promptboom_did : 'dd633043916550bea93f56e1af08debd',
-            'chatList': messageChain10,
-            'special': {
-                'time': t,
-                'sign': sign,
-                'referer': "no-referer",
-                'path': "https://powerchat.top/chat/PowerChat"
-            }
-        };
-        let raw_requst_json = {
-            'data': btoa(unescape(encodeURIComponent(JSON.stringify(request_json))))
-        };
-
-        console.log(raw_requst_json)
-
-        GM_fetch({
-            method: "POST",
-            url: promptboom_url ? promptboom_url : 'https://api2.promptboom.com/cfdoctetstream',
-            headers: {
-                "Content-Type": "application/json",
-                "version": promptboom_version,
-                "origin": "https://powerchat.top",
-                "Referer": "https://powerchat.top/",
-                "accept": "*/*",
-            },
-            data: JSON.stringify(raw_requst_json),
-            responseType: "stream"
-        }).then((stream) => {
-            let result = [];
-            const reader = stream.response.getReader();
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    let finalResult = result.join("")
-                    try {
-                        console.log(finalResult)
-                        addMessageChain(messageChain10, {
-                            role: "assistant",
-                            content: finalResult
-                        })
-                        showAnserAndHighlightCodeStr(finalResult)
-                    } catch (e) {
-                        console.log(e)
-                    }
-                    return;
-                }
-                try {
-                    let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                    result.push(d.replace(/<strong.*?<\/strong>/gi,''))
-                    showAnserAndHighlightCodeStr(result.join(""))
-                } catch (e) {
-                    console.log(e)
-                }
-
-                return reader.read().then(processText);
-            });
-        },(reason)=>{
-            console.log(reason)
-            Toast.error("未知错误!" + reason.message)
-        }).catch((ex)=>{
-            console.log(ex)
-            Toast.error("未知错误!" + ex.message)
-        });
-
-
-
-       /* let rootDomain = "promptboom.com";
-
-        let apiList = [`https://api2.${rootDomain}/cfdoctetstream`, `https://api2.${rootDomain}/cfdoctetstream2`, `https://api2.${rootDomain}/cfdoctetstream3`]
-        apiList.sort(() => Math.random() - 0.5);
-
-
-        let apiListBackup = [`https://api2.${rootDomain}/cfdoctetstream4`, `https://api2.${rootDomain}/cfdoctetstream5`, `https://api2.${rootDomain}/cfdoctetstream6`]
-
-        let finalApiList = apiList.concat(apiListBackup)
-
-
-        for (let cfdoctetstream_url of finalApiList) {
-            console.log(cfdoctetstream_url)
-
-            break;
-        }*/
-
-
-
-    }
-
-
-    let messageChain_anseapp = [];
-    async function ANSEAPP() {
-
-        let baseURL = "https://forward.free-chat.asia/";
-        addMessageChain(messageChain_anseapp, {role: "user", content: your_qus})//连续话
-        GM_fetch({
-            method: "POST",
-            url: baseURL + "v1/chat/completions",
-            headers: {
-                "Content-Type": "application/json",
-                "authorization": `Bearer undefined`,
-                "Referer": 'https://anse.free-chat.asia/'
-            },
-            data: JSON.stringify({
-                "model": "gpt-3.5-turbo-16k",
-                "messages": messageChain_anseapp,
-                "temperature": 0.7,
-                "max_tokens": 4096,
-                "stream": true
-            }),
-            responseType: "stream"
-        }).then((stream) => {
-            let result = [];
-            let finalResult = [];
-            const reader = stream.response.getReader();
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    finalResult = result.join("")
-                    addMessageChain(messageChain_anseapp,
-                        {role: "assistant", content: finalResult.replace(/muspimerol/gi, "")}
-                    )//连续话
-                    showAnserAndHighlightCodeStr(finalResult.replace(/muspimerol/gi, ""))
-                    return;
-                }
-
-                try {
-                    let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                    console.log("raw:", d)
-                    let dd = d.replace(/data: /g, "").split("\n\n")
-                    console.log("dd:", dd)
-                    dd.forEach(item => {
-                        try {
-                            let delta = JSON.parse(item).choices[0].delta.content
-                            result.push(delta)
-                            showAnserAndHighlightCodeStr(result.join("").replace(/muspimerol/gi, ""))
-                        } catch (e) {
-
-                        }
-                    })
-                } catch (e) {
-                    console.log(e)
-                }
-
-
-                return reader.read().then(processText);
-            });
-        },function (err) {
-            console.error(err)
-            Toast.error("未知错误!" + err.message)
-        })
-
-    }
-
-
-
-
 
     function TDCHAT(){
         abortXml = GM_xmlhttpRequest({
@@ -5643,11 +5062,12 @@
 
         GM_fetch({
             method: "GET",
-            url: "https://toyaml.com/stream?q="+encodeURI(your_qus),
+            url: "https://toyaml.com/streams?q="+encodeURI(your_qus),
             headers: {
-                "Content-Type": "application/json",
-                "Referer": "https://toyaml.com/",
-                "accept": "*/*"
+                "Referer": "https://toyaml.com/chat.html",
+                "accept": "*/*",
+                "x-requested-with": "XMLHttpRequest"
+
             },
             responseType: "stream"
         }).then((stream) => {
