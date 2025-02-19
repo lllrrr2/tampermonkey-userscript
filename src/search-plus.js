@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.3
+// @version      3.6.4
 // @description  Google、DeepSeek、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -163,7 +163,7 @@
     'use strict';
 
 
-    const JSver = '3.6.3';
+    const JSver = '3.6.4';
 
 
     function getGPTMode() {
@@ -1203,7 +1203,7 @@
         <a target="_blank"  href="https://chat.deepseek.com/">DeepSeek</a>
         <hr>
         <a target="_blank"  href="https://greasyfork.org/scripts/459997">更新</a>
-        <a  href="https://yang10560.github.io/zhichi.png?id=2">用爱发电</a>
+        <a  href="https://q1.qlogo.cn/g?b=qq&nk=2471543762&s=640">用爱发电</a>
         <hr>
 	</div>
    <article id="gptAnswer" class="markdown-body"><div id="gptAnswer_inner">版本: ${JSver} 已启动,部分线路需要科学上网,更换AI接口请点击"设置"。当前线路: ${getGPTMode() || "Default"};当前自动点击状态: ${localStorage.getItem("autoClick") || "关闭"}</article>
