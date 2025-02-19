@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.2
-// @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
+// @version      3.6.3
+// @description  Google、DeepSeek、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
 // @author       夜雨
@@ -29,6 +29,7 @@
 // @match      https://www.google.com.hk/*
 // @match      *://www.sogou.com/*
 // @match      *://m.sogou.com/*
+// @match      *://chat.scnet.cn/*
 // @match      *://wap.sogou.com/*
 // @match      *://*.tiangong.cn/*
 // @match      *://www.bilibili.com/video/*
@@ -101,7 +102,6 @@
 // @connect   free-api.cveoy.top
 // @connect   chatcleand.xyz
 // @connect   gptforlove.com
-// @connect   gptplus.one
 // @connect   xcbl.cc
 // @connect   hz-it-dev.com
 // @connect   6bbs.cn
@@ -126,7 +126,7 @@
 // @connect   skybyte.me
 // @connect   alllinkai1.com
 // @connect   baidu.com
-// @connect   geekr.dev
+// @connect   scnet.cn
 // @connect   chatgptdddd.com
 // @connect   anfans.cn
 // @connect   bing.com
@@ -163,7 +163,7 @@
     'use strict';
 
 
-    const JSver = '3.6.2';
+    const JSver = '3.6.3';
 
 
     function getGPTMode() {
@@ -224,6 +224,8 @@
     }
     setTimeout(addHeadCss)
     setInterval(addHeadCss,5000)
+
+
 
 
     try {
@@ -1011,12 +1013,6 @@
 
             return;
             //end if
-        }else if (GPTMODE && GPTMODE === "GEEKR") {
-            console.log("GEEKR")
-            GEEKR()
-
-            return;
-            //end if
         }else if (GPTMODE && GPTMODE === "OPENAI" || GPTMODE === "OPENAI-3.5") {
             console.log("OPENAI-3.5")
             OPENAI("text-davinci-002-render-sha")
@@ -1059,9 +1055,9 @@
 
             return;
             //end if
-        }else if (GPTMODE && GPTMODE === "GPTPLUS") {
-            console.log("GPTPLUS")
-            GPTPLUS()
+        }else if (GPTMODE && GPTMODE === "DeepSeek") {
+            console.log("DeepSeek")
+            DeepSeek()
 
             return;
             //end if
@@ -1151,6 +1147,7 @@
       <option style="display: none" value="newBing">New Bing</option>
       <option style="display: none" value="OPENAI-3.5">OPENAI-3.5</option>
       <option style="display: none" value="OPENAI-OLD">OPENAI-OLD</option>
+      <option value="DeepSeek">DeepSeek(满血)</option>
       <option value="TONGYI">通义千问</option>
       <option value="YIYAN">百度文心</option>
       <option value="SPARK">讯飞星火</option>
@@ -1163,13 +1160,11 @@
       <option value="BAICHUAN">百川AI</option>
       <option value="miniMax">miniMax</option>
       <option value="AIFREE">AIFREE</option>
-      <option value="GPTPLUS">GPTPLUS</option>
       <option value="chatforai">chatforai</option>
       <option value="MixerBox">MixerBox</option>
       <option style="display: none" value="THEBAI">XJAI</option>
       <option value="YQCLOUD">YQCLOUD</option>
       <option value="TDCHAT">TDCHAT</option>
-      <option style="display: none" value="GEEKR">GEEKR</option>
       <option value="AILS">AILS</option>
       <option value="CVEOY">CVEOY</option>
       <option value="TOYAML">TOYAML</option>
@@ -1185,7 +1180,7 @@
     </svg>自动提示开关</a>:用于设置是否开启提示</p>
 	<div class="chatHide" id="website" style="margin-left: 10px; ">
 	    <hr>
-        <a target="_blank"  href="https://yeyu2048.xyz/gpt.html?random=${Math.random()}&from=js&ver=${JSver}">网页版</a>
+        <a target="_blank"  href="https://chat.deepseek.com/">DeepSeek</a>
         <a target="_blank"  href="https://yiyan.baidu.com/">文心</a>
         <a target="_blank"  href="https://qianwen.aliyun.com/">通义</a>
         <a target="_blank"  href="https://www.tiangong.cn/">天工</a>
@@ -1208,8 +1203,7 @@
         <a target="_blank"  href="https://chat.deepseek.com/">DeepSeek</a>
         <hr>
         <a target="_blank"  href="https://greasyfork.org/scripts/459997">更新</a>
-        <a target="_blank"  href="https://yeyu2048.xyz/zhichi.png?id=yeyu">爱发电</a>
-        <a target="_blank"  href="https://yeyu2048.xyz/zfb.html?from=js&ver=${JSver}">领红包</a>
+        <a  href="https://yang10560.github.io/zhichi.png?id=2">用爱发电</a>
         <hr>
 	</div>
    <article id="gptAnswer" class="markdown-body"><div id="gptAnswer_inner">版本: ${JSver} 已启动,部分线路需要科学上网,更换AI接口请点击"设置"。当前线路: ${getGPTMode() || "Default"};当前自动点击状态: ${localStorage.getItem("autoClick") || "关闭"}</article>
@@ -2018,95 +2012,6 @@
 
 
 
-
-
-
-    //2023年5月18日 http://home.cutim.top/ https://gpt.gogpt.site/#/chat/1002
-    let parentID_gptplus;
-
-    function getGPTPLUSkey() {
-        let nn = Math.floor(new Date().getTime() / 1e3);
-        const fD = e=>{
-            let t = CryptoJS.enc.Utf8.parse(e)
-                , o = CryptoJS.AES.encrypt(t, "brhbtehbwrb3274grhvHR诶ur3i", {
-                mode: CryptoJS.mode.ECB,
-                padding: CryptoJS.pad.Pkcs7
-            });
-            return o.toString()
-        }
-        return fD(nn);
-    }
-
-    function GPTPLUS() {
-        let ops = {};
-        if (parentID_gptplus) {
-            ops = {parentMessageId: parentID_gptplus};
-        }
-
-        https://ai27.gptforlove.com/#/
-        GM_fetch({
-            method: "POST",
-            url: "https://api11.gptforlove.com/chat-process",
-            headers: {
-                "Content-Type": "application/json",
-                "Referer": "https://ai27.gptforlove.com/",
-                "origin": "https://ai27.gptforlove.com",
-                "accept": "application/json, text/plain, */*"
-            },
-            data: JSON.stringify({
-                secret: getGPTPLUSkey(),
-                top_p: 1,
-                prompt: your_qus,
-                systemMessage: "You are ChatGPT, the version is GPT3.5, a large language model trained by OpenAI. Follow the user's instructions carefully. Respond using markdown.",
-                temperature: 0.8,
-                options: ops
-            }),
-            responseType: "stream"
-        }).then((stream) => {
-            let result = "";
-            const reader = stream.response.getReader();
-            //     console.log(reader.read)
-            let finalResult;
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-
-                    return;
-                }
-
-                const chunk = value;
-                result += chunk;
-                try {
-                    // console.log(normalArray)
-                    let byteArray = new Uint8Array(chunk);
-                    let decoder = new TextDecoder('utf-8');
-                    console.log(decoder.decode(byteArray))
-                    let jsonLines = decoder.decode(byteArray).split("\n");
-                    let nowResult = JSON.parse(jsonLines[jsonLines.length - 1])
-
-                    if (nowResult.text) {
-                        console.log(nowResult)
-                        finalResult = nowResult.text
-                        showAnserAndHighlightCodeStr(finalResult)
-                    }
-                    if (nowResult.id) {
-                        parentID_gptplus = nowResult.id;
-                    }
-
-                } catch (e) {
-
-                }
-
-                return reader.read().then(processText);
-            });
-        },function (err) {
-            console.log(err)
-            Toast.error("未知异常!")
-        })
-
-    }
-
-
-
     let messageChain2 = [];//AILS
 
     let messageChain10 = [];//PRTBOOM
@@ -2135,8 +2040,8 @@
 
 
 
-    let ails_clientv;
-    let ails_signKey = 'WI,2rU#_r:r~aF4aJ36[.Z(/8Rv93Rf';
+    let ails_clientv = "0.1.293";
+    let ails_signKey = "WI,2rU#_r:r~aF4aJ36[.Z(/8Rv93Rf";
     function AILS() {
 
         let vtime = function converTimestamp(t) {
@@ -2233,31 +2138,85 @@
     }
 
 
-    //https://chat.geekr.dev/ 2023年5月11日
-    async function GEEKR() {
+    let ds_x_token_dasclient = ""
 
-        let baseURL = "https://chat.geekr.dev/";
+    async function initDS_x_token_dasclient() {
+        if (location.href.includes("scnet.cn")) {
+            ds_x_token_dasclient = localStorage.getItem("user_chat_token");
+            console.log("ds_x_token_dasclient",ds_x_token_dasclient)
+            GM_setValue("ds_x_token_dasclient", ds_x_token_dasclient)
+            try {
+                if(ds_x_token_dasclient){
+                   Toast.info("ds_x_token_dasclient 获取成功：",ds_x_token_dasclient)
+                }else{
+                    Toast.info("`ds_x_token_dasclient获取失败，请再次刷新.`",ds_x_token_dasclient)
+                }
+            }catch (e) {}
+        } else {
+            ds_x_token_dasclient =  GM_getValue("ds_x_token_dasclient")
+        }
+    }
+
+    setTimeout(initDS_x_token_dasclient)
+
+
+    async function DeepSeek() {
+
+
+        showAnserAndHighlightCodeStr(`此线路为超算互联Deepseek线路，如果出错请尝试打开官方后刷新页面再试：[Deepseek](https://chat.scnet.cn/)`)
+
+        if(!ds_x_token_dasclient){
+            showAnserAndHighlightCodeStr(`x_token_dasclient为空，请尝试打开官方后刷新页面再试：[Deepseek](https://chat.scnet.cn/)`)
+            return
+        }
+        console.warn("x_token_dasclient:",ds_x_token_dasclient)
+
+
+        fetch("https://chat.scnet.cn/api/chat/Ask", {
+            "headers": {
+
+            },
+            "referrer": "https://chat.scnet.cn/",
+            "referrerPolicy": "no-referrer-when-downgrade",
+            "body": "{\"modelType\":\"DeepSeek-R1-671B\",\"query\":\"你叫什么\",\"conversationId\":\"\",\"messageType\":\"local\"}",
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "include"
+        });
+
+        let baseURL = "https://chat.scnet.cn/";
         let res = await GM_fetch({
             method: "POST",
-            url: baseURL + "chat",
+            url: baseURL + "api/chat/Ask/",
             headers: {
-                "Content-Type": "multipart/form-data; boundary=----WebKitFormBoundaryunS2PBTi514UmKrN",
-                "accept": "*/*",
+                "accept": "application/json, text/plain, */*",
+                "content-type": "application/json",
+                "x-token-dasclient": ds_x_token_dasclient,
                 "Referer": baseURL
             },
-            data:  `------WebKitFormBoundaryunS2PBTi514UmKrN\r\nContent-Disposition: form-data; name=\"prompt\"\r\n\r\n${your_qus}\r\n------WebKitFormBoundaryunS2PBTi514UmKrN\r\nContent-Disposition: form-data; name=\"regen\"\r\n\r\nfalse\r\n------WebKitFormBoundaryunS2PBTi514UmKrN--\r\n`
+            data:  JSON.stringify(
+                {
+                    "modelType": "DeepSeek-R1-671B",
+                    "query": your_qus,
+                    "conversationId": "",
+                    "messageType": "local"
+                }
+            )
         });
         if (res.status === 200) {
-            console.log('成功....')
+            console.log('ds：成功....')
             console.log(res)
-            let chat_id = JSON.parse(res.responseText).chat_id;
-            console.log("chat_id",chat_id)
+            let ds_messageId = JSON.parse(res.responseText).data.messageId;
+            console.log("ds_messageId",ds_messageId)
+
+
             GM_fetch({
                 method: "GET",
-                url: `https://chat.geekr.dev/stream?chat_id=${chat_id}&api_key=`,
+                url: `https://chat.scnet.cn/api/chat/GetReplay?messageId=${ds_messageId}&query=&modelType=DeepSeek-R1-671B`,
                 headers: {
-                    "Referer": "https://chat.geekr.dev/",
-                    "accept": "text/event-stream"
+                    "Referer": baseURL,
+                    "x-token-dasclient": ds_x_token_dasclient,
+                    "accept": "text/event-stream",
                 },
                 responseType: "stream"
             }).then((stream) => {
@@ -2275,15 +2234,24 @@
 
                         let d = new TextDecoder("utf8").decode(new Uint8Array(value));
                         console.log("raw:",d)
-                        let dd = d.replace(/data: /g, "").split("\n")
-                        console.log("dd:",dd)
-                        dd.forEach(item=>{
+                        let responseItem = d.trim().split("\n");
+                        console.warn(responseItem)
+                        responseItem.forEach(item=>{
                             try {
-                                let delta = JSON.parse(item).choices[0].delta.content
-                                result.push(delta)
-                                showAnserAndHighlightCodeStr(result.join(""))
-                            }catch (e) {
-
+                                if(item && item.startsWith("data:")){
+                                    let ii = item.replace(/data:/gi,"")
+                                    console.log("ii:",ii)
+                                    if(ii){
+                                        if(ii.length > 2 ){
+                                            result.push(ii.trim().slice(1,-1))
+                                        }else{
+                                            result.push(ii.trim())
+                                        }
+                                        showAnserAndHighlightCodeStr(result.join(""))
+                                    }
+                                }
+                            }catch (ex){
+                                console.error(item)
                             }
                         })
                     } catch (e) {
@@ -2469,7 +2437,7 @@
 
 
 
-    setTimeout(async () => {
+    /*setTimeout(async () => {
         let rr = await GM_fetch({
             method: "GET",
             url: `https://yeyu2048.xyz/chat/haohula.json?r=${Math.random()}`
@@ -2478,22 +2446,12 @@
             console.log(rr)
             let result = JSON.parse(rr.responseText);
 
-            //AILS
-            ails_clientv = result.ails.clientv
-            ails_signKey = result.ails.signKey
-            console.log("ails_clientv:",ails_clientv)
-            console.log("ails_signKey:",ails_signKey)
-
-
-
-
-
 
         } else {
             console.error(rr)
         }
 
-    })
+    })*/
 
     function isTokenExpired(token) {
         if(!token) return true
