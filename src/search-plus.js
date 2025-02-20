@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.5
+// @version      3.6.6
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax，DeepSeek、Gemini。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -164,7 +164,7 @@
     'use strict';
 
 
-    const JSver = '3.6.5';
+    const JSver = '3.6.6';
 
 
     function getGPTMode() {
@@ -1028,7 +1028,13 @@
             //end if
         }else if (GPTMODE && GPTMODE === "Hunyuan") {
             console.log("Hunyuan")
-            Hunyuan()
+            Hunyuan('')
+
+            return;
+            //end if
+        }else if (GPTMODE && GPTMODE === "DeepSeekYuanBao") {
+            console.log("DeepSeekYuanBao")
+            Hunyuan('deepseek')
 
             return;
             //end if
@@ -1136,6 +1142,7 @@
       <option value="SPARK">讯飞星火</option>
       <option value="TIANGONG">天工AI</option>
       <option value="Hunyuan">腾讯元宝</option>
+      <option value="DeepSeekYuanBao">腾讯Deepseek(联网)</option>
       <option value="ChatGLM">ChatGLM</option>
       <option value="ChatGLM4">ChatGLM4</option>
       <option value="ZhipuAI">智谱AI</option>
@@ -2155,17 +2162,6 @@
         console.warn("x_token_dasclient:",ds_x_token_dasclient)
 
 
-        fetch("https://chat.scnet.cn/api/chat/Ask", {
-            "headers": {
-
-            },
-            "referrer": "https://chat.scnet.cn/",
-            "referrerPolicy": "no-referrer-when-downgrade",
-            "body": "{\"modelType\":\"DeepSeek-R1-671B\",\"query\":\"你叫什么\",\"conversationId\":\"\",\"messageType\":\"local\"}",
-            "method": "POST",
-            "mode": "cors",
-            "credentials": "include"
-        });
 
         let baseURL = "https://chat.scnet.cn/";
         let res = await GM_fetch({
@@ -3682,9 +3678,9 @@
         body: '{"model":"gpt_175B_0404","prompt":"你叫我什么","plugin":"Adaptive","displayPrompt":"你很牛吗","displayPromptType":1,"options":{},"multimedia":[],"agentId":"naQivTmsDa","version":"v2"}'
     });
     */
-    async function Hunyuan() {
+    async function Hunyuan(mtag) {
 
-        showAnserAndHighlightCodeStr("该线路为官网线路，请确保登录[元宝](https://yuanbao.tencent.com/chat)")
+        showAnserAndHighlightCodeStr("请稍后...deepseek较慢。该线路为官网线路，请确保登录[元宝](https://yuanbao.tencent.com/chat)")
 
         if(!hunyuan_tUserId){
             let req1 = await GM_fetch({
@@ -3710,6 +3706,30 @@
            await initHunyuan()
         }
 
+        let payload = JSON.stringify({
+            "model": "gpt_175B_0404",
+            "prompt": your_qus,
+            "displayPrompt": your_qus,
+            "displayPromptType": 1,
+            "plugin": "Adaptive",
+            "isSkipHistory": false
+        })
+        //deepseek联网 2025.02
+        if(mtag === 'deepseek'){
+            payload = JSON.stringify({
+                "model": "gpt_175B_0404",
+                "prompt": your_qus,
+                "displayPrompt": your_qus,
+                "displayPromptType": 1,
+                "plugin": "Adaptive",
+                "isSkipHistory": false,
+                "chatModelId": "deep_seek",
+                "supportFunctions": [
+                    "supportInternetSearch"
+                ]
+            })
+        }
+
 
         GM_fetch({
             method: 'POST',
@@ -3725,14 +3745,7 @@
                 "x-source": "web"
             },
             responseType: "stream",
-            data: JSON.stringify({
-                "model": "gpt_175B_0404",
-                "prompt": your_qus,
-                "displayPrompt": your_qus,
-                "displayPromptType": 1,
-                "plugin": "Adaptive",
-                "isSkipHistory": false
-            })
+            data: payload
         }).then((stream)=> {
             let reader = stream.response.getReader()
             let ans = []
@@ -3751,8 +3764,17 @@
                     try {
                         let ii = item.replace(/data:/gi,"").trim();
                         if(ii && ii !==""){
-                            let chunk = JSON.parse(ii).msg
+                            let chunk = ''
                             //de.push(item.replace(/data:/gi,"").trim())
+
+                            //add deepseek 2025.02
+                            if(mtag === 'deepseek'){
+                               chunk = JSON.parse(ii).content
+                            }else{
+                                chunk = JSON.parse(ii).msg
+                            }
+
+
                             ans.push(chunk)
                             showAnserAndHighlightCodeStr(ans.join(""))
 
