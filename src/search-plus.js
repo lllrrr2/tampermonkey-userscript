@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.4
-// @description  Google、DeepSeek、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax。即刻体验AI，无需翻墙，无需注册，无需等待！
+// @version      3.6.5
+// @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax，DeepSeek、Gemini。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
 // @author       夜雨
@@ -131,6 +131,7 @@
 // @connect   anfans.cn
 // @connect   bing.com
 // @connect   openai.com
+// @connect   generativelanguage.googleapis.com
 // @connect   tongyi.aliyun.com
 // @connect   qianwen.aliyun.com
 // @connect   yuxin-ai.com
@@ -163,7 +164,7 @@
     'use strict';
 
 
-    const JSver = '3.6.4';
+    const JSver = '3.6.5';
 
 
     function getGPTMode() {
@@ -414,7 +415,20 @@
             let manualInput = confirm("请输入你自己的apiKey");
             if (manualInput) {
                 let ZhipuapiKey = prompt("请输入您的智谱apikey", "");
-                if (ZhipuapiKey) localStorage.setItem("ZhipuapiKey", ZhipuapiKey)
+                if (ZhipuapiKey) {
+                    localStorage.setItem("ZhipuapiKey", ZhipuapiKey)
+                    zhipu_apiKey = ZhipuapiKey
+                }
+            }
+        }else if(GPTMODE === "Gemini"){
+            localStorage.removeItem("gemini_key")
+            let manualInput = confirm("请输入你自己的apiKey");
+            if (manualInput) {
+                let gm_key = prompt("请输入您的gemini apikey", "");
+                if (gm_key) {
+                    localStorage.setItem("gemini_key", gm_key)
+                    gemini_key = gm_key
+                }
             }
         }else if(GPTMODE === "miniMax"){
 
@@ -432,49 +446,18 @@
                 minimax_api_key = minimax_api_key_input;
             }
 
-
-
-
-
         }else {
             //Toast.error("该线路不适用")
         }
 
     }
 
-    function getPubkey() {
-        //return GM_getValue("pubkey");
-        return localStorage.getItem("pubkey");
-    }
-
-    //update  key.
-    setTimeout(()=>{
-        if (!getPubkey()){
-            setPubkey();
-        }
-    })
 
     //enc-start
     async function digestMessage(r) {
         const hash = CryptoJS.SHA256(r);
         return hash.toString(CryptoJS.enc.Hex);
     }
-
-    const generateSignature = async r => {
-        const {
-            t: e,
-            m: t
-        } = r;
-        //const n = {}.PUBLIC_SECRET_KEY;
-        let n = getPubkey();
-        if (!n) {
-            console.log("pubkey不存在，使用默认")
-            n = "k6zeE77ge7XF"
-        }
-        console.log("CURRENT KEY:" + n)
-        const a = `${e}:${t}:${n}`;
-        return await digestMessage(a);
-    };
 
     const generateSignatureWithPkey = async r => {
         const {
@@ -1019,9 +1002,9 @@
 
             return;
             //end if
-        }else if (GPTMODE && GPTMODE === "OPENAI-OLD") {
-            console.log("OPENAI-OLD")
-            OPENAI_OLD("text-davinci-002-render-sha")
+        }else if (GPTMODE && GPTMODE === "Gemini") {
+            console.log("Gemini")
+            Gemini()
 
             return;
             //end if
@@ -1146,7 +1129,7 @@
       <option value="Default">默认接口</option>
       <option style="display: none" value="newBing">New Bing</option>
       <option style="display: none" value="OPENAI-3.5">OPENAI-3.5</option>
-      <option style="display: none" value="OPENAI-OLD">OPENAI-OLD</option>
+      <option value="Gemini">Gemini-2.0</option>
       <option value="DeepSeek">DeepSeek(满血)</option>
       <option value="TONGYI">通义千问</option>
       <option value="YIYAN">百度文心</option>
@@ -1169,7 +1152,7 @@
       <option value="CVEOY">CVEOY</option>
       <option value="TOYAML">TOYAML</option>
     </select> 部分线路需要科学上网</p>
-	<p class="chatHide" id="warn" style="margin: 10px"  ><a id="updatePubkey" style="color: #4e6ef2;" href="javascript:void(0)"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class=" iconify iconify--ri" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M18.537 19.567A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10c0 2.136-.67 4.116-1.81 5.74L17 12h3a8 8 0 1 0-2.46 5.772l.997 1.795Z"></path></svg>更新KEY</a>:适用于自定义、智谱</p>
+	<p class="chatHide" id="warn" style="margin: 10px"  ><a id="updatePubkey" style="color: #4e6ef2;" href="javascript:void(0)"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class=" iconify iconify--ri" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M18.537 19.567A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10c0 2.136-.67 4.116-1.81 5.74L17 12h3a8 8 0 1 0-2.46 5.772l.997 1.795Z"></path></svg>更新KEY</a>:适用于自定义、智谱、Gemini</p>
 	<p class="chatHide" id="autoClickP" style="margin: 10px"  ><a id="autoClick" style="color: #4e6ef2;" href="javascript:void(0)"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="text-lg iconify iconify--ri" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M15 4H5v16h14V8h-4V4ZM3 2.992C3 2.444 3.447 2 3.998 2H16l5 5v13.992A1 1 0 0 1 20.007 22H3.993A1 1 0 0 1 3 21.008V2.992Zm9 8.508a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5ZM7.527 17a4.5 4.5 0 0 1 8.945 0H7.527Z"></path></svg>自动点击开关</a>:用于设置搜索是否自动点击</p>
 	<p class="chatHide" id="darkThemeP" style="margin: 10px"  ><a id="darkTheme" style="color: #4e6ef2;" href="javascript:void(0)"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class=" iconify iconify--ri" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.997c-5.523 0-10-4.478-10-10c0-5.523 4.477-10 10-10s10 4.477 10 10c0 5.522-4.477 10-10 10Zm0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2v-12a6 6 0 0 1 0 12Z"></path></svg>暗黑模式开关</a>:用于设置暗黑/白天</p>
 	<p class="chatHide" id="autoTipsP" style="margin: 10px"><a id="autoTips"  href="javascript:void(0)"><svg withd="15" height="15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -2831,164 +2814,47 @@
        })
    }
 
-    //OPENAI fix 2024.4.7
-    let requirements_token
-    async function OPENAI_OLD(GPTModel){
-        // addMessageChain(messageChain_openai,{
-        //     "role": "user",
-        //     "id": uuidv4(),
-        //     "content": {
-        //         "content_type": "text",
-        //         "parts": [
-        //             your_qus
-        //         ]
-        //     },
-        //     "metadata":{}
-        // },20)
-        showAnserAndHighlightCodeStr(`此线路为OpenAI官网线路：${GPTModel}，使用前确定有访问权限且登录账号：[OPENAI官网](https://chatgpt.com/)`)
-        let req1 = await GM_fetch({
-            method: "GET",
-            url: "https://chatgpt.com/api/auth/session"
-        })
-        let r = req1.responseText;
-        console.log(r)
-        let accessToken;
-        try{
-            accessToken = JSON.parse(r).accessToken;
-        }catch (e) {
-            showAnserAndHighlightCodeStr("验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chatgpt.com/)")
-        }
+    //Gemini api
+    let gemini_key = localStorage.getItem("gemini_key")
+    async function Gemini(GPTModel){
 
-        if(!accessToken){
-            showAnserAndHighlightCodeStr("验证出错,请确认有权限OPENAI官网[OPENAI](https://chatgpt.com/)")
-        }
+       if(!gemini_key){
+           showAnserAndHighlightCodeStr(`gemini_key为空,请点击设置-更新key,请到获取[https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)`)
+           return
+       }
 
-        let oai_id = uuidv4()
-        if(!requirements_token){
-            let req2 = await GM_fetch({
-                method: 'POST',
-                url: 'https://chatgpt.com/backend-api/sentinel/chat-requirements',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: 'Bearer ' + accessToken,
-                    "oai-device-id": oai_id,
-                    "oai-language": "en-US",
-                    'origin': 'https://chatgpt.com',
-                    'Referer': 'https://chatgpt.com/',
-                },
-                data: {}
-            })
-            let rr = req2.responseText;
-            console.log(rr)
-            try{
-                requirements_token = JSON.parse(rr).token;
-            }catch (e) {
-                showAnserAndHighlightCodeStr("requirements_token 验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chatgpt.com/)")
-            }
-        }
+        showAnserAndHighlightCodeStr(`请稍后。。。此线路为google官网线路，使用前确定apikey的正确性(设置-更新key),[key获取](https://aistudio.google.com/app/apikey)`)
 
 
-
-
-        let paramObj = {
-            action: "next",
-            conversation_mode: {
-                kind: "primary_assistant"
-            },
-            messages: [{
-                "author": {
-                    "role": "user"
-                },
-                "id": uuidv4(),
-                "content": {
-                    "content_type": "text",
-                    "parts": [
-                        your_qus
-                    ]
-                },
-                "metadata":{}
-            }],
-            model: GPTModel,
-            parent_message_id: openai_parent_message_id ? openai_parent_message_id : uuidv4(),
-            suggestions: [],
-            arkose_token: null,
-            history_and_training_disabled: history_disable,
-            timezone_offset_min: new Date().getTimezoneOffset(),
-            force_paragen: false,
-            force_paragen_model_slug: "",
-            force_nulligen: false,
-            force_rate_limit: false,
-            reset_rate_limits: false,
-            websocket_request_id: uuidv4()
-        }
-        if(openai_conversation_id){
-            try {
-                Reflect.set(paramObj,"conversation_id", openai_conversation_id)
-            }catch (ex) {
-                console.error(ex)
-            }
-        }
-        console.log(paramObj)
-
-        let sendData = JSON.stringify(paramObj)
         GM_fetch({
             method: 'POST',
-            url: 'https://chatgpt.com/backend-api/conversation',
+            url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${gemini_key}`,
             headers: {
-                'authority': 'chatgpt.com',
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + accessToken,
-                "oai-device-id": oai_id,
-                "openai-sentinel-chat-requirements-token": requirements_token,
-                'openai-sentinel-proof-token':'',
-                'origin': 'https://chatgpt.com',
-                'Referer': 'https://chatgpt.com/',
+                'Content-Type': 'application/json; charset=utf-8',
+                "accept": "text/event-stream"
+                /*'Accept-Language':'zh-CN,zh;q=0.9'*/
             },
             responseType: "stream",
-            data: sendData
+            data: JSON.stringify({
+                contents: [{
+                    parts: [{ text: your_qus }],
+                }],
+            })
         }).then((stream)=> {
             let reader = stream.response.getReader()
-            let answer;
+            let answer = [];
             reader.read().then(function processText({done, value}) {
                 if (done) {
                     console.log("===done==")
-                    // addMessageChain(messageChain_openai,{
-                    //     "role": "assistant",
-                    //     "id": uuidv4(),
-                    //     "content": {
-                    //         "content_type": "text",
-                    //         "parts": [
-                    //             answer
-                    //         ]
-                    //     },
-                    //     "metadata":{}
-                    // }, 20)
+                    showAnserAndHighlightCodeStr(JSON.parse(answer.join("")).candidates[0].content.parts[0].text)
+
                     return
                 }
                 try{
-                    let responseItem = String.fromCharCode(...Array.from(value))
-                    console.log(responseItem)
-                    let items = responseItem.split('\n\n')
-                    if (items.length > 2) {
-                        let lastItem = items.slice(-3, -2)[0]
-                        if (lastItem.startsWith('data: [DONE]')) {
-                            responseItem = items.slice(-4, -3)[0]
-                        } else {
-                            responseItem = lastItem
-                        }
-                    }
-                    if (responseItem.startsWith('data: {')) {
-                        answer = JSON.parse(responseItem.slice(6)).message.content.parts[0]
-                        showAnserAndHighlightCodeStr(answer)
-                        if(JSON.parse(responseItem.slice(6)).conversation_id){
-                            openai_conversation_id = JSON.parse(responseItem.slice(6)).conversation_id
-                            openai_parent_message_id = JSON.parse(responseItem.slice(6)).message.id
-                        }
-
-                    } else if (responseItem.startsWith('data: [DONE]')) {
-
-                        // return
-                    }
+                    let responseItem = new TextDecoder("utf8").decode(new Uint8Array(value))
+                    showAnserAndHighlightCodeStr(responseItem)
+                    answer.push(responseItem)
+                    console.warn(responseItem)
                 }catch (e) {
                     console.error(e)
                 }
