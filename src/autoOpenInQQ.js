@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         QQ链接自动打开
 // @namespace    http://yeyu1024.xyz
-// @version      2.4
+// @version      2.5
 // @description  PC上使用QQ、QQ邮箱，微云文档点开链接，浏览器提示非QQ官方链接页面时自动打开对应的链接。另外支持CSDN，简书，贴吧，微博，酷安，知乎，nodeseek
 // @author       夜雨
 // @match        *://c.pc.qq.com/*
@@ -13,6 +13,7 @@
 // @match        *://*.coolapk.com/*
 // @match        *://*.jianshu.com/go-wild*
 // @match        *://link.csdn.net/*
+// @match        *://link.juejin.cn/*
 // @match        *://google.urlshare.cn/umirror_url_check*
 // @match        *://www.nodeseek.com/jump?to=*
 // @icon         https://mat1.gtimg.com/www/icon/favicon2.ico
@@ -38,6 +39,14 @@
         //debugger;
         if(!linkUrl){
             linkUrl = document.querySelector("div.safety-url").innerText;
+        }
+    }
+//https://link.juejin.cn/?target=https%3A%2F%2Fwww.jetbrains.com%2Fidea%2Fdownload%2Fother.html
+    if(location.href.includes('link.juejin.cn')){
+        linkUrl = getParams('target') ;
+        //debugger;
+        if(!linkUrl){
+            document.querySelector(".link-container").nextElementSibling.click()
         }
     }
 
