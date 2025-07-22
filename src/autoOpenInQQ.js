@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         QQ链接自动打开
 // @namespace    http://yeyu1024.xyz
-// @version      2.5
+// @version      2.6
 // @description  PC上使用QQ、QQ邮箱，微云文档点开链接，浏览器提示非QQ官方链接页面时自动打开对应的链接。另外支持CSDN，简书，贴吧，微博，酷安，知乎，nodeseek
 // @author       夜雨
 // @match        *://c.pc.qq.com/*
 // @match        *://weixin110.qq.com/cgi-bin/*
 // @match        *://link.zhihu.com/*
 // @match        *://mail.qq.com/cgi-bin/*
+// @match        *://wx.mail.qq.com/xmspamcheck/*
 // @match        *://*.bdimg.com/safecheck/*
 // @match        *://t.cn/*
 // @match        *://*.coolapk.com/*
@@ -102,7 +103,20 @@
             return;
         }catch (e) {
             console.log("exception:", e)
-            linkUrl = document.querySelector("div.safety-url").innerText;
+            try {
+                linkUrl = document.querySelector("div.safety-url").innerText;
+            }catch (e) {
+                
+            }
+        }
+
+        try{
+            document.querySelector("#accessBtn").click();
+            console.log("accessBtn: ")
+            return;
+        }catch (e) {
+            console.log("exception:", e)
+
         }
 
     }
