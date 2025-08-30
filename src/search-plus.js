@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.6
+// @version      3.6.7
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax，DeepSeek、Gemini。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -46,14 +46,14 @@
 // @grant      GM_setClipboard
 // @grant      GM_info
 // @run-at     document-end
-// @require    https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/jquery/3.4.0/jquery.min.js
+// @require    https://bowercdn.net/c/jquery-3.4.0/dist/jquery.min.js
 // @require    https://s4.zstatic.net/ajax/libs/showdown/2.1.0/showdown.min.js
 // @require    https://s4.zstatic.net/ajax/libs/highlight.js/11.7.0/highlight.min.js
 // @require    https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @require    https://s4.zstatic.net/ajax/libs/KaTeX/0.16.6/katex.min.js
-// @require    https://lf6-cdn-tos.bytecdntp.com/cdn/expire-1-M/toastr.js/2.1.4/toastr.min.js
+// @require    https://bowercdn.net/c/toastr-2.1.3/toastr.min.js
 // @require    https://s4.zstatic.net/ajax/libs/marked/13.0.2/marked.min.js
-// @resource toastCss  https://cdn.bootcdn.net/ajax/libs/toastr.js/2.1.4/toastr.min.css
+// @resource toastCss  https://cdn.bootcdn.net/ajax/libs/toastr.js/2.1.3/toastr.min.css
 // @resource katexCss  https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.6/katex.css
 // @connect    api.forchange.cn
 // @connect    hunyuan.tencent.com
@@ -164,7 +164,7 @@
     'use strict';
 
 
-    const JSver = '3.6.6';
+    const JSver = '3.6.7';
 
 
     function getGPTMode() {
