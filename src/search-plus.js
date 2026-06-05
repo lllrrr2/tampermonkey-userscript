@@ -836,39 +836,6 @@
         transform: rotate(60deg);
     }
 
-    #website{
-        margin: 8px 0 0 0;
-        padding: 12px;
-        background: #f7f8fa;
-        border-radius: 10px;
-    }
-    #website a:nth-child(odd){
-        color: #f59e0b;
-    }
-    #website a:nth-child(even){
-        color: #10b981;
-    }
-    #website a {
-        display: inline-block;
-        border: 1px solid rgba(0,0,0,0.08);
-        border-radius: 6px;
-        padding: 3px 10px;
-        margin: 0 6px 6px 0;
-        font-size: 12.5px;
-        text-decoration: none;
-        transition: all 0.2s;
-        background: #fff;
-    }
-    #website a:hover{
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    #website hr {
-        border: none;
-        border-top: 1px dashed #e0e3e8;
-        margin: 6px 0 8px;
-    }
-
     gptDiv p{
         white-space: pre-line;
     }
@@ -962,7 +929,7 @@
         'CVEOY':         () => CVEOY(),
         'TOYAML':        () => TOYAML(),
         'newBing':       () => newBing(),
-      //  'AIFREE':        () => AIFREE(),
+        'AIFREE':        () => AIFREE(),
         'OPENAI':        () => OPENAI("text-davinci-002-render-sha"),
         'OPENAI-3.5':    () => OPENAI("text-davinci-002-render-sha"),
         'Gemini':        () => Gemini(),
@@ -997,7 +964,7 @@
         }
 
         console.log("默认线路:");
-        Hunyuan('')
+        AIFREE();
     }
 
 
@@ -1041,93 +1008,103 @@
         </a>
     </div>
     <div id="gptCueBox">
-        <p class="chatHide" id="gptStatus">
-            <select id="modeSelect">
-                <option value="Default">默认接口</option>
-                <option style="display: none" value="newBing">New Bing</option>
-                <option style="display: none" value="OPENAI-3.5">OPENAI-3.5</option>
-                <option value="Gemini">Gemini-2.0</option>
-                <option value="DeepSeek">DeepSeek(满血)</option>
-                <option value="TONGYI">通义千问</option>
-                <option value="YIYAN">百度文心</option>
-                <option value="SPARK">讯飞星火</option>
-                <option value="TIANGONG">天工AI</option>
-                <option value="Hunyuan">腾讯元宝</option>
-                <option value="DeepSeekYuanBao">腾讯Deepseek(联网)</option>
-                <option value="ChatGLM">ChatGLM</option>
-                <option value="ChatGLM4">ChatGLM4</option>
-                <option value="ZhipuAI">智谱AI</option>
-                <option value="Zhinao360">360智脑</option>
-                <option value="BAICHUAN">百川AI</option>
-                <option value="miniMax">miniMax</option>
-                <option value="AIFREE">AIFREE</option>
-                <option value="chatforai">chatforai</option>
-                <option value="MixerBox">MixerBox</option>
-                <option style="display: none" value="THEBAI">XJAI</option>
-                <option value="YQCLOUD">YQCLOUD</option>
-                <option value="TDCHAT">TDCHAT</option>
-                <option value="AILS">AILS</option>
-                <option value="CVEOY">CVEOY</option>
-                <option value="TOYAML">TOYAML</option>
-            </select>
-            <span style="color:#999;font-size:12px;margin-left:4px;">部分线路需科学上网</span>
-        </p>
-        <p class="chatHide" id="warn">
-            <a id="updatePubkey" href="javascript:void(0)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M18.537 19.567A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10c0 2.136-.67 4.116-1.81 5.74L17 12h3a8 8 0 1 0-2.46 5.772l.997 1.795Z"></path></svg>
-                更新KEY
-            </a>
-            <span style="color:#999;font-size:12px;">适用于自定义、智谱、Gemini</span>
-        </p>
-        <p class="chatHide" id="autoClickP">
-            <a id="autoClick" href="javascript:void(0)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M15 4H5v16h14V8h-4V4ZM3 2.992C3 2.444 3.447 2 3.998 2H16l5 5v13.992A1 1 0 0 1 20.007 22H3.993A1 1 0 0 1 3 21.008V2.992Zm9 8.508a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5ZM7.527 17a4.5 4.5 0 0 1 8.945 0H7.527Z"></path></svg>
-                自动点击开关
-            </a>
-            <span style="color:#999;font-size:12px;">搜索时是否自动点击</span>
-        </p>
-        <p class="chatHide" id="darkThemeP">
-            <a id="darkTheme" href="javascript:void(0)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.997c-5.523 0-10-4.478-10-10c0-5.523 4.477-10 10-10s10 4.477 10 10c0 5.522-4.477 10-10 10Zm0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2v-12a6 6 0 0 1 0 12Z"></path></svg>
-                暗黑模式开关
-            </a>
-            <span style="color:#999;font-size:12px;">切换暗黑/白天模式</span>
-        </p>
-        <p class="chatHide" id="autoTipsP">
-            <a id="autoTips" href="javascript:void(0)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path d="M12,2c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9S16.97,2,12,2z M12,18c-3.86,0-7-3.14-7-7s3.14-7,7-7s7,3.14,7,7S15.86,18,12,18z" fill="currentColor"></path>
-                    <circle cx="12" cy="12" r="5" fill="#ffd700"></circle>
-                </svg>
-                自动提示开关
-            </a>
-            <span style="color:#999;font-size:12px;">输入时是否显示搜索建议</span>
-        </p>
-        <div class="chatHide" id="website">
-            <hr>
-            <a target="_blank" href="https://chat.deepseek.com/">DeepSeek</a>
-            <a target="_blank" href="https://yiyan.baidu.com/">文心</a>
-            <a target="_blank" href="https://qianwen.aliyun.com/">通义</a>
-            <a target="_blank" href="https://www.tiangong.cn/">天工</a>
-            <a target="_blank" href="https://xinghuo.xfyun.cn/">讯飞</a>
-            <a target="_blank" href="https://hunyuan.tencent.com/">元宝</a>
-            <a target="_blank" href="https://www.doubao.com/chat/">豆包</a>
-            <hr>
-            <a target="_blank" href="https://chatgpt.com">OpenAI</a>
-            <a target="_blank" href="https://www.bing.com/search?q=Bing+AI&showconv=1">Bing</a>
-            <a target="_blank" href="https://gemini.google.com/app">Gemini</a>
-            <a target="_blank" href="https://claude.ai/">Claude</a>
-            <a target="_blank" href="https://chatglm.cn/chat">GLM</a>
-            <a target="_blank" href="https://www.baichuan-ai.com/">百川</a>
-            <hr>
-            <a target="_blank" href="https://kimi.moonshot.cn/">Kimi</a>
-            <a target="_blank" href="https://chat.360.cn/">360智脑</a>
-            <a target="_blank" href="https://chat.sensetime.com/">商量</a>
-            <a target="_blank" href="https://poe.com/">Poe</a>
-            <a target="_blank" href="https://taichu-web.ia.ac.cn/#/chat">紫东</a>
-            <hr>
-            <a target="_blank" href="https://greasyfork.org/scripts/459997">🔄 更新</a>
-            <a href="https://q1.qlogo.cn/g?b=qq&nk=2471543762&s=640">❤️ 用爱发电</a>
+        <div id="settingsPanel" class="chatHide">
+            <!-- 线路选择 -->
+            <div class="sp-section">
+                <div class="sp-section-title">🌐 AI 线路</div>
+                <div id="gptStatus">
+                    <select id="modeSelect">
+                        <option value="Default">默认接口</option>
+                        <option style="display:none" value="newBing">New Bing</option>
+                        <option style="display:none" value="OPENAI-3.5">OPENAI-3.5</option>
+                        <option value="Gemini">Gemini-2.0</option>
+                        <option value="DeepSeek">DeepSeek(满血)</option>
+                        <option value="TONGYI">通义千问</option>
+                        <option value="YIYAN">百度文心</option>
+                        <option value="SPARK">讯飞星火</option>
+                        <option value="TIANGONG">天工AI</option>
+                        <option value="Hunyuan">腾讯元宝</option>
+                        <option value="DeepSeekYuanBao">腾讯Deepseek(联网)</option>
+                        <option value="ChatGLM">ChatGLM</option>
+                        <option value="ChatGLM4">ChatGLM4</option>
+                        <option value="ZhipuAI">智谱AI</option>
+                        <option value="Zhinao360">360智脑</option>
+                        <option value="BAICHUAN">百川AI</option>
+                        <option value="miniMax">miniMax</option>
+                        <option value="AIFREE">AIFREE</option>
+                        <option value="chatforai">chatforai</option>
+                        <option value="MixerBox">MixerBox</option>
+                        <option style="display:none" value="THEBAI">XJAI</option>
+                        <option value="YQCLOUD">YQCLOUD</option>
+                        <option value="TDCHAT">TDCHAT</option>
+                        <option value="AILS">AILS</option>
+                        <option value="CVEOY">CVEOY</option>
+                        <option value="TOYAML">TOYAML</option>
+                    </select>
+                    <span class="sp-hint">部分线路需科学上网</span>
+                </div>
+                <div id="warn">
+                    <a id="updatePubkey" href="javascript:void(0)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M18.537 19.567A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10c0 2.136-.67 4.116-1.81 5.74L17 12h3a8 8 0 1 0-2.46 5.772l.997 1.795Z"></path></svg>
+                        更新KEY
+                    </a>
+                    <span class="sp-hint">适用于智谱 / Gemini / miniMax</span>
+                </div>
+            </div>
+            <!-- 功能开关 -->
+            <div class="sp-section">
+                <div class="sp-section-title">⚙️ 功能设置</div>
+                <div class="sp-row" id="autoClickP">
+                    <a id="autoClick" href="javascript:void(0)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M15 4H5v16h14V8h-4V4ZM3 2.992C3 2.444 3.447 2 3.998 2H16l5 5v13.992A1 1 0 0 1 20.007 22H3.993A1 1 0 0 1 3 21.008V2.992Zm9 8.508a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5ZM7.527 17a4.5 4.5 0 0 1 8.945 0H7.527Z"></path></svg>
+                        自动点击
+                    </a>
+                    <span class="sp-status" id="autoClickStatus">${localStorage.getItem("autoClick") ? "已开启" : "已关闭"}</span>
+                </div>
+                <div class="sp-row" id="darkThemeP">
+                    <a id="darkTheme" href="javascript:void(0)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.997c-5.523 0-10-4.478-10-10c0-5.523 4.477-10 10-10s10 4.477 10 10c0 5.522-4.477 10-10 10Zm0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2v-12a6 6 0 0 1 0 12Z"></path></svg>
+                        暗黑模式
+                    </a>
+                    <span class="sp-status" id="darkThemeStatus">${darkTheme ? "已关闭" : "已开启"}</span>
+                </div>
+                <div class="sp-row" id="autoTipsP">
+                    <a id="autoTips" href="javascript:void(0)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                            <path d="M12,2c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9S16.97,2,12,2z M12,18c-3.86,0-7-3.14-7-7s3.14-7,7-7s7,3.14,7,7S15.86,18,12,18z" fill="currentColor"></path>
+                            <circle cx="12" cy="12" r="5" fill="#ffd700"></circle>
+                        </svg>
+                        搜索建议
+                    </a>
+                    <span class="sp-status" id="autoTipsStatus">${autoTips === 'on' ? "已开启" : "已关闭"}</span>
+                </div>
+            </div>
+            <!-- 快捷入口 -->
+            <div class="sp-section" id="website">
+                <div class="sp-section-title">🔗 AI 官网</div>
+                <div class="sp-links">
+                    <a target="_blank" href="https://chat.deepseek.com/">DeepSeek</a>
+                    <a target="_blank" href="https://yiyan.baidu.com/">文心</a>
+                    <a target="_blank" href="https://qianwen.aliyun.com/">通义</a>
+                    <a target="_blank" href="https://www.tiangong.cn/">天工</a>
+                    <a target="_blank" href="https://xinghuo.xfyun.cn/">讯飞</a>
+                    <a target="_blank" href="https://hunyuan.tencent.com/">元宝</a>
+                    <a target="_blank" href="https://www.doubao.com/chat/">豆包</a>
+                    <a target="_blank" href="https://kimi.moonshot.cn/">Kimi</a>
+                    <a target="_blank" href="https://chatgpt.com">OpenAI</a>
+                    <a target="_blank" href="https://gemini.google.com/app">Gemini</a>
+                    <a target="_blank" href="https://claude.ai/">Claude</a>
+                    <a target="_blank" href="https://chatglm.cn/chat">GLM</a>
+                    <a target="_blank" href="https://poe.com/">Poe</a>
+                    <a target="_blank" href="https://chat.360.cn/">360智脑</a>
+                </div>
+                <div class="sp-footer-links">
+                    <a target="_blank" href="https://greasyfork.org/scripts/459997">🔄 更新脚本</a>
+                    <a href="https://q1.qlogo.cn/g?b=qq&nk=2471543762&s=640">❤️ 用爱发电</a>
+                    <a target="_blank" href="https://www.bing.com/search?q=Bing+AI&showconv=1">Bing</a>
+                    <a target="_blank" href="https://www.baichuan-ai.com/">百川</a>
+                </div>
+            </div>
         </div>
         <article id="gptAnswer" class="markdown-body">
             <div id="gptAnswer_inner">
@@ -1305,24 +1282,30 @@
             if(autoClick){
                 localStorage.removeItem("autoClick")
                 autoClick = undefined;
+                document.getElementById('autoClickStatus').textContent = '已关闭';
+                document.getElementById('autoClickStatus').classList.remove('sp-on');
                 Toast.error("自动点击已经关闭")
             }else{
                 localStorage.setItem("autoClick", "开启")
-                autoClick = "开启"
+                autoClick = "开启";
+                document.getElementById('autoClickStatus').textContent = '已开启';
+                document.getElementById('autoClickStatus').classList.add('sp-on');
                 Toast.success("自动点击已经开启")
             }
         })
 
         document.getElementById('autoTips').addEventListener('click', () => {
             if(autoTips === 'on'){
-                //关闭
                 localStorage.setItem("autoTips", "off")
-                autoTips = "off"
+                autoTips = "off";
+                document.getElementById('autoTipsStatus').textContent = '已关闭';
+                document.getElementById('autoTipsStatus').classList.remove('sp-on');
                 Toast.error("自动提示已关")
             }else{
-                //开启
                 localStorage.setItem("autoTips", "on")
-                autoTips = "on"
+                autoTips = "on";
+                document.getElementById('autoTipsStatus').textContent = '已开启';
+                document.getElementById('autoTipsStatus').classList.add('sp-on');
                 Toast.success("自动提示已开启")
             }
         })
@@ -1336,10 +1319,14 @@
             if(darkTheme){
                 localStorage.removeItem("darkTheme")
                 darkTheme = undefined;
+                document.getElementById('darkThemeStatus').textContent = '已开启';
+                document.getElementById('darkThemeStatus').classList.add('sp-on');
                 Toast.success("暗黑已经开启")
             }else{
                 localStorage.setItem("darkTheme", "关闭")
-                darkTheme = "关闭"
+                darkTheme = "关闭";
+                document.getElementById('darkThemeStatus').textContent = '已关闭';
+                document.getElementById('darkThemeStatus').classList.remove('sp-on');
                 Toast.error("暗黑已经关闭")
             }
         })
@@ -1484,34 +1471,12 @@
         });
 
         let chatSetting = false;
+        const settingsPanel = document.getElementById('settingsPanel');
         document.getElementById('chatSetting').addEventListener('click', () => {
-            if(!chatSetting){
-                //显示内容
-                try{
-                    document.querySelector("#gptStatus").classList.remove("chatHide")
-                    document.querySelector("#warn").classList.remove("chatHide")
-                    document.querySelector("#autoClickP").classList.remove("chatHide")
-                    document.querySelector("#darkThemeP").classList.remove("chatHide")
-                    document.querySelector("#website").classList.remove("chatHide")
-                    document.querySelector("#autoTipsP").classList.remove("chatHide")
-                }catch (e) {
-                    console.log(e)
-                }
-                chatSetting = true;
-            }else{
-                //隐藏
-                try{
-                    document.querySelector("#gptStatus").classList.add("chatHide")
-                    document.querySelector("#warn").classList.add("chatHide")
-                    document.querySelector("#autoClickP").classList.add("chatHide")
-                    document.querySelector("#darkThemeP").classList.add("chatHide")
-                    document.querySelector("#website").classList.add("chatHide")
-                    document.querySelector("#autoTipsP").classList.add("chatHide")
-                }catch (e) {
-                    console.log(e)
-                }
-                chatSetting = false;
-            }
+            chatSetting = !chatSetting;
+            settingsPanel.classList.toggle('chatHide', !chatSetting);
+            // 更新齿轮图标旋转状态
+            document.getElementById('chatSetting').classList.toggle('sp-active', chatSetting);
         })
 
     }
@@ -1854,29 +1819,149 @@
         100% { transform: rotate(360deg); }
     }
 
-    /* 设置区域选项样式 */
-    #gptCueBox p a,
-    #gptCueBox #warn a,
-    #gptCueBox #autoClickP a,
-    #gptCueBox #darkThemeP a,
-    #gptCueBox #autoTipsP a{
+    /* ===== 设置面板 ===== */
+    #settingsPanel{
+        margin-top: 10px;
+        border: 1px solid #ebedf0;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fafbfc;
+        animation: sp-slide 0.25s ease;
+    }
+    @keyframes sp-slide{
+        from { opacity: 0; transform: translateY(-8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .sp-section{
+        padding: 10px 14px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .sp-section:last-child{
+        border-bottom: none;
+    }
+    .sp-section-title{
+        font-size: 11px;
+        font-weight: 600;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+    }
+    /* 线路选择 */
+    #gptStatus{
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .sp-hint{
+        color: #bbb;
+        font-size: 11.5px;
+    }
+    /* 功能开关行 */
+    .sp-row{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 5px 0;
+    }
+    .sp-row a{
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
+        color: #333;
+        font-size: 13px;
+        padding: 5px 10px;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    .sp-row a:hover{
+        background: rgba(78,110,242,0.06);
+        color: #4e6ef2;
+    }
+    .sp-status{
+        font-size: 11.5px;
+        padding: 2px 10px;
+        border-radius: 20px;
+        background: #f0f0f0;
+        color: #999;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    .sp-status.sp-on{
+        background: #e8f5e9;
+        color: #43a047;
+    }
+    /* 更新KEY行 */
+    #warn{
+        margin: 6px 0 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    #warn a{
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         color: #4e6ef2;
         font-size: 13px;
-        padding: 6px 10px;
+        padding: 4px 10px;
         border-radius: 8px;
         transition: all 0.2s;
     }
-    #gptCueBox p a:hover{
+    #warn a:hover{
         background: rgba(78,110,242,0.06);
     }
-    #gptCueBox p{
-        margin: 4px 0 !important;
-        padding: 2px 0;
-        color: #666;
-        font-size: 13px;
+    /* 网站链接 */
+    .sp-links{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .sp-links a{
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        text-decoration: none;
+        border: 1px solid #e8e8e8;
+        background: #fff;
+        color: #555;
+        transition: all 0.2s;
+    }
+    .sp-links a:hover{
+        border-color: #4e6ef2;
+        color: #4e6ef2;
+        background: #f0f4ff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(78,110,242,0.1);
+    }
+    .sp-footer-links{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px dashed #e8e8e8;
+    }
+    .sp-footer-links a{
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        text-decoration: none;
+        color: #888;
+        transition: all 0.2s;
+    }
+    .sp-footer-links a:hover{
+        color: #4e6ef2;
+        background: rgba(78,110,242,0.04);
+    }
+    /* 齿轮旋转 */
+    #chatSetting.sp-active svg{
+        transform: rotate(90deg);
     }
     `);
     }
