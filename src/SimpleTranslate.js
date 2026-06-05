@@ -2,7 +2,7 @@
 // @name         网页中英双显互译
 // @name:en      Translation between Chinese and English
 // @namespace    http://yeyu1024.xyz
-// @version      1.8.9
+// @version      1.9.0
 // @description  中-英-外互转，双语显示。支持谷歌，微软等API，为用户提供了快速准确的中英文翻译服务。无论是在工作中处理文件、学习外语、还是在日常生活中与国际友人交流，这个脚本都能够帮助用户轻松应对语言障碍。通过简单的操作，用户只需点击就会立即把网页翻译，节省了用户手动查词或使用在线翻译工具的时间，提高工作效率。
 // @description:en  Web pages translated into Chinese, English and foreign languages
 // @description:de  Webseite in Chinesisch, Englisch, Fremdsprachen
@@ -227,6 +227,38 @@
         }
 
     }
+
+    // 引擎列表数据（统一管理，消除重复）
+    const engineList = [
+        { name: '微软', api: APIConst.MicrosoftAPI, tag: '推荐', tagColor: '#4caf50', toast: '已经切换微软翻译' },
+        { name: '谷歌', api: APIConst.GoogleAPI, tag: '推荐', tagColor: '#4caf50', toast: '已经切换谷歌翻译' },
+        { name: '腾讯交互', api: APIConst.TransmartWebAPI, tag: '推荐', tagColor: '#4caf50', toast: '已经切换腾讯交互式翻译.需鉴权', openUrl: 'https://transmart.qq.com/' },
+        { name: '有道手机', api: APIConst.YoudaoMobileWebAPI, tag: '推荐', tagColor: '#4caf50', toast: '已经切换有道手机翻译' },
+        { name: '百度', api: APIConst.BaiduAPI, tag: '需key', tagColor: '#ff9800', toast: '已经切换百度翻译,未配置api需源码中修改秘钥' },
+        { name: '有道', api: APIConst.YoudaoAPI, tag: '需key', tagColor: '#ff9800', toast: '已经切换有道翻译，未配置api key 需要到源码中修改秘钥' },
+        { name: '讯飞', api: APIConst.XunfeiAPI, tag: '需key', tagColor: '#ff9800', toast: '已经切换讯飞API版, 未配置api key 需要到源码中修改秘钥' },
+        { name: '搜狗', api: APIConst.SogouWebAPI, tag: '', tagColor: '', toast: '已经切换搜狗翻译' },
+        { name: '词霸', api: APIConst.ICIBAWebAPI, tag: '', tagColor: '', toast: '已经切换词霸翻译' },
+        { name: '沪江小D', api: APIConst.HujiangWebAPI, tag: '', tagColor: '', toast: '已经切换沪江翻译', openUrl: 'https://dict.hjenglish.com/app/trans' },
+        { name: '彩云', api: APIConst.CaiyunWebAPI, tag: '', tagColor: '', toast: '已经切换彩云翻译' },
+        { name: 'Alibaba', api: APIConst.AlibabaWebAPI, tag: '', tagColor: '', toast: '已经切换阿里翻译' },
+        { name: 'Papago', api: APIConst.PapagoWebAPI, tag: '', tagColor: '', toast: '已经切换Papago翻译' },
+        { name: '百度手机', api: APIConst.BaiduMobileWebAPI, tag: '', tagColor: '', toast: '已经切换百度翻译手机版 web' },
+        { name: 'worldlinGO', api: APIConst.WorldlingoAPI, tag: '', tagColor: '', toast: '已经切换WorldlinGo翻译' },
+        { name: 'DeepL', api: APIConst.DeepLWebAPI, tag: '限制', tagColor: '#f44336', toast: '已经切换DeepL Web翻译(有ip次数限制)' },
+        { name: '易翻通', api: APIConst.FlittoWebAPI, tag: '', tagColor: '', toast: '已经切换易翻通 web' },
+        { name: 'Yandex', api: APIConst.YandexWebAPI, tag: '', tagColor: '', toast: '已经切换Yandex翻译', openUrl: 'https://translate.yandex.com/' },
+        { name: '福昕', api: APIConst.FuxiWebAPI, tag: '', tagColor: '', toast: '已经切换福昕翻译 web' },
+        { name: 'CNKI', api: APIConst.CNKIWebAPI, tag: '', tagColor: '', toast: '已经切换CNKI web', openUrl: 'https://dict.cnki.net/index' },
+        { name: '金山快译', api: APIConst.WPSKuaiyiWebAPI, tag: '', tagColor: '', toast: '已经切换金山快译', openUrl: 'https://kuaiyi.wps.cn' },
+    ];
+
+    // 获取当前引擎在 engineList 中的索引
+    function getCurrentEngineIndex() {
+        const idx = engineList.findIndex(e => e.api.name === currentAPI.name);
+        return idx >= 0 ? idx : 0;
+    }
+
     let TRANSMART_CLIENT_KEY = '';
 
     let currentAPI = APIConst.MicrosoftAPI //默认微软
@@ -571,118 +603,99 @@
     }
 
     function colorSelectAndSettings(event) {
-        $("body").append(`<div class="MyColorSelector" style="z-index: 9999 !important;padding:16px;position: fixed;border-radius: 4px;border: 1px salmon solid;top: 10%;bottom: 10%;left: 50%;transform: translateX(-50%);background: white;box-shadow: rgba(0, 0, 0, 0.15) 2px 2px 5px;overflow-y: scroll;" id="MyColorSelector">
-        <div>
-          <label for="redRange">红/Red:</label>
-          <input type="range" id="redRange" min="0" max="255" value="0" onchange="document.getElementById('redval').innerHTML = value">
-          <span style="color: red" id="redval">0</span>
-        </div>
-        <div>
-          <label for="greenRange">绿/Green:</label>
-          <input type="range" id="greenRange" min="0" max="255" value="0" onchange="document.getElementById('greenval').innerHTML = value">
-           <span style="color: green" id="greenval">0</span>
-        </div>
-        <div>
-          <label for="blueRange">蓝/Blue:</label>
-          <input type="range" id="blueRange" min="0" max="255" value="0" onchange="document.getElementById('blueval').innerHTML = value">
-           <span style="color: blue" id="blueval">0</span>
-        </div>
-        <div>
-          <div style=" width: 50px; height: 50px; margin-top: 10px;margin-bottom: 10px;margin-left: 20px" id="colorDisplay"></div>
-          <div style="font-size: 30px;" id="colorPreview">文字预览</div>
-        </div>
-        <button style="cursor: pointer;color: white;border: 6px;outline: none;background: #4caf50;padding: 8px 0;border-radius: 6px;font-size: 14px;margin: 0 auto;margin-top: 6px;width: 70px;" id="selectColorBtn">确定</button>
-        <button style="cursor: pointer;color: white;border: 6px;outline: none;background: #4caf50;padding: 8px 0;border-radius: 6px;font-size: 14px;margin: 0 auto;margin-top: 6px;width: 70px;" id="scrollBtn">滚动</button>
-        <button style="cursor: pointer;color: white;border: 6px;outline: none;background: #4caf50;padding: 8px 0;border-radius: 6px;font-size: 14px;margin: 0 auto;margin-top: 6px;width: 70px;" id="selectColorCancelBtn">退出</button>
-         <div><span style="margin-top: 10px">温馨提示：在输入框时,连续按三下空格键即可翻译输入框的内容.</span></div>
-            <div><span>翻译引擎:</span>
-              <select id="selectAPI">
-                  <option value="999">微软[推荐]</option>
-                  <option value="0">百度[需key]</option>
-                  <option value="1">谷歌[推荐]</option>
-                  <option value="2">搜狗</option>
-                  <option value="3">词霸</option>
-                  <option value="4">沪江小D</option>
-                  <option value="5">有道[需key]</option>
-                  <option value="6">彩云</option>
-                  <option value="7">腾讯交互[推荐]</option>
-                  <option value="8">Alibaba</option>
-                  <option value="9">Papago</option>
-                  <option value="10">有道手机[推荐]</option>
-                  <option value="11">worldlinGO</option>
-                  <option value="12">DeepL[限制]</option>
-                  <option value="13">百度手机</option>
-                  <option value="14">易翻通</option>
-                  <option value="15">Yandex</option>
-                  <option value="16">福昕</option>
-                  <option value="17">CNKI</option>
-                  <option  value="18">讯飞[需key]</option>
-                  <option style="display: none" value="19">金山快译</option>
-              </select>
-               <button style="cursor: pointer;color: white;border: 6px;outline: none;background: #4caf50;padding: 8px 0;border-radius: 6px;font-size: 14px;margin: 0 auto;margin-top: 6px;width: 70px;" id="selectAPIBtn">选择</button>
+        $("body").append(`<div class="MyColorSelector" style="z-index:9999 !important;padding:20px;position:fixed;border-radius:12px;border:none;top:10%;bottom:10%;left:50%;transform:translateX(-50%);background:#fff;box-shadow:0 8px 32px rgba(0,0,0,0.18);overflow-y:auto;width:340px;" id="MyColorSelector">
+
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:16px;font-weight:bold;color:#333;margin-bottom:12px;">译文高亮颜色</div>
+          <div style="display:inline-flex;align-items:center;gap:12px;">
+            <input type="color" id="nativeColorPicker" value="${highlightColor || '#d8551f'}" style="width:48px;height:48px;border:none;border-radius:8px;cursor:pointer;padding:0;background:none;">
+            <div style="text-align:left;">
+              <div id="colorDisplay" style="width:80px;height:32px;border-radius:6px;border:1px solid #eee;margin-bottom:4px;"></div>
+              <div id="colorHex" style="font-size:12px;color:#888;font-family:monospace;"></div>
             </div>
-         <div><span style="margin-top: 10px">注意:外语目前仅适用部分引擎，语言代码可能会存在差异,其他默认英语.</span></div>
-            <div><span>外语语言:</span>
-              <select id="selectForeign">
-                  <option value="en">英语(en)</option>
-                  <option value="ja">日语(ja)</option>
-                  <option value="ko">韩语(ko)</option>
-                  <option value="ru">俄语(ru)</option>
-                  <option value="de">徳语(de)</option>
-                  <option value="fr">法语(fr)</option>
-                  <option value="th">泰语(th)</option>
-                  <option value="hi">印地(hi)</option>
-                  <option value="it">意大利(it)</option>
-                  <option value="pt">葡萄牙(pt)</option>
-                  <option value="ar">阿拉伯(ar)</option>
-                  <option value="vi">越南语(vi)</option>
-                  <option value="tr">土耳其(tr)</option>
-                  <option value="id">印尼(id)</option>
-                  <option value="zh">中文(zh)</option>
-                  <option value="zh-Hans">中文(zh-Hans)</option>
-                  <option value="zh-CN">中文(zh-CN)</option>
-                  <option value="zh_cn">中文(zh_cn)</option>
-                  <option value="zh-CHS">中文(zh-CHS)</option>
-                  <option value="cn">中文(cn)</option>
-                  <option value="zh-TW">中文繁体(zh-TW)</option>
-              </select>
-               <button style="cursor: pointer;color: white;border: 6px;outline: none;background: #4caf50;padding: 8px 0;border-radius: 6px;font-size: 14px;margin: 0 auto;margin-top: 6px;width: 70px;" id="selectForeignBtn">选择</button>
-            </div>
+          </div>
+          <div id="colorPreview" style="font-size:22px;margin-top:10px;font-weight:500;">译文预览效果</div>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
+          <button id="selectColorBtn" style="cursor:pointer;color:#fff;border:none;outline:none;background:#4caf50;padding:8px 20px;border-radius:6px;font-size:13px;">保存</button>
+          <button id="scrollBtn" style="cursor:pointer;color:#fff;border:none;outline:none;background:#2196f3;padding:8px 20px;border-radius:6px;font-size:13px;">滚动翻译</button>
+          <button id="selectColorCancelBtn" style="cursor:pointer;color:#666;border:none;outline:none;background:#f0f0f0;padding:8px 20px;border-radius:6px;font-size:13px;">关闭</button>
+        </div>
+
+        <div style="background:#fffde7;border-radius:6px;padding:8px 10px;font-size:12px;color:#666;margin-bottom:16px;">
+          💡 提示：输入框中连按三下空格可翻译内容
+        </div>
+
+        <div style="border-top:1px solid #eee;padding-top:14px;margin-bottom:14px;">
+          <div style="font-weight:bold;margin-bottom:10px;font-size:15px;color:#333;">翻译引擎</div>
+          <div id="engineGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            ${engineList.map((e, i) => {
+            const isCurrent = e.api.name === currentAPI.name;
+            const bgColor = isCurrent ? '#e8f5e9' : '#fff';
+            const borderColor = isCurrent ? '#4caf50' : '#e0e0e0';
+            const shadow = isCurrent ? '0 0 0 1px #4caf50' : 'none';
+            const tagHtml = e.tag ? `<span style="display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;color:white;background:${e.tagColor};margin-top:3px;">${e.tag}</span>` : '';
+            const checkMark = isCurrent ? '<span style="color:#4caf50;font-size:11px;">✓ </span>' : '';
+            return `<div class="engine-card" data-engine-index="${i}" style="cursor:pointer;padding:10px 6px;border-radius:8px;text-align:center;border:1.5px solid ${borderColor};background:${bgColor};box-shadow:${shadow};user-select:none;">
+                    <div style="font-size:13px;line-height:1.4;color:#333;">${checkMark}${e.name}</div>
+                    ${tagHtml}
+                </div>`;
+        }).join('')}
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #eee;padding-top:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="font-size:14px;color:#333;">外语语言：</span>
+            <select id="selectForeign" style="flex:1;padding:6px 8px;border:1px solid #ddd;border-radius:6px;font-size:13px;outline:none;">
+              <option value="en">英语 (en)</option>
+              <option value="ja">日语 (ja)</option>
+              <option value="ko">韩语 (ko)</option>
+              <option value="ru">俄语 (ru)</option>
+              <option value="de">德语 (de)</option>
+              <option value="fr">法语 (fr)</option>
+              <option value="th">泰语 (th)</option>
+              <option value="hi">印地语 (hi)</option>
+              <option value="it">意大利语 (it)</option>
+              <option value="pt">葡萄牙语 (pt)</option>
+              <option value="ar">阿拉伯语 (ar)</option>
+              <option value="vi">越南语 (vi)</option>
+              <option value="tr">土耳其语 (tr)</option>
+              <option value="id">印尼语 (id)</option>
+              <option value="zh">中文 (zh)</option>
+              <option value="zh-Hans">中文简体 (zh-Hans)</option>
+              <option value="zh-TW">中文繁体 (zh-TW)</option>
+            </select>
+            <button id="selectForeignBtn" style="cursor:pointer;color:#fff;border:none;outline:none;background:#4caf50;padding:7px 14px;border-radius:6px;font-size:13px;white-space:nowrap;">应用</button>
+          </div>
+          <div style="font-size:11px;color:#999;">仅部分引擎支持外语切换</div>
+        </div>
+
         </div>
         `);
         const MyColorSelector = document.getElementById("MyColorSelector");
-        const redRange = document.getElementById("redRange");
-        const greenRange = document.getElementById("greenRange");
-        const blueRange = document.getElementById("blueRange");
+        const nativeColorPicker = document.getElementById("nativeColorPicker");
         const colorDisplay = document.getElementById("colorDisplay");
+        const colorHex = document.getElementById("colorHex");
         const colorPreview = document.getElementById("colorPreview");
         const selectColorBtn = document.getElementById("selectColorBtn");
         const selectColorCancelBtn = document.getElementById("selectColorCancelBtn");
-        const selectAPIBtn = document.getElementById("selectAPIBtn");
         const scrollBtn = document.getElementById("scrollBtn");
         const selectForeignBtn = document.getElementById("selectForeignBtn");
 
-        // 更新颜色显示区域的颜色
-        function updateColorDisplay() {
-            const redValue = redRange.value;
-            const greenValue = greenRange.value;
-            const blueValue = blueRange.value;
-
-            const selectedColor = `rgb(${redValue},${greenValue},${blueValue})`;
-            colorDisplay.style.backgroundColor = selectedColor;
-            colorPreview.style.color = selectedColor
+        // 颜色预览更新
+        function updateColorDisplay(hexColor) {
+            colorDisplay.style.backgroundColor = hexColor;
+            colorHex.textContent = hexColor;
+            colorPreview.style.color = hexColor;
         }
+        // 初始化预览
+        updateColorDisplay(nativeColorPicker.value);
+        nativeColorPicker.addEventListener("input", (e) => updateColorDisplay(e.target.value));
 
-        // 添加滑块的 input 事件处理程序
-        redRange.addEventListener("input", updateColorDisplay);
-        greenRange.addEventListener("input", updateColorDisplay);
-        blueRange.addEventListener("input", updateColorDisplay);
         selectColorBtn.addEventListener("click", (ev)=>{
-            const redValue = redRange.value;
-            const greenValue = greenRange.value;
-            const blueValue = blueRange.value;
-            const selectedColor = `rgb(${redValue},${greenValue},${blueValue})`;
-            GM_setValue("highlightColor", selectedColor)
+            GM_setValue("highlightColor", nativeColorPicker.value)
             Toast.success("请重新刷新页面生效!")
             MyColorSelector.remove()
         });
@@ -707,14 +720,13 @@
             }
         })
 
-        //选择引擎
-        selectAPIBtn.addEventListener('click', () => {
-            const selectEl = document.getElementById('selectAPI');
-            const selectedValue = selectEl.options[selectEl.selectedIndex].value;
-            switchIndex = selectedValue
-            switchAPI(true)
-            MyColorSelector.remove() //退出
-
+        //选择引擎（卡片点击）
+        document.getElementById('engineGrid').addEventListener('click', (ev) => {
+            const card = ev.target.closest('.engine-card');
+            if (!card) return;
+            const idx = parseInt(card.dataset.engineIndex);
+            switchAPI(true, idx);
+            MyColorSelector.remove();
         });
 
         //选择外语语种
@@ -734,16 +746,10 @@
 
         });
 
-        // 初始化颜色显示
-        updateColorDisplay();
-
-        //加载预览色
-        colorDisplay.style.backgroundColor = highlightColor;
-        colorPreview.style.color = highlightColor
-
         //提示当前引擎
         try {
-            Toast.info(`当前API:${currentAPI.name}`)
+            const curEngine = engineList[getCurrentEngineIndex()];
+            Toast.info(`当前引擎: ${curEngine.name}`)
         } catch (e) {}
     }
 
@@ -789,10 +795,10 @@
 
         //载入腾讯
         setTimeout(()=>{
-          if(location.host.includes("transmart.qq.com")){
-              GM_setValue("TRANSMART_CLIENT_KEY", unsafeWindow.TRANSMART_CLIENT_KEY)
-              Toast.info(`获取权信息${unsafeWindow.TRANSMART_CLIENT_KEY}，请返回重新:`)
-          }
+            if(location.host.includes("transmart.qq.com")){
+                GM_setValue("TRANSMART_CLIENT_KEY", unsafeWindow.TRANSMART_CLIENT_KEY)
+                Toast.info(`获取权信息${unsafeWindow.TRANSMART_CLIENT_KEY}，请返回重新:`)
+            }
         },3000)
 
         TRANSMART_CLIENT_KEY = await GM_getValue("TRANSMART_CLIENT_KEY", `browser-chrome-122.0.6261-Windows_10-${uuidv4()}-${Date.now()}`)
@@ -814,9 +820,9 @@
             }
         })
         try {
-            switchIndex = await GM_getValue("switchIndex", 0) - 1
-            console.warn("switchIndex", switchIndex)
-            switchAPI(false)
+            const savedIndex = await GM_getValue("switchIndex", 0)
+            console.warn("switchIndex", savedIndex)
+            switchAPI(false, savedIndex)
         } catch (ex) {
             switchIndex = 0;
             console.error("switchIndex ex:", switchIndex, ex)
@@ -980,124 +986,26 @@
     }
 
 
-    function switchAPI(openWeb) {
-        switchIndex++;
+    // 切换引擎：传入索引直接切换，不传则切换到下一个
+    function switchAPI(openWeb, targetIndex) {
         try {
-            switch (switchIndex) {
-                case 1:
-                    currentAPI = APIConst.BaiduAPI
-                    Toast.success('已经切换百度翻译,未配置api需源码中修改秘钥.建议申请自己的秘钥，详见：https://fanyi-api.baidu.com/')
-                    break
-                case 2:
-                    currentAPI = APIConst.GoogleAPI
-                    Toast.success('已经切换谷歌翻译')
-                    break
-                case 3:
-                    currentAPI = APIConst.SogouWebAPI
-                    Toast.success('已经切换搜狗翻译')
-                    break
-                case 4:
-                    currentAPI = APIConst.ICIBAWebAPI
-                    Toast.success('已经切换词霸翻译')
-                    break
-                case 5:
-                    currentAPI = APIConst.HujiangWebAPI
-                    Toast.success('已经切换沪江翻译')
-                    if(openWeb){
-                        try {
-                            GM_openInTab("https://dict.hjenglish.com/app/trans")
-                        }catch (e) { }
-                    }
-                    break
-                case 6:
-                    currentAPI = APIConst.YoudaoAPI
-                    Toast.success('已经切换有道翻译，未配置api key 需要到源码中修改秘钥.建议申请自己的秘钥 进行修改，详见：https://ai.youdao.com/console/#/service-singleton/text-translation')
-                    break
-                case 7:
-                    currentAPI = APIConst.CaiyunWebAPI
-                    Toast.success('已经切换彩云翻译')
-                    break
-                case 8:
-                    currentAPI = APIConst.TransmartWebAPI
-                    Toast.success('已经切换腾讯交互式翻译.需鉴权')
-                    if(openWeb){
-                        try {
-                            GM_openInTab("https://transmart.qq.com/")
-                        }catch (e) {
-                            location.href = 'https://transmart.qq.com/'
-                        }
-                    }
-                    break
-                case 9:
-                    currentAPI = APIConst.AlibabaWebAPI
-                    Toast.success('已经切换阿里翻译')
-                    break
-                case 10:
-                    currentAPI = APIConst.PapagoWebAPI
-                    Toast.success('已经切换Papago翻译')
-                    break
-                case 11:
-                    currentAPI = APIConst.YoudaoMobileWebAPI
-                    Toast.success('已经切换有道手机翻译')
-                    break
-                case 12:
-                    currentAPI = APIConst.WorldlingoAPI
-                    Toast.success('已经切换WorldlinGo翻译')
-                    break
-                case 13:
-                    currentAPI = APIConst.DeepLWebAPI
-                    Toast.success('已经切换DeepL Web翻译(有ip次数限制)')
-                    break
-                case 14:
-                    currentAPI = APIConst.BaiduMobileWebAPI
-                    Toast.success('已经切换百度翻译手机版 web')
-                    break
-                case 15:
-                    currentAPI = APIConst.FlittoWebAPI
-                    Toast.success('已经切换易翻通 web')
-                    break
-                case 16:
-                    currentAPI = APIConst.YandexWebAPI
-                    Toast.success('已经切换Yandex web  https://translate.yandex.com/')
-                    if(openWeb){
-                        try {
-                            GM_openInTab("https://translate.yandex.com/")
-                        }catch (e) { }
-                    }
-                    break
-                case 17:
-                    currentAPI = APIConst.FuxiWebAPI
-                    Toast.success('已经切换福昕翻译 web')
-                    break
-                case 18:
-                    currentAPI = APIConst.CNKIWebAPI
-                    Toast.success('已经切换CNKI web .频繁不出结果需要到官网刷新验证码.https://dict.cnki.net/index')
-                    if(openWeb){
-                        try {
-                            GM_openInTab("https://dict.cnki.net/index")
-                        }catch (e) { }
-                    }
-                    break
-                case 19:
-                    currentAPI = APIConst.XunfeiAPI
-                    Toast.success('已经切换讯飞API版, 未配置api key 需要到源码中修改秘钥.申请key详见https://console.xfyun.cn/services/its')
-                    break
-                case 20:
-                    currentAPI = APIConst.WPSKuaiyiWebAPI
-                    Toast.success('已经切换金山快译 需要到https://kuaiyi.wps.cn获取token')
-                    if(openWeb){
-                        try {
-                            GM_openInTab("https://kuaiyi.wps.cn")
-                        }catch (e) { }
-                    }
-                    break
-                default:
-                    currentAPI = APIConst.MicrosoftAPI
-                    Toast.success('已经切换微软翻译')
-                    switchIndex = 0
+            if (typeof targetIndex === 'number' && targetIndex >= 0 && targetIndex < engineList.length) {
+                switchIndex = targetIndex;
+            } else {
+                switchIndex = (getCurrentEngineIndex() + 1) % engineList.length;
             }
-        } catch (e) {
-        }
+            const engine = engineList[switchIndex];
+            currentAPI = engine.api;
+            Toast.success(engine.toast || `已经切换${engine.name}翻译`);
+            // 需要打开网页的引擎
+            if (openWeb && engine.openUrl) {
+                try {
+                    GM_openInTab(engine.openUrl);
+                } catch (e) {
+                    try { location.href = engine.openUrl; } catch (e2) {}
+                }
+            }
+        } catch (e) {}
         selectTolang = currentAPI.ChineseLang //重置
         //持久化
         GM_setValue("switchIndex", switchIndex)
@@ -1304,6 +1212,15 @@
                 display: inline-flex;
             }
 
+            .engine-card {
+                transition: all 0.2s ease !important;
+            }
+            .engine-card:hover {
+                border-color: #4caf50 !important;
+                background: #f1f8e9 !important;
+                transform: translateY(-2px);
+                box-shadow: 0 2px 8px rgba(76,175,80,0.2) !important;
+            }
         `)
 
     //add box
@@ -2626,7 +2543,7 @@
     };
 
     function decodeICIBA(content) {
-      return  AES_ECB.decrypt(content,"aahc3TfyfCEmER33")
+        return  AES_ECB.decrypt(content,"aahc3TfyfCEmER33")
     }
 
     //讯飞
@@ -3504,13 +3421,54 @@ ${ali_uuid}\r
         leftSelect()
     })
 
-    //切换api
+    //切换api - 弹出快速选择弹窗
+    function showEngineQuickPicker(event) {
+        // 移除已存在的弹窗
+        const existing = document.getElementById('engineQuickPicker');
+        if (existing) { existing.remove(); return; }
+
+        const currentIdx = getCurrentEngineIndex();
+        const picker = document.createElement('div');
+        picker.id = 'engineQuickPicker';
+        picker.style.cssText = 'z-index:10000;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
+        const card = document.createElement('div');
+        card.style.cssText = 'background:white;border-radius:10px;box-shadow:0 4px 24px rgba(0,0,0,0.3);padding:16px;max-height:70vh;overflow-y:auto;width:300px;';
+
+        card.innerHTML = `
+            <div style="font-weight:bold;font-size:14px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #eee;color:#333;">选择翻译引擎</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+                ${engineList.map((e, i) => {
+            const isCurrent = i === currentIdx;
+            const bgColor = isCurrent ? '#e8f5e9' : '#f5f5f5';
+            const borderColor = isCurrent ? '#4caf50' : '#ddd';
+            const tagHtml = e.tag ? `<span style="display:block;font-size:9px;color:${e.tagColor};margin-top:2px;">${e.tag}</span>` : '';
+            return `<div class="engine-qcard" data-idx="${i}" style="cursor:pointer;padding:8px 4px;border-radius:6px;text-align:center;border:1.5px solid ${borderColor};background:${bgColor};transition:all 0.15s;">
+                        <div style="font-size:13px;line-height:1.3;color:#333;">${e.name}</div>
+                        ${tagHtml}
+                    </div>`;
+        }).join('')}
+            </div>
+        `;
+
+        // 点击遮罩关闭
+        picker.addEventListener('click', (ev) => {
+            if (ev.target === picker) { picker.remove(); return; }
+            const engineCard = ev.target.closest('.engine-qcard');
+            if (!engineCard) return;
+            const idx = parseInt(engineCard.dataset.idx);
+            switchAPI(true, idx);
+            picker.remove();
+        });
+
+        picker.appendChild(card);
+        document.body.appendChild(picker);
+    }
+
     const switchAPIBtn = document.querySelector("#switchAPI")
+    // 单击打开完整设置面板（原有功能）
     switchAPIBtn.addEventListener("click", (event) => {
         event.stopPropagation()
-        //switchAPI()
         colorSelectAndSettings()
-
     })
 
     //自动翻译
