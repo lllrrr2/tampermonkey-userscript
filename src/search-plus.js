@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.7
+// @version      3.6.8
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax，DeepSeek、Gemini。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -154,6 +154,8 @@
 // @license    MIT
 // @website    https://yeyu2048.xyz/gpt.html
 
+// @downloadURL https://update.greasyfork.org/scripts/459997/chatGPT%20tools%20Plus%EF%BC%88%E4%BF%AE%E6%94%B9%E7%89%88%EF%BC%89.user.js
+// @updateURL https://update.greasyfork.org/scripts/459997/chatGPT%20tools%20Plus%EF%BC%88%E4%BF%AE%E6%94%B9%E7%89%88%EF%BC%89.meta.js
 // ==/UserScript==
 
 // import {
@@ -164,7 +166,7 @@
     'use strict';
 
 
-    const JSver = '3.6.7';
+    const JSver = '3.6.8';
 
 
     function getGPTMode() {
@@ -189,42 +191,27 @@
     //(prefers-color-scheme: light)
     function addHeadCss() {
         if(!document.getElementById("github-markdown-link")){
-            if(!darkTheme) {
-                //暗黑
-                $("head").append($(
-                    '<link id="github-markdown-link" rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/github-markdown-css/5.2.0/github-markdown-dark.min.css">'
-                ));
-            }else{
-                $("head").append($(
-                    '<link id="github-markdown-link" rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">'
-                ));
-            }
-
+            const cssUrl = !darkTheme
+                ? 'https://cdn.bootcdn.net/ajax/libs/github-markdown-css/5.2.0/github-markdown-dark.min.css'
+                : 'https://cdn.bootcdn.net/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css';
+            $("head").append($(`<link id="github-markdown-link" rel="stylesheet" href="${cssUrl}">`));
         }
         if(!document.getElementById("highlight-link")){
-            if(!darkTheme) {
-                //暗黑
-                $("head").append($(
-                    '<link id="highlight-link" rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.7.0/styles/monokai-sublime.min.css">'
-                ));
-            }else{
-                $("head").append($(
-                    '<link id="highlight-link" rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css">'
-                ));
-            }
-
+            const hlUrl = !darkTheme
+                ? 'https://cdn.bootcdn.net/ajax/libs/highlight.js/11.7.0/styles/monokai-sublime.min.css'
+                : 'https://cdn.bootcdn.net/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css';
+            $("head").append($(`<link id="highlight-link" rel="stylesheet" href="${hlUrl}">`));
         }
-
         //spark-js
         if(!document.getElementById("spark-js")){
-            $("head").append($(
-                '<script id="spark-js" src="https://static.geetest.com/g5/gd.js"></script>'
-            ));
+            $("head").append($('<script id="spark-js" src="https://static.geetest.com/g5/gd.js"></script>'));
         }
-
     }
     setTimeout(addHeadCss)
-    setInterval(addHeadCss,5000)
+    // 使用 MutationObserver 替代 setInterval，仅在 DOM 变化时检查
+    const _headObserver = new MutationObserver(() => { addHeadCss(); });
+    _headObserver.observe(document.head, { childList: true });
+    addHeadCss();
 
 
 
@@ -305,35 +292,35 @@
 
     //封装GM_xmlhttpRequest ---start---
     async function GM_fetch(details) {
-       return new Promise((resolve, reject) =>{
-           switch (details.responseType){
-               case "stream":
-                   details.onloadstart = (res)=>{
-                       resolve(res)
-                   }
-                   break;
-               default:
-                   details.onload = (res)=>{
-                       resolve(res)
-                   };
-           }
+        return new Promise((resolve, reject) =>{
+            switch (details.responseType){
+                case "stream":
+                    details.onloadstart = (res)=>{
+                        resolve(res)
+                    }
+                    break;
+                default:
+                    details.onload = (res)=>{
+                        resolve(res)
+                    };
+            }
 
-           details.onerror = (res)=>{
-               reject(res)
-           };
-           details.ontimeout = (res)=>{
-               reject(res)
-           };
-           details.onabort = (res)=>{
-               reject(res)
-           };
+            details.onerror = (res)=>{
+                reject(res)
+            };
+            details.ontimeout = (res)=>{
+                reject(res)
+            };
+            details.onabort = (res)=>{
+                reject(res)
+            };
 
-           //中断支持
-           if(details.responseType === "stream"){
-               abortXml = GM_xmlhttpRequest(details)
-           }else{
-               GM_xmlhttpRequest(details)
-           }
+            //中断支持
+            if(details.responseType === "stream"){
+                abortXml = GM_xmlhttpRequest(details)
+            }else{
+                GM_xmlhttpRequest(details)
+            }
 
         });
     }
@@ -387,9 +374,9 @@
         try {
             const brands = navigator.userAgentData.brands
             for (let i = 0; i < brands.length; i++) {
-               if(/Chromium/gi.test(brand[i].brand )){
-                   return Number(brand[i].version)
-               }
+                if(/Chromium/gi.test(brand[i].brand )){
+                    return Number(brand[i].version)
+                }
             }
         }catch (e) {
             return 0
@@ -546,10 +533,10 @@
         return exp;
     }
     function katexTohtml(rawHtml) {
-       // console.log("========katexTohtml start=======")
+        // console.log("========katexTohtml start=======")
         let renderedHtml = rawHtml;
         try {
-             renderedHtml = rawHtml.replace(/<em>/g, "").replace(/<\/em>/g, "").replace(/\$\$(.*?)\$\$/g, (_, tex) => {
+            renderedHtml = rawHtml.replace(/<em>/g, "").replace(/<\/em>/g, "").replace(/\$\$(.*?)\$\$/g, (_, tex) => {
                 //debugger
                 return katex.renderToString(toRawText(tex), katex_options);
             });
@@ -561,7 +548,7 @@
             console.error(ex)
         }
 
-       // console.log("========katexTohtml end=======")
+        // console.log("========katexTohtml end=======")
         //console.log(renderedHtml)
 
         return renderedHtml;
@@ -592,15 +579,15 @@
                     copyBtn.addEventListener("click",(event)=>{
                         let _this = event.target
                         console.log(_this)
-                       let pre = _this.parentNode;
-                       console.log(pre.innerText)
-                       _this.innerText = '';
-                       GM_setClipboard(pre.innerText, "text");
+                        let pre = _this.parentNode;
+                        console.log(pre.innerText)
+                        _this.innerText = '';
+                        GM_setClipboard(pre.innerText, "text");
                         _this.innerText = '复制成功'
                         Toast.success("复制成功!")
-                       setTimeout(() =>{
-                           _this.innerText = '复制代码'
-                       },2000)
+                        setTimeout(() =>{
+                            _this.innerText = '复制代码'
+                        },2000)
                     })
                     copyBtn.innerText = '复制代码'
                     pre.insertBefore(copyBtn, pre.firstChild)
@@ -628,125 +615,48 @@
     let your_qus;
     let abortXml;
     let regx = /search.*?\.cf/g;
-    if (window.location.href.indexOf("bing.com") > -1) {
 
-        GM_add_box_style(0)
-        addBothStyle()
-        keyEvent()
-        appendBox(0).then((res) => {
-            pivElemAddEventAndValue(0)
-        })
-        //linkToBing_beautification_script()
-    }
-    if (window.location.href.indexOf("google.com") > -1 || window.location.href.match(regx)) {
-        GM_add_box_style(1)
-        addBothStyle()
-        keyEvent()
-        appendBox(1).then((res) => {
-            if(isMobile()){
-                pivElemAddEventAndValue(11)
-            }else {
-                pivElemAddEventAndValue(1)
-            }
-        })
-    }
-    if (window.location.href.indexOf("baidu.com\/s") > -1 && !isMobile()) {
-        GM_add_box_style(2)
-        addBothStyle()
-        keyEvent()
-        appendBox(2).then((res) => {
-            pivElemAddEventAndValue(2)
-        })
-    } else if (window.location.href.indexOf("https:\/\/m.baidu.com") > -1 || (window.location.href.indexOf(
-        "baidu.com") > -1 && isMobile())) { //手机百度
-        GM_add_box_style(2)
-        addBothStyle()
-        keyEvent()
-        appendBox(6).then((res) => {
-            pivElemAddEventAndValue(2)
-        })
-    }
-    //俄罗斯yandex
-    if (window.location.href.indexOf("yandex.ru\/search") > -1 || window.location.href.indexOf(
-        "yandex.com\/search") > -1) {
-        GM_add_box_style(1)
-        addBothStyle()
-        keyEvent()
-        appendBox(3).then((res) => {
-            pivElemAddEventAndValue(3)
-        })
+    // 站点初始化配置表：{ match, mobileMatch?, appendCase, inputCase, mobileInputCase?, delay?, autoHide? }
+    const SITE_CONFIGS = [
+        { match: h => h.includes("bing.com"), appendCase: 0, inputCase: 0, styleCase: 0 },
+        { match: h => h.includes("google.com") || h.match(regx), appendCase: 1, inputCase: 1, mobileInputCase: 11 },
+        { match: h => h.includes("baidu.com/s") && !isMobile(), appendCase: 2, inputCase: 2, styleCase: 2 },
+        { match: h => h.includes("m.baidu.com") || (h.includes("baidu.com") && isMobile()), appendCase: 6, inputCase: 2, styleCase: 2 },
+        { match: h => h.includes("yandex.ru/search") || h.includes("yandex.com/search"), appendCase: 3, inputCase: 3 },
+        { match: h => h.includes("so.com/s"), appendCase: 4, inputCase: 4, mobileInputCase: 9 },
+        { match: h => h.includes("fsoufsou.com/search"), appendCase: 5, inputCase: 5, delay: 3000 },
+        { match: h => h.includes("duckduckgo.com/?q"), appendCase: 7, inputCase: 7 },
+        { match: h => h.includes("sogou.com"), appendCase: 8, inputCase: 8, mobileInputCase: 10 },
+        { match: h => h.includes("bilibili.com"), appendCase: 9, inputCase: null },
+        { match: h => h.includes("blog.csdn.net"), appendCase: 10, inputCase: null, autoHide: true },
+    ];
+
+    function initSite(cfg) {
+        const run = () => {
+            GM_add_box_style(cfg.styleCase !== undefined ? cfg.styleCase : 1);
+            addBothStyle();
+            keyEvent();
+            appendBox(cfg.appendCase).then(() => {
+                const ic = (isMobile() && cfg.mobileInputCase !== undefined) ? cfg.mobileInputCase : cfg.inputCase;
+                pivElemAddEventAndValue(ic);
+                if (cfg.autoHide) {
+                    document.getElementById('hideGptDiv').click();
+                }
+            });
+        };
+        if (cfg.delay) {
+            setTimeout(run, cfg.delay);
+        } else {
+            run();
+        }
     }
 
-    //360so
-    if (window.location.href.indexOf("so.com\/s") > -1) {
-        GM_add_box_style(1)
-        addBothStyle()
-        keyEvent()
-        appendBox(4).then((res) => {
-            if(isMobile()){
-                pivElemAddEventAndValue(9)
-            }else {
-                pivElemAddEventAndValue(4)
-            }
-        })
-    }
-
-    //fsoufsou
-    if (window.location.href.indexOf("fsoufsou.com\/search") > -1) {
-        setTimeout(() => {
-            GM_add_box_style(1)
-            addBothStyle()
-            keyEvent()
-            appendBox(5).then((res) => {
-                pivElemAddEventAndValue(5)
-            })
-        }, 3000)
-    }
-
-    //duckduckgo.com
-    if (window.location.href.indexOf("duckduckgo.com\/\?q") > -1) {
-        GM_add_box_style(1)
-        addBothStyle()
-        keyEvent()
-        appendBox(7).then((res) => {
-            pivElemAddEventAndValue(7)
-        })
-    }
-
-    //sogou.com
-    if (window.location.href.indexOf("sogou.com") > -1) {
-        GM_add_box_style(1)
-        addBothStyle()
-        keyEvent()
-        appendBox(8).then((res) => {
-            if(isMobile()){
-                pivElemAddEventAndValue(10)
-            }else{
-                pivElemAddEventAndValue(8)
-            }
-        })
-    }
-
-    //bilibili.com
-    if (window.location.href.includes("bilibili.com")) {
-        GM_add_box_style(1)
-        addBothStyle()
-        keyEvent()
-        appendBox(9).then((res) => {
-            pivElemAddEventAndValue(null)
-        })
-    }
-
-
-    //csdn
-    if (window.location.href.includes("blog.csdn.net")) {
-        GM_add_box_style(1)
-        addBothStyle()
-        keyEvent()
-        appendBox(10).then((res) => {
-            pivElemAddEventAndValue(null)
-            document.getElementById('hideGptDiv').click()
-        })
+    const currentUrl = window.location.href;
+    for (const cfg of SITE_CONFIGS) {
+        if (cfg.match(currentUrl)) {
+            initSite(cfg);
+            break;
+        }
     }
 
     //顶级函数
@@ -769,125 +679,217 @@
             case 2:
                 GM_addStyle(`
     #gptAnswer{
-       margin: 10px;
-       border-top: solid;
-       border-bottom: solid;
+       margin: 12px 0;
+       border: none;
+       border-top: 1px solid rgba(0,0,0,0.06);
+       padding: 12px 8px;
+       line-height: 1.75;
+       font-size: 14px;
+       color: #333;
+       max-height: 60vh;
+       overflow-y: auto;
+    }
+    #gptAnswer::-webkit-scrollbar {
+       width: 5px;
+    }
+    #gptAnswer::-webkit-scrollbar-thumb {
+       background: rgba(0,0,0,0.12);
+       border-radius: 10px;
+    }
+    #gptAnswer::-webkit-scrollbar-track {
+       background: transparent;
     }
     #gptInput{
-        border-radius: 20px;
+        border-radius: 24px;
         flex: 1;
-        padding-left: 10px;
-        height: 35px;
-        border:0;
+        padding: 0 16px;
+        height: 42px;
+        border: none;
         background-color: transparent;
-        font-size: 15px;
-        font-weight: 500;
+        font-size: 14px;
+        font-weight: 400;
+        color: #1a1a1a;
+        outline: none;
+        font-family: inherit;
+    }
+    #gptInput::placeholder{
+        color: #aab;
+        font-size: 13px;
     }
     #button_GPT:hover{
         cursor: pointer;
+        opacity: 0.85;
     }
     #gptDiv{
-        width:452px;
+        width: 452px;
         flex: 1;
         display: flex;
         flex-direction: column;
         height: fit-content;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
     }
     #gptInputBox{
-        display:flex;
-        justify-content: space-around;
-        border-radius: 20px;
-        border: 1px solid #c4c7ce;
-        margin-left: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 24px;
+        border: 1.5px solid #e0e3e8;
+        background: #f7f8fa;
+        padding: 0 6px 0 0;
+        margin: 0;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #gptInputBox:focus-within{
+        border-color: #4e6ef2;
+        box-shadow: 0 0 0 3px rgba(78,110,242,0.1);
+        background: #fff;
     }
     #button_GPT{
-        border: 0;
-        background-color: transparent;
-        font-size: 14px;
-        padding: 5px;
+        border: none;
+        background: linear-gradient(135deg, #4e6ef2, #3b5bdb);
+        color: #fff;
+        font-size: 13px;
+        padding: 8px 18px;
+        border-radius: 20px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+    #button_GPT svg path{
+        fill: #fff;
     }
     #gptStatus{
-        margin-left: 10px;
+        margin: 8px 0 0 0;
+        font-size: 13px;
+        color: #666;
     }
     #modeSelect {
-        border: 1px solid #c4c7ce;
-        border-radius: 10px;
-        margin: 3px;
+        border: 1.5px solid #e0e3e8;
+        border-radius: 8px;
+        padding: 6px 10px;
         text-align: center;
-        color: RGB(193,73,55);
+        color: #4e6ef2;
+        background: #fff;
+        font-size: 13px;
+        font-weight: 500;
         -webkit-appearance: none;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.2s;
     }
-    
+    #modeSelect:hover{
+        border-color: #4e6ef2;
+    }
+    #modeSelect:focus{
+        border-color: #4e6ef2;
+        box-shadow: 0 0 0 3px rgba(78,110,242,0.08);
+    }
+
     #modeSelect::-webkit-scrollbar {
-      width: 8px; /* 滚动条宽度 */
+      width: 6px;
     }
-    
     #modeSelect::-webkit-scrollbar-thumb {
-      background-color: #888; /* 滚动条颜色 */
-      border-radius: 4px; /* 滚动条圆角 */
+      background-color: #ccc;
+      border-radius: 3px;
     }
-    
     #modeSelect::-webkit-scrollbar-thumb:hover {
-      background-color: #555; /* 滚动条悬停时颜色 */
+      background-color: #aaa;
     }
-    
     #modeSelect::-webkit-scrollbar-track {
-      background-color: #f1f1f1; /* 滚动条背景色 */
-      border-radius: 4px; /* 滚动条背景圆角 */
+      background-color: #f5f5f5;
+      border-radius: 3px;
     }
-    
+
     .chatSetting{
         display: block;
         text-align: right;
-        margin-top: 10px;
-        margin-right: 8px;
-        margin-bottom: 1px;
+        margin: 10px 0 2px;
     }
     .chatHide{
          display: none;
     }
-    
+
     #chatSetting{
        text-decoration: none !important;
+       display: inline-flex;
+       align-items: center;
+       gap: 4px;
+       color: #909399;
+       font-size: 13px;
+       padding: 4px 8px;
+       border-radius: 6px;
+       transition: all 0.2s;
     }
     #chatSetting:hover{
        cursor: pointer;
-       text-decoration: underline !important;
+       text-decoration: none !important;
+       background: rgba(78,110,242,0.06);
+       color: #4e6ef2;
     }
-    
+    #chatSetting svg{
+        transition: transform 0.3s;
+    }
+    #chatSetting:hover svg{
+        transform: rotate(60deg);
+    }
+
+    #website{
+        margin: 8px 0 0 0;
+        padding: 12px;
+        background: #f7f8fa;
+        border-radius: 10px;
+    }
     #website a:nth-child(odd){
-        color: #ffbb00;
+        color: #f59e0b;
     }
-    
     #website a:nth-child(even){
-        color: #0bbbac;
+        color: #10b981;
     }
-    
     #website a {
-        border: 1px solid;
-        border-radius: 3px;
-        margin-right: 9px;
-        margin-bottom: 5px;
+        display: inline-block;
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 6px;
+        padding: 3px 10px;
+        margin: 0 6px 6px 0;
+        font-size: 12.5px;
+        text-decoration: none;
+        transition: all 0.2s;
+        background: #fff;
+    }
+    #website a:hover{
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
     #website hr {
         border: none;
-        border-top: 1px dashed #999;
-        margin: 5px 0px 5px 0px;
+        border-top: 1px dashed #e0e3e8;
+        margin: 6px 0 8px;
     }
 
     gptDiv p{
         white-space: pre-line;
     }
-    
+
     pre .btn-pre-copy{
         text-align: right;
         display: block;
+        font-size: 12px;
+        color: #4e6ef2;
+        padding: 2px 8px;
+        opacity: 0;
+        transition: opacity 0.2s;
     }
-    
+    pre:hover .btn-pre-copy{
+        opacity: 1;
+    }
     pre .btn-pre-copy:hover{
         cursor: pointer;
+        color: #3b5bdb;
     }
-    
+
     .fullScreen{
         z-index: 999 !important;
         position: fixed  !important;
@@ -898,22 +900,35 @@
         height: 100%  !important;
         bottom: 0  !important;
         overflow-y: scroll !important;
+        background: #fff;
+        padding: 20px;
     }
-    
+
     .bgtransparent{
         background-color: transparent !important;
     }
-    
+
     .floating-button {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #007bff;
+      bottom: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, #4e6ef2, #3b5bdb);
       color: #fff;
       border-radius: 50%;
-      padding: 10px;
-      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(78,110,242,0.35);
       z-index: 9999 !important;
+      transition: transform 0.2s, box-shadow 0.2s;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .floating-button:hover{
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(78,110,242,0.45);
     }
 
     .floating-button a {
@@ -921,14 +936,14 @@
       color: inherit;
       z-index: 9999 !important;
     }
-    
+
     /* fix bilibili高级弹幕背景问题 */
     #bilibili-player pre {
       background-color: transparent !important;
        overflow-x: hidden; !important;
        overflow-y: hidden; !important;
     }
-    
+
     `)
                 break;
             default:
@@ -937,172 +952,52 @@
 
     }
 
+    // AI线路调度表：模式名 -> 启动函数
+    const GPT_MODE_HANDLERS = {
+        'YeYu':          () => { /* YeYu() */ },
+        'THEBAI':        () => THEBAI(),
+        'YQCLOUD':       () => YQCLOUD(),
+        'TDCHAT':        () => TDCHAT(),
+        'AILS':          () => AILS(),
+        'CVEOY':         () => CVEOY(),
+        'TOYAML':        () => TOYAML(),
+        'newBing':       () => newBing(),
+      //  'AIFREE':        () => AIFREE(),
+        'OPENAI':        () => OPENAI("text-davinci-002-render-sha"),
+        'OPENAI-3.5':    () => OPENAI("text-davinci-002-render-sha"),
+        'Gemini':        () => Gemini(),
+        'TONGYI':        () => TONGYI(),
+        'SPARK':         () => SPARK(),
+        'TIANGONG':      () => TIANGONG(),
+        'Hunyuan':       () => Hunyuan(''),
+        'DeepSeekYuanBao':() => Hunyuan('deepseek'),
+        'YIYAN':         () => YIYAN(),
+        'DeepSeek':      () => DeepSeek(),
+        'ChatGLM':       () => ChatGLM(),
+        'ChatGLM4':      () => ChatGLM4(),
+        'ZhipuAI':       () => ZhipuAI(),
+        'chatforai':     () => chatforai(),
+        'Zhinao360':     () => Zhinao360(),
+        'BAICHUAN':      () => BAICHUAN(),
+        'MixerBox':      () => MixerBox(),
+        'miniMax':       () => miniMax(),
+    };
+
     function do_it() {
+        isShowRaw = false;
+        rawAns = undefined;
 
-        isShowRaw = false; //设置显示原文
-        rawAns = undefined;//设置显示原文
+        document.getElementById('gptAnswer').innerHTML = `<div style="display:flex;align-items:center;gap:8px;color:#999;font-size:14px;padding:8px 0;"><div class="gpt-loading-spinner"></div>加载中<span id="dot"></span></div>`;
 
-        document.getElementById('gptAnswer').innerHTML = `<div>加载中<span id="dot"></span></div>`;
-        //自定义模式
-        let GPTMODE = getGPTMode()
-        if (GPTMODE && GPTMODE === "YeYu") {
-            console.log("当前模YeYu")
-            //YeYu()
-            //end if
+        let GPTMODE = getGPTMode();
+        if (GPTMODE && GPT_MODE_HANDLERS[GPTMODE]) {
+            console.log("当前模式:", GPTMODE);
+            GPT_MODE_HANDLERS[GPTMODE]();
             return;
-        } else if (GPTMODE && GPTMODE === "THEBAI") {
-            console.log("当前模式XJAI")
-            THEBAI()
-            //end if
-            return;
-        } else if (GPTMODE && GPTMODE === "YQCLOUD") {
-            console.log("当前模式YQCLOUD")
-            YQCLOUD()
-            //end if
-            return;
-        } else if (GPTMODE && GPTMODE === "TDCHAT") {
-            console.log("当前模式TDCHAT")
-            TDCHAT()
-            //end if
-            return;
-        }   else if (GPTMODE && GPTMODE === "AILS") {
-
-            console.log("AILS")
-            AILS()
-
-            return;
-            //end if
-        } else if (GPTMODE && GPTMODE === "CVEOY") {
-            console.log("CVEOY")
-            CVEOY();
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "TOYAML") {
-            console.log("TOYAML")
-            TOYAML();
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "newBing") {
-            console.log("newBing")
-            newBing();
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "AIFREE") {
-            console.log("AIFREE")
-            AIFREE();
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "OPENAI" || GPTMODE === "OPENAI-3.5") {
-            console.log("OPENAI-3.5")
-            OPENAI("text-davinci-002-render-sha")
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "Gemini") {
-            console.log("Gemini")
-            Gemini()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "TONGYI") {
-            console.log("TONGYI")
-            TONGYI()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "SPARK") {
-            console.log("SPARK")
-            SPARK()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "TIANGONG") {
-            console.log("TIANGONG")
-            TIANGONG()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "Hunyuan") {
-            console.log("Hunyuan")
-            Hunyuan('')
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "DeepSeekYuanBao") {
-            console.log("DeepSeekYuanBao")
-            Hunyuan('deepseek')
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "YIYAN") {
-            console.log("YIYAN")
-            YIYAN()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "DeepSeek") {
-            console.log("DeepSeek")
-            DeepSeek()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "ChatGLM") {
-            console.log("ChatGLM")
-            ChatGLM()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "ChatGLM4") {
-            console.log("ChatGLM4")
-            ChatGLM4()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "ZhipuAI") {
-            console.log("ZhipuAI")
-            ZhipuAI()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "chatforai") {
-            console.log("chatforai")
-            chatforai()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "Zhinao360") {
-            console.log("Zhinao360")
-            Zhinao360()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "BAICHUAN") {
-            console.log("BAICHUAN")
-            BAICHUAN()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "MixerBox") {
-            console.log("MixerBox")
-            MixerBox()
-
-            return;
-            //end if
-        }else if (GPTMODE && GPTMODE === "miniMax") {
-            console.log("miniMax")
-            miniMax()
-
-            return;
-            //end if
         }
 
-        console.log("默认线路:")
-        AIFREE()
-
+        console.log("默认线路:");
+        Hunyuan('')
     }
 
 
@@ -1124,115 +1019,162 @@
             divE.classList.add("markdown-body");
             divE.innerHTML = `
     <div id="gptInputBox">
-        <input autocomplete="off" placeholder="若用不了,请更新KEY或切换线路" id="gptInput" list="suggestions" type=text><button id="button_GPT" ><svg width="15px" height="15px" focusable="false" viewBox="0 0 24 24"><path fill="#34a853" d="M10 2v2a6 6 0 0 1 6 6h2a8 8 0 0 0-8-8"></path><path fill="#ea4335" d="M10 4V2a8 8 0 0 0-8 8h2c0-3.3 2.7-6 6-6"></path><path fill="#fbbc04" d="M4 10H2a8 8 0 0 0 8 8v-2c-3.3 0-6-2.69-6-6"></path><path fill="#4285f4" d="M22 20.59l-5.69-5.69A7.96 7.96 0 0 0 18 10h-2a6 6 0 0 1-6 6v2c1.85 0 3.52-.64 4.88-1.68l5.69 5.69L22 20.59"></path></svg>搜索</button>
-        <datalist id="suggestions">
-        </datalist>
+        <input autocomplete="off" placeholder="输入问题，按回车搜索..." id="gptInput" list="suggestions" type="text">
+        <button id="button_GPT">
+            <svg width="14" height="14" focusable="false" viewBox="0 0 24 24">
+                <path fill="#fff" d="M10 2v2a6 6 0 0 1 6 6h2a8 8 0 0 0-8-8"></path>
+                <path fill="#fff" d="M10 4V2a8 8 0 0 0-8 8h2c0-3.3 2.7-6 6-6"></path>
+                <path fill="#fff" d="M4 10H2a8 8 0 0 0 8 8v-2c-3.3 0-6-2.69-6-6"></path>
+                <path fill="#fff" d="M22 20.59l-5.69-5.69A7.96 7.96 0 0 0 18 10h-2a6 6 0 0 1-6 6v2c1.85 0 3.52-.64 4.88-1.68l5.69 5.69L22 20.59"></path>
+            </svg>
+            搜索
+        </button>
+        <datalist id="suggestions"></datalist>
     </div>
-    <div class="chatSetting"><a id="chatSetting"><svg fill="#909399" width="15px" height="15px" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13.85 22.25h-3.7c-.74 0-1.36-.54-1.45-1.27l-.27-1.89c-.27-.14-.53-.29-.79-.46l-1.8.72c-.7.26-1.47-.03-1.81-.65L2.2 15.53c-.35-.66-.2-1.44.36-1.88l1.53-1.19c-.01-.15-.02-.3-.02-.46 0-.15.01-.31.02-.46l-1.52-1.19c-.59-.45-.74-1.26-.37-1.88l1.85-3.19c.34-.62 1.11-.9 1.79-.63l1.81.73c.26-.17.52-.32.78-.46l.27-1.91c.09-.7.71-1.25 1.44-1.25h3.7c.74 0 1.36.54 1.45 1.27l.27 1.89c.27.14.53.29.79.46l1.8-.72c.71-.26 1.48.03 1.82.65l1.84 3.18c.36.66.2 1.44-.36 1.88l-1.52 1.19c.01.15.02.3.02.46s-.01.31-.02.46l1.52 1.19c.56.45.72 1.23.37 1.86l-1.86 3.22c-.34.62-1.11.9-1.8.63l-1.8-.72c-.26.17-.52.32-.78.46l-.27 1.91c-.1.68-.72 1.22-1.46 1.22zm-3.23-2h2.76l.37-2.55.53-.22c.44-.18.88-.44 1.34-.78l.45-.34 2.38.96 1.38-2.4-2.03-1.58.07-.56c.03-.26.06-.51.06-.78s-.03-.53-.06-.78l-.07-.56 2.03-1.58-1.39-2.4-2.39.96-.45-.35c-.42-.32-.87-.58-1.33-.77l-.52-.22-.37-2.55h-2.76l-.37 2.55-.53.21c-.44.19-.88.44-1.34.79l-.45.33-2.38-.95-1.39 2.39 2.03 1.58-.07.56a7 7 0 0 0-.06.79c0 .26.02.53.06.78l.07.56-2.03 1.58 1.38 2.4 2.39-.96.45.35c.43.33.86.58 1.33.77l.53.22.38 2.55z"></path><circle cx="12" cy="12" r="3.5" fill="#909399"></circle></svg>设置</a></div>
-    <div id=gptCueBox>
-    <p class="chatHide" id="gptStatus">
-   <select id="modeSelect">
-      <option value="Default">默认接口</option>
-      <option style="display: none" value="newBing">New Bing</option>
-      <option style="display: none" value="OPENAI-3.5">OPENAI-3.5</option>
-      <option value="Gemini">Gemini-2.0</option>
-      <option value="DeepSeek">DeepSeek(满血)</option>
-      <option value="TONGYI">通义千问</option>
-      <option value="YIYAN">百度文心</option>
-      <option value="SPARK">讯飞星火</option>
-      <option value="TIANGONG">天工AI</option>
-      <option value="Hunyuan">腾讯元宝</option>
-      <option value="DeepSeekYuanBao">腾讯Deepseek(联网)</option>
-      <option value="ChatGLM">ChatGLM</option>
-      <option value="ChatGLM4">ChatGLM4</option>
-      <option value="ZhipuAI">智谱AI</option>
-      <option value="Zhinao360">360智脑</option>
-      <option value="BAICHUAN">百川AI</option>
-      <option value="miniMax">miniMax</option>
-      <option value="AIFREE">AIFREE</option>
-      <option value="chatforai">chatforai</option>
-      <option value="MixerBox">MixerBox</option>
-      <option style="display: none" value="THEBAI">XJAI</option>
-      <option value="YQCLOUD">YQCLOUD</option>
-      <option value="TDCHAT">TDCHAT</option>
-      <option value="AILS">AILS</option>
-      <option value="CVEOY">CVEOY</option>
-      <option value="TOYAML">TOYAML</option>
-    </select> 部分线路需要科学上网</p>
-	<p class="chatHide" id="warn" style="margin: 10px"  ><a id="updatePubkey" style="color: #4e6ef2;" href="javascript:void(0)"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class=" iconify iconify--ri" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M18.537 19.567A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10c0 2.136-.67 4.116-1.81 5.74L17 12h3a8 8 0 1 0-2.46 5.772l.997 1.795Z"></path></svg>更新KEY</a>:适用于自定义、智谱、Gemini</p>
-	<p class="chatHide" id="autoClickP" style="margin: 10px"  ><a id="autoClick" style="color: #4e6ef2;" href="javascript:void(0)"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="text-lg iconify iconify--ri" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M15 4H5v16h14V8h-4V4ZM3 2.992C3 2.444 3.447 2 3.998 2H16l5 5v13.992A1 1 0 0 1 20.007 22H3.993A1 1 0 0 1 3 21.008V2.992Zm9 8.508a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5ZM7.527 17a4.5 4.5 0 0 1 8.945 0H7.527Z"></path></svg>自动点击开关</a>:用于设置搜索是否自动点击</p>
-	<p class="chatHide" id="darkThemeP" style="margin: 10px"  ><a id="darkTheme" style="color: #4e6ef2;" href="javascript:void(0)"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class=" iconify iconify--ri" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.997c-5.523 0-10-4.478-10-10c0-5.523 4.477-10 10-10s10 4.477 10 10c0 5.522-4.477 10-10 10Zm0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2v-12a6 6 0 0 1 0 12Z"></path></svg>暗黑模式开关</a>:用于设置暗黑/白天</p>
-	<p class="chatHide" id="autoTipsP" style="margin: 10px"><a id="autoTips"  href="javascript:void(0)"><svg withd="15" height="15" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <path d="M12,2c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9S16.97,2,12,2z M12,18c-3.86,0-7-3.14-7-7s3.14-7,7-7s7,3.14,7,7S15.86,18,12,18z" fill="#fff" stroke="#000"></path>
-      <circle cx="12" cy="12" r="5" fill="#ffd700"></circle>
-      <path d="M12,17v1a1,1,0,0,1-2,0V17" stroke="#000" stroke-linecap="round" stroke-linejoin="round"></path>
-      <path d="M13,14.5h-2a.5.5,0,0,1-.5-.5v-1a.5.5,0,0,1,.5-.5h2a.5.5,0,0,1,.5.5v1A.5.5,0,0,1,13,14.5Z" fill="#fff" stroke="#000"></path>
-    </svg>自动提示开关</a>:用于设置是否开启提示</p>
-	<div class="chatHide" id="website" style="margin-left: 10px; ">
-	    <hr>
-        <a target="_blank"  href="https://chat.deepseek.com/">DeepSeek</a>
-        <a target="_blank"  href="https://yiyan.baidu.com/">文心</a>
-        <a target="_blank"  href="https://qianwen.aliyun.com/">通义</a>
-        <a target="_blank"  href="https://www.tiangong.cn/">天工</a>
-        <a target="_blank"  href="https://xinghuo.xfyun.cn/">讯飞</a>
-        <a target="_blank"  href="https://hunyuan.tencent.com/">元宝</a>
-        <a target="_blank"  href="https://www.doubao.com/chat/">豆包</a>
-        <hr>
-        <a target="_blank"  href="https://chatgpt.com">OpenAI</a>
-        <a target="_blank"  href="https://www.bing.com/search?q=Bing+AI&showconv=1">Bing</a>
-        <a target="_blank"  href="https://gemini.google.com/app">Gemini</a>
-        <a target="_blank"  href="https://claude.ai/">Claude</a>
-        <a target="_blank"  href="https://chatglm.cn/chat">GLM</a>
-        <a target="_blank"  href="https://www.baichuan-ai.com/">百川</a>
-        <hr>
-        <a target="_blank"  href="https://kimi.moonshot.cn/">Kimi</a>
-        <a target="_blank"  href="https://chat.360.cn/">360智脑</a>
-        <a target="_blank"  href="https://chat.sensetime.com/">商量</a>
-        <a target="_blank"  href="https://poe.com/">Poe</a>
-        <a target="_blank"  href="https://taichu-web.ia.ac.cn/#/chat">紫东</a>
-        <a target="_blank"  href="https://chat.deepseek.com/">DeepSeek</a>
-        <hr>
-        <a target="_blank"  href="https://greasyfork.org/scripts/459997">更新</a>
-        <a  href="https://q1.qlogo.cn/g?b=qq&nk=2471543762&s=640">用爱发电</a>
-        <hr>
-	</div>
-   <article id="gptAnswer" class="markdown-body"><div id="gptAnswer_inner">版本: ${JSver} 已启动,部分线路需要科学上网,更换AI接口请点击"设置"。当前线路: ${getGPTMode() || "Default"};当前自动点击状态: ${localStorage.getItem("autoClick") || "关闭"}</article>
+    <div class="chatSetting">
+        <a id="chatSetting" href="javascript:void(0)">
+            <svg fill="currentColor" width="15" height="15" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M13.85 22.25h-3.7c-.74 0-1.36-.54-1.45-1.27l-.27-1.89c-.27-.14-.53-.29-.79-.46l-1.8.72c-.7.26-1.47-.03-1.81-.65L2.2 15.53c-.35-.66-.2-1.44.36-1.88l1.53-1.19c-.01-.15-.02-.3-.02-.46 0-.15.01-.31.02-.46l-1.52-1.19c-.59-.45-.74-1.26-.37-1.88l1.85-3.19c.34-.62 1.11-.9 1.79-.63l1.81.73c.26-.17.52-.32.78-.46l.27-1.91c.09-.7.71-1.25 1.44-1.25h3.7c.74 0 1.36.54 1.45 1.27l.27 1.89c.27.14.53.29.79.46l1.8-.72c.71-.26 1.48.03 1.82.65l1.84 3.18c.36.66.2 1.44-.36 1.88l-1.52 1.19c.01.15.02.3.02.46s-.01.31-.02.46l1.52 1.19c.56.45.72 1.23.37 1.86l-1.86 3.22c-.34.62-1.11.9-1.8.63l-1.8-.72c-.26.17-.52.32-.78.46l-.27 1.91c-.1.68-.72 1.22-1.46 1.22zm-3.23-2h2.76l.37-2.55.53-.22c.44-.18.88-.44 1.34-.78l.45-.34 2.38.96 1.38-2.4-2.03-1.58.07-.56c.03-.26.06-.51.06-.78s-.03-.53-.06-.78l-.07-.56 2.03-1.58-1.39-2.4-2.39.96-.45-.35c-.42-.32-.87-.58-1.33-.77l-.52-.22-.37-2.55h-2.76l-.37 2.55-.53.21c-.44.19-.88.44-1.34.79l-.45.33-2.38-.95-1.39 2.39 2.03 1.58-.07.56a7 7 0 0 0-.06.79c0 .26.02.53.06.78l.07.56-2.03 1.58 1.38 2.4 2.39-.96.45.35c.43.33.86.58 1.33.77l.53.22.38 2.55z"></path>
+                <circle cx="12" cy="12" r="3.5" fill="currentColor"></circle>
+            </svg>
+            设置
+        </a>
     </div>
-    <span class="speak" style="margin-right: 10px;text-align: right">
-    <a id="speakAnser" style="cursor: pointer" href="javascript:void(0)" >
-       <svg width="20" height="20" viewBox="0 0 17 16">
-          <path d="M9 16.5v-9l6 4.5-6 4.5z" fill="#909399"></path>
-          <path d="M0 0h24v24H0z" fill="none"></path>
-    </svg>朗读</a>
-    
-    <a id="copyAns" style="cursor: pointer" href="javascript:void(0)" >
-       <svg width="12" height="12" data-v-13fede38="" t="1679666016648" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="6241" class="icon"><path data-v-13fede38="" d="M661.333333 234.666667A64 64 0 0 1 725.333333 298.666667v597.333333a64 64 0 0 1-64 64h-469.333333A64 64 0 0 1 128 896V298.666667a64 64 0 0 1 64-64z m-21.333333 85.333333H213.333333v554.666667h426.666667v-554.666667z m191.829333-256a64 64 0 0 1 63.744 57.856l0.256 6.144v575.701333a42.666667 42.666667 0 0 1-85.034666 4.992l-0.298667-4.992V149.333333H384a42.666667 42.666667 0 0 1-42.368-37.674666L341.333333 106.666667a42.666667 42.666667 0 0 1 37.674667-42.368L384 64h447.829333z" fill="#909399" p-id="6242"></path></svg>
-       复制</a>
-    
-    <a id="rawAns" style="cursor: pointer" href="javascript:void(0)" >
-       <svg width="13" height="13" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="8" stroke="#909399" stroke-width="4" fill="none"></circle>
-    </svg>原文</a>
-    
-    <a id="stopAns" style="cursor: pointer" href="javascript:void(0)">
-       <svg width="13" height="13" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path fill="#909399" d="M12 2c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10-4.5-10-10-10zm6.7 15.3c-.2.2-.5.2-.7 0L12 12.7l-6.1 4.6c-.2.2-.5.2-.7 0-.2-.2-.2-.5 0-.7l6.1-4.6-6.1-4.6c-.2-.2-.2-.5 0-.7s.5-.2.7 0L12 11.3l6.1-4.6c.2-.2.5-.2.7 0 .2.2.2.5 0 .7l-6.1 4.6 6.1 4.6c.2.2.2.5 0 .7z"></path>
-    </svg>中断</a>
-    
-    <a id="fullScreen" style="cursor: pointer" href="javascript:void(0)">
-       <svg width="13" height="13" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <rect x="3" y="4" width="18" height="14" rx="2" ry="2" stroke="black" fill="#909399"/>
-      <line x1="3" y1="8" x2="21" y2="8" stroke="black" stroke-width="2"/>
-      <line x1="3" y1="16" x2="21" y2="16" stroke="black" stroke-width="2"/>
-    </svg>全屏</a>
-    
-    <a id="hideGptDiv" style="cursor: pointer" href="javascript:void(0)">
-       <svg width="13" height="13" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="10" fill="#909399"></circle>
-      <circle cx="12" cy="12" r="5" fill="#fff"></circle>
-    </svg>隐藏</a>
-
-</span>`;
+    <div id="gptCueBox">
+        <p class="chatHide" id="gptStatus">
+            <select id="modeSelect">
+                <option value="Default">默认接口</option>
+                <option style="display: none" value="newBing">New Bing</option>
+                <option style="display: none" value="OPENAI-3.5">OPENAI-3.5</option>
+                <option value="Gemini">Gemini-2.0</option>
+                <option value="DeepSeek">DeepSeek(满血)</option>
+                <option value="TONGYI">通义千问</option>
+                <option value="YIYAN">百度文心</option>
+                <option value="SPARK">讯飞星火</option>
+                <option value="TIANGONG">天工AI</option>
+                <option value="Hunyuan">腾讯元宝</option>
+                <option value="DeepSeekYuanBao">腾讯Deepseek(联网)</option>
+                <option value="ChatGLM">ChatGLM</option>
+                <option value="ChatGLM4">ChatGLM4</option>
+                <option value="ZhipuAI">智谱AI</option>
+                <option value="Zhinao360">360智脑</option>
+                <option value="BAICHUAN">百川AI</option>
+                <option value="miniMax">miniMax</option>
+                <option value="AIFREE">AIFREE</option>
+                <option value="chatforai">chatforai</option>
+                <option value="MixerBox">MixerBox</option>
+                <option style="display: none" value="THEBAI">XJAI</option>
+                <option value="YQCLOUD">YQCLOUD</option>
+                <option value="TDCHAT">TDCHAT</option>
+                <option value="AILS">AILS</option>
+                <option value="CVEOY">CVEOY</option>
+                <option value="TOYAML">TOYAML</option>
+            </select>
+            <span style="color:#999;font-size:12px;margin-left:4px;">部分线路需科学上网</span>
+        </p>
+        <p class="chatHide" id="warn">
+            <a id="updatePubkey" href="javascript:void(0)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M18.537 19.567A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10c0 2.136-.67 4.116-1.81 5.74L17 12h3a8 8 0 1 0-2.46 5.772l.997 1.795Z"></path></svg>
+                更新KEY
+            </a>
+            <span style="color:#999;font-size:12px;">适用于自定义、智谱、Gemini</span>
+        </p>
+        <p class="chatHide" id="autoClickP">
+            <a id="autoClick" href="javascript:void(0)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M15 4H5v16h14V8h-4V4ZM3 2.992C3 2.444 3.447 2 3.998 2H16l5 5v13.992A1 1 0 0 1 20.007 22H3.993A1 1 0 0 1 3 21.008V2.992Zm9 8.508a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5ZM7.527 17a4.5 4.5 0 0 1 8.945 0H7.527Z"></path></svg>
+                自动点击开关
+            </a>
+            <span style="color:#999;font-size:12px;">搜索时是否自动点击</span>
+        </p>
+        <p class="chatHide" id="darkThemeP">
+            <a id="darkTheme" href="javascript:void(0)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.997c-5.523 0-10-4.478-10-10c0-5.523 4.477-10 10-10s10 4.477 10 10c0 5.522-4.477 10-10 10Zm0-2a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2v-12a6 6 0 0 1 0 12Z"></path></svg>
+                暗黑模式开关
+            </a>
+            <span style="color:#999;font-size:12px;">切换暗黑/白天模式</span>
+        </p>
+        <p class="chatHide" id="autoTipsP">
+            <a id="autoTips" href="javascript:void(0)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path d="M12,2c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9S16.97,2,12,2z M12,18c-3.86,0-7-3.14-7-7s3.14-7,7-7s7,3.14,7,7S15.86,18,12,18z" fill="currentColor"></path>
+                    <circle cx="12" cy="12" r="5" fill="#ffd700"></circle>
+                </svg>
+                自动提示开关
+            </a>
+            <span style="color:#999;font-size:12px;">输入时是否显示搜索建议</span>
+        </p>
+        <div class="chatHide" id="website">
+            <hr>
+            <a target="_blank" href="https://chat.deepseek.com/">DeepSeek</a>
+            <a target="_blank" href="https://yiyan.baidu.com/">文心</a>
+            <a target="_blank" href="https://qianwen.aliyun.com/">通义</a>
+            <a target="_blank" href="https://www.tiangong.cn/">天工</a>
+            <a target="_blank" href="https://xinghuo.xfyun.cn/">讯飞</a>
+            <a target="_blank" href="https://hunyuan.tencent.com/">元宝</a>
+            <a target="_blank" href="https://www.doubao.com/chat/">豆包</a>
+            <hr>
+            <a target="_blank" href="https://chatgpt.com">OpenAI</a>
+            <a target="_blank" href="https://www.bing.com/search?q=Bing+AI&showconv=1">Bing</a>
+            <a target="_blank" href="https://gemini.google.com/app">Gemini</a>
+            <a target="_blank" href="https://claude.ai/">Claude</a>
+            <a target="_blank" href="https://chatglm.cn/chat">GLM</a>
+            <a target="_blank" href="https://www.baichuan-ai.com/">百川</a>
+            <hr>
+            <a target="_blank" href="https://kimi.moonshot.cn/">Kimi</a>
+            <a target="_blank" href="https://chat.360.cn/">360智脑</a>
+            <a target="_blank" href="https://chat.sensetime.com/">商量</a>
+            <a target="_blank" href="https://poe.com/">Poe</a>
+            <a target="_blank" href="https://taichu-web.ia.ac.cn/#/chat">紫东</a>
+            <hr>
+            <a target="_blank" href="https://greasyfork.org/scripts/459997">🔄 更新</a>
+            <a href="https://q1.qlogo.cn/g?b=qq&nk=2471543762&s=640">❤️ 用爱发电</a>
+        </div>
+        <article id="gptAnswer" class="markdown-body">
+            <div id="gptAnswer_inner">
+                <div style="text-align:center;padding:10px 0;color:#999;font-size:13px;">
+                    <div style="font-size:16px;margin-bottom:6px;">🤖</div>
+                    <div>版本 ${JSver} 已启动</div>
+                    <div style="margin-top:4px;">当前线路: <strong style="color:#4e6ef2;">${getGPTMode() || "Default"}</strong> · 自动点击: ${localStorage.getItem("autoClick") || "关闭"}</div>
+                    <div style="margin-top:4px;font-size:12px;color:#bbb;">更换AI接口请点击上方「设置」</div>
+                </div>
+            </div>
+        </article>
+    </div>
+    <span class="speak" style="display:flex;gap:2px;justify-content:flex-end;padding:6px 4px 0;flex-wrap:wrap;">
+        <a id="speakAnser" href="javascript:void(0)">
+            <svg width="14" height="14" viewBox="0 0 17 16">
+                <path d="M9 16.5v-9l6 4.5-6 4.5z" fill="currentColor"></path>
+            </svg>朗读
+        </a>
+        <a id="copyAns" href="javascript:void(0)">
+            <svg width="12" height="12" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+                <path d="M661.333333 234.666667A64 64 0 0 1 725.333333 298.666667v597.333333a64 64 0 0 1-64 64h-469.333333A64 64 0 0 1 128 896V298.666667a64 64 0 0 1 64-64z m-21.333333 85.333333H213.333333v554.666667h426.666667v-554.666667z m191.829333-256a64 64 0 0 1 63.744 57.856l0.256 6.144v575.701333a42.666667 42.666667 0 0 1-85.034666 4.992l-0.298667-4.992V149.333333H384a42.666667 42.666667 0 0 1-42.368-37.674666L341.333333 106.666667a42.666667 42.666667 0 0 1 37.674667-42.368L384 64h447.829333z" fill="currentColor"></path>
+            </svg>复制
+        </a>
+        <a id="rawAns" href="javascript:void(0)">
+            <svg width="13" height="13" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="4" fill="none"></circle>
+            </svg>原文
+        </a>
+        <a id="stopAns" href="javascript:void(0)">
+            <svg width="13" height="13" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 2c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10-4.5-10-10-10zm6.7 15.3c-.2.2-.5.2-.7 0L12 12.7l-6.1 4.6c-.2.2-.5.2-.7 0-.2-.2-.2-.5 0-.7l6.1-4.6-6.1-4.6c-.2-.2-.2-.5 0-.7s.5-.2.7 0L12 11.3l6.1-4.6c.2-.2.5-.2.7 0 .2.2.2.5 0 .7l-6.1 4.6 6.1 4.6c.2.2.2.5 0 .7z"></path>
+            </svg>中断
+        </a>
+        <a id="fullScreen" href="javascript:void(0)">
+            <svg width="13" height="13" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="14" rx="2" ry="2" stroke="currentColor" fill="currentColor" opacity="0.7"/>
+                <line x1="3" y1="8" x2="21" y2="8" stroke="#fff" stroke-width="2"/>
+                <line x1="3" y1="16" x2="21" y2="16" stroke="#fff" stroke-width="2"/>
+            </svg>全屏
+        </a>
+        <a id="hideGptDiv" href="javascript:void(0)">
+            <svg width="13" height="13" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.7"></circle>
+                <circle cx="12" cy="12" r="5" fill="#fff"></circle>
+            </svg>隐藏
+        </a>
+    </span>`;
             resolve(divE)
         })
     }
@@ -1403,133 +1345,133 @@
         })
         //朗读
         document.getElementById('speakAnser').addEventListener('click', () => {
-           let ans = document.querySelector("#gptAnswer");
-           if(!isPlayend){
-               Toast.success('已暂停播放!');
-               speakAudio.pause();
-               isPlayend = true;
-               return;
-           }else {
-               Toast.warn('音频已停止,正在重新播放！')
-           }
-           if(ans){
-              // let speakText = encodeURIComponent(ans.innerText);
-               let speakText = ans.innerText;
+            let ans = document.querySelector("#gptAnswer");
+            if(!isPlayend){
+                Toast.success('已暂停播放!');
+                speakAudio.pause();
+                isPlayend = true;
+                return;
+            }else {
+                Toast.warn('音频已停止,正在重新播放！')
+            }
+            if(ans){
+                // let speakText = encodeURIComponent(ans.innerText);
+                let speakText = ans.innerText;
 
-               //new sogou api
-               // 弹出对话框询问用户是否同意
-               const result = confirm("是否启用外国口音朗读? 默认为中文口音。");
-               let dialect = "zh-CHS"
-               if (result) {
-                   dialect = "en"
-                   console.log("英文朗读！");
-               }
+                //new sogou api
+                // 弹出对话框询问用户是否同意
+                const result = confirm("是否启用外国口音朗读? 默认为中文口音。");
+                let dialect = "zh-CHS"
+                if (result) {
+                    dialect = "en"
+                    console.log("英文朗读！");
+                }
 
-               let f = JSON.stringify({
-                   curTime: Date.now(),
-                   rate: "1",
-                   spokenDialect: dialect,
-                   text: speakText
-               })
+                let f = JSON.stringify({
+                    curTime: Date.now(),
+                    rate: "1",
+                    spokenDialect: dialect,
+                    text: speakText
+                })
 
-              let sParam =  CryptoJS.AES.encrypt(f.replace(/^"|"$/g, ""), CryptoJS.enc.Utf8.parse("76350b1840ff9832eb6244ac6d444366"), {
-                   "iv": CryptoJS.enc.Utf8.parse(atob("AAAAAAAAAAAAAAAAAAAAAA==") || "76350b1840ff9832eb6244ac6d444366"),
-                   "mode": CryptoJS.mode.CBC,
-                   "pad": CryptoJS.pad.Pkcs7
-               }).toString();
+                let sParam =  CryptoJS.AES.encrypt(f.replace(/^"|"$/g, ""), CryptoJS.enc.Utf8.parse("76350b1840ff9832eb6244ac6d444366"), {
+                    "iv": CryptoJS.enc.Utf8.parse(atob("AAAAAAAAAAAAAAAAAAAAAA==") || "76350b1840ff9832eb6244ac6d444366"),
+                    "mode": CryptoJS.mode.CBC,
+                    "pad": CryptoJS.pad.Pkcs7
+                }).toString();
 
 
-               speakAudio = new Audio(`https://fanyi.sogou.com/openapi/external/getWebTTS?S-AppId=102356845&S-Param=${encodeURIComponent(sParam)}`);
-               speakAudio.play()
-               isPlayend = false;
-               speakAudio.addEventListener("ended",function() {
-                   isPlayend = true;
-                   Toast.success('音频已播放完毕！');
-               })
-           }
+                speakAudio = new Audio(`https://fanyi.sogou.com/openapi/external/getWebTTS?S-AppId=102356845&S-Param=${encodeURIComponent(sParam)}`);
+                speakAudio.play()
+                isPlayend = false;
+                speakAudio.addEventListener("ended",function() {
+                    isPlayend = true;
+                    Toast.success('音频已播放完毕！');
+                })
+            }
         })
 
         //原文切换
         document.getElementById('rawAns').addEventListener('click', (ev) => {
-           let ans = document.querySelector("#gptAnswer");
-           if(!rawAns) {
-               Toast.error("原文无内容")
-               return
-           };
-           if(!isShowRaw){
-               ans.innerText = rawAns;
-               isShowRaw = true;
-               Toast.success("已为你显示原文")
-           }else{
-               showAnserAndHighlightCodeStr(rawAns)
-               isShowRaw = false;
-               Toast.success("已为你显示非原文")
-           }
+            let ans = document.querySelector("#gptAnswer");
+            if(!rawAns) {
+                Toast.error("原文无内容")
+                return
+            };
+            if(!isShowRaw){
+                ans.innerText = rawAns;
+                isShowRaw = true;
+                Toast.success("已为你显示原文")
+            }else{
+                showAnserAndHighlightCodeStr(rawAns)
+                isShowRaw = false;
+                Toast.success("已为你显示非原文")
+            }
 
         })
 
         //中断回答
         document.getElementById('stopAns').addEventListener('click', (ev) => {
-           try{
-               if(abortXml){
-                   abortXml.abort();
-                   abortXml = undefined;
-               }else {
-                   Toast.error("无法中断!")
-               }
-           }catch(ex){
-               console.error("中断失败：",ex)
-               Toast.error("中断失败!")
-           }
+            try{
+                if(abortXml){
+                    abortXml.abort();
+                    abortXml = undefined;
+                }else {
+                    Toast.error("无法中断!")
+                }
+            }catch(ex){
+                console.error("中断失败：",ex)
+                Toast.error("中断失败!")
+            }
         })
 
         //全屏
         document.getElementById('fullScreen').addEventListener('click', (ev) => {
-           try{
-               if(!isFullScreen){
-                   document.getElementById("gptDiv").classList.add("fullScreen")
-                   isFullScreen = true;
-               }else {
-                   document.getElementById("gptDiv").classList.remove("fullScreen")
-                   isFullScreen = false;
-               }
+            try{
+                if(!isFullScreen){
+                    document.getElementById("gptDiv").classList.add("fullScreen")
+                    isFullScreen = true;
+                }else {
+                    document.getElementById("gptDiv").classList.remove("fullScreen")
+                    isFullScreen = false;
+                }
 
-           }catch(ex){
-               console.error("ex：",ex)
-               Toast.error("未知异常!")
-           }
+            }catch(ex){
+                console.error("ex：",ex)
+                Toast.error("未知异常!")
+            }
         })
         //隐藏
         document.getElementById('hideGptDiv').addEventListener('click', (ev) => {
-           try{
-               $("body").append(`<div class="floating-button"><a href="javascript:void(0)">显示</a></div>`)
-               $(".floating-button a").click(function() {
-                   $("#gptDiv").show();
-                   $(".floating-button").remove()
-               });
-               $("#gptDiv").hide();
-           }catch(ex){
-               console.error("ex：",ex)
-               Toast.error("未知异常!")
-           }
+            try{
+                $("body").append(`<div class="floating-button"><a href="javascript:void(0)">显示</a></div>`)
+                $(".floating-button a").click(function() {
+                    $("#gptDiv").show();
+                    $(".floating-button").remove()
+                });
+                $("#gptDiv").hide();
+            }catch(ex){
+                console.error("ex：",ex)
+                Toast.error("未知异常!")
+            }
         })
 
         //复制答案
         document.getElementById('copyAns').addEventListener('click', (ev) => {
-           let ans = document.querySelector("#gptAnswer");
-           if(isShowRaw){
-               GM_setClipboard(rawAns, "text");
-           }else{
-               let cps = document.querySelectorAll(".btn-pre-copy");
-               for (let cp of cps){
-                   cp.innerText = ''
-               }
-               GM_setClipboard(ans.innerText, "text");
+            let ans = document.querySelector("#gptAnswer");
+            if(isShowRaw){
+                GM_setClipboard(rawAns, "text");
+            }else{
+                let cps = document.querySelectorAll(".btn-pre-copy");
+                for (let cp of cps){
+                    cp.innerText = ''
+                }
+                GM_setClipboard(ans.innerText, "text");
 
-               for (let cp of cps){
-                   cp.innerText = '复制代码'
-               }
-           }
+                for (let cp of cps){
+                    cp.innerText = '复制代码'
+                }
+            }
             Toast.success("复制成功!")
         })
 
@@ -1543,33 +1485,33 @@
 
         let chatSetting = false;
         document.getElementById('chatSetting').addEventListener('click', () => {
-          if(!chatSetting){
-             //显示内容
-             try{
-                 document.querySelector("#gptStatus").classList.remove("chatHide")
-                 document.querySelector("#warn").classList.remove("chatHide")
-                 document.querySelector("#autoClickP").classList.remove("chatHide")
-                 document.querySelector("#darkThemeP").classList.remove("chatHide")
-                 document.querySelector("#website").classList.remove("chatHide")
-                 document.querySelector("#autoTipsP").classList.remove("chatHide")
-             }catch (e) {
-                 console.log(e)
-             }
-              chatSetting = true;
-          }else{
-              //隐藏
-              try{
-                  document.querySelector("#gptStatus").classList.add("chatHide")
-                  document.querySelector("#warn").classList.add("chatHide")
-                  document.querySelector("#autoClickP").classList.add("chatHide")
-                  document.querySelector("#darkThemeP").classList.add("chatHide")
-                  document.querySelector("#website").classList.add("chatHide")
-                  document.querySelector("#autoTipsP").classList.add("chatHide")
-              }catch (e) {
-                  console.log(e)
-              }
-              chatSetting = false;
-          }
+            if(!chatSetting){
+                //显示内容
+                try{
+                    document.querySelector("#gptStatus").classList.remove("chatHide")
+                    document.querySelector("#warn").classList.remove("chatHide")
+                    document.querySelector("#autoClickP").classList.remove("chatHide")
+                    document.querySelector("#darkThemeP").classList.remove("chatHide")
+                    document.querySelector("#website").classList.remove("chatHide")
+                    document.querySelector("#autoTipsP").classList.remove("chatHide")
+                }catch (e) {
+                    console.log(e)
+                }
+                chatSetting = true;
+            }else{
+                //隐藏
+                try{
+                    document.querySelector("#gptStatus").classList.add("chatHide")
+                    document.querySelector("#warn").classList.add("chatHide")
+                    document.querySelector("#autoClickP").classList.add("chatHide")
+                    document.querySelector("#darkThemeP").classList.add("chatHide")
+                    document.querySelector("#website").classList.add("chatHide")
+                    document.querySelector("#autoTipsP").classList.add("chatHide")
+                }catch (e) {
+                    console.log(e)
+                }
+                chatSetting = false;
+            }
         })
 
     }
@@ -1675,7 +1617,7 @@
                             }
                         }
                         break;
-                   case 8: //sogou
+                    case 8: //sogou
                         if(isMobile()){
                             //手机搜狗
                             document.querySelector('form#searchform').after(divE)
@@ -1768,13 +1710,19 @@
         height: -webkit-min-content;
         height: min-content;
         width: 455px;
-        margin-top: 8px;
-        margin-bottom: 8px;
-        border: 1px solid #dfe1e5;
-        border-radius: 8px;
+        margin-top: 12px;
+        margin-bottom: 12px;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 16px;
         overflow: hidden;
-        padding: 15px;
-        background-color:#fcfcfc
+        padding: 18px;
+        background: #fff;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        transition: box-shadow 0.3s;
+    }
+    .gpt-container:hover{
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
 
     #dot{
@@ -1782,29 +1730,155 @@
         width: 4px;
         display: inline-block;
         border-radius: 2px;
-        animation: dotting 2.4s  infinite step-start;
+        animation: dotting 2.4s infinite step-start;
     }
-   @keyframes dotting {
+    @keyframes dotting {
         25%{
-            box-shadow: 4px 0 0 #71777D;
+            box-shadow: 4px 0 0 #4e6ef2;
         }
         50%{
-            box-shadow: 4px 0 0 #71777D ,14px 0 0 #71777D;
+            box-shadow: 4px 0 0 #4e6ef2, 14px 0 0 #4e6ef2;
         }
         75%{
-            box-shadow: 4px 0 0 #71777D ,14px 0 0 #71777D, 24px 0 0 #71777D;
+            box-shadow: 4px 0 0 #4e6ef2, 14px 0 0 #4e6ef2, 24px 0 0 #4e6ef2;
         }
     }
     pre{
-        overflow-x: scroll;
+        overflow-x: auto;
         overflow-y: hidden;
-        background: #fffaec;
-        border-radius: 4px;
-        padding: 14px 3px;
+        background: #f6f8fa;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin: 8px 0;
+        border: 1px solid rgba(0,0,0,0.04);
+        font-size: 13px;
+        line-height: 1.6;
     }
     pre::-webkit-scrollbar {
-     
-    }`);
+        height: 5px;
+    }
+    pre::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.12);
+        border-radius: 10px;
+    }
+
+    #gptAnswer p{
+        margin: 6px 0;
+    }
+    #gptAnswer h1, #gptAnswer h2, #gptAnswer h3, #gptAnswer h4{
+        margin: 12px 0 6px;
+        color: #1a1a1a;
+    }
+    #gptAnswer ul, #gptAnswer ol{
+        padding-left: 20px;
+    }
+    #gptAnswer li{
+        margin: 4px 0;
+    }
+    #gptAnswer code{
+        background: #f0f2f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #d63384;
+    }
+    #gptAnswer pre code{
+        background: transparent;
+        padding: 0;
+        color: inherit;
+    }
+    #gptAnswer blockquote{
+        border-left: 3px solid #4e6ef2;
+        padding: 8px 12px;
+        margin: 8px 0;
+        background: #f0f4ff;
+        border-radius: 0 8px 8px 0;
+        color: #555;
+    }
+    #gptAnswer table{
+        border-collapse: collapse;
+        width: 100%;
+        margin: 8px 0;
+        font-size: 13px;
+    }
+    #gptAnswer th, #gptAnswer td{
+        border: 1px solid #e8e8e8;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    #gptAnswer th{
+        background: #f6f8fa;
+        font-weight: 600;
+    }
+    #gptAnswer a{
+        color: #4e6ef2;
+        text-decoration: none;
+    }
+    #gptAnswer a:hover{
+        text-decoration: underline;
+    }
+    #gptAnswer img{
+        max-width: 100%;
+        border-radius: 8px;
+    }
+
+    .speak a{
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        color: #909399;
+        font-size: 12.5px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+    .speak a:hover{
+        background: rgba(78,110,242,0.06);
+        color: #4e6ef2;
+    }
+    .speak a:hover svg path,
+    .speak a:hover svg circle{
+        fill: #4e6ef2;
+    }
+
+    .gpt-loading-spinner{
+        width: 16px;
+        height: 16px;
+        border: 2px solid #e8e8e8;
+        border-top: 2px solid #4e6ef2;
+        border-radius: 50%;
+        animation: gpt-spin 0.8s linear infinite;
+    }
+    @keyframes gpt-spin{
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* 设置区域选项样式 */
+    #gptCueBox p a,
+    #gptCueBox #warn a,
+    #gptCueBox #autoClickP a,
+    #gptCueBox #darkThemeP a,
+    #gptCueBox #autoTipsP a{
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #4e6ef2;
+        font-size: 13px;
+        padding: 6px 10px;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    #gptCueBox p a:hover{
+        background: rgba(78,110,242,0.06);
+    }
+    #gptCueBox p{
+        margin: 4px 0 !important;
+        padding: 2px 0;
+        color: #666;
+        font-size: 13px;
+    }
+    `);
     }
 
 
@@ -2137,7 +2211,7 @@
             GM_setValue("ds_x_token_dasclient", ds_x_token_dasclient)
             try {
                 if(ds_x_token_dasclient){
-                   Toast.info("ds_x_token_dasclient 获取成功：",ds_x_token_dasclient)
+                    Toast.info("ds_x_token_dasclient 获取成功：",ds_x_token_dasclient)
                 }else{
                     Toast.info("`ds_x_token_dasclient获取失败，请再次刷新.`",ds_x_token_dasclient)
                 }
@@ -2517,104 +2591,104 @@
         });
     }
 
-   //setTimeout(initBingSocket,1000)
+    //setTimeout(initBingSocket,1000)
     let isStartOfSession = true;
     let conversationId;
     let clientId;
     let conversationSignature;
     let invocationId = 0;
     let toneStyle = 'fast';
-   async function newBing() {
+    async function newBing() {
 
-       setTimeout(initBingSocket)
-       await delay(2000)
+        setTimeout(initBingSocket)
+        await delay(2000)
 
-       const genRanHex = (size) =>
-           [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')
+        const genRanHex = (size) =>
+            [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')
 
-       if(isStartOfSession){
-           console.log("isStartOfSession:",isStartOfSession)
-           let req1 = await GM_fetch({
-               method: "GET",
-               url: "https://www.bing.com/turing/conversation/create"
-           })
-           let r = req1.responseText;
-           console.log(r)
-           conversationId = JSON.parse(r).conversationId;
-           clientId = JSON.parse(r).clientId;
-           conversationSignature = JSON.parse(r).conversationSignature;
+        if(isStartOfSession){
+            console.log("isStartOfSession:",isStartOfSession)
+            let req1 = await GM_fetch({
+                method: "GET",
+                url: "https://www.bing.com/turing/conversation/create"
+            })
+            let r = req1.responseText;
+            console.log(r)
+            conversationId = JSON.parse(r).conversationId;
+            clientId = JSON.parse(r).clientId;
+            conversationSignature = JSON.parse(r).conversationSignature;
 
-       }
+        }
 
 
 
-       if (bingSocket.readyState === 1) {
-           // 发送协议和版本号
-           const protocol = {protocol: "json", version: 1};
-           bingSocket.send(JSON.stringify(protocol) + String.fromCharCode(0x1e));
+        if (bingSocket.readyState === 1) {
+            // 发送协议和版本号
+            const protocol = {protocol: "json", version: 1};
+            bingSocket.send(JSON.stringify(protocol) + String.fromCharCode(0x1e));
 
-           await delay(1000)
-           // 发送请求类型
-           const type = {type: 6};
-           bingSocket.send(JSON.stringify(type) + String.fromCharCode(0x1e));
+            await delay(1000)
+            // 发送请求类型
+            const type = {type: 6};
+            bingSocket.send(JSON.stringify(type) + String.fromCharCode(0x1e));
 
-           await delay(500)
-           //发送提问
-           if(!isStartOfSession){
-               invocationId += 1;
-           }
-           let toneOption
-           if (toneStyle === 'creative') {
-               toneOption = 'h3imaginative'
-           } else if (toneStyle === 'precise') {
-               toneOption = 'h3precise'
-           } else if (toneStyle === 'fast') {
-               // new "Balanced" mode, allegedly GPT-3.5 turbo
-               toneOption = 'galileo'
-           } else {
-               // old "Balanced" mode
-               toneOption = 'harmonyv3'
-           }
-           const msg = {
-               "arguments": [{
-                   "conversationId": conversationId,
-                   "sliceIds": ["222dtappid", "225cricinfo", "224locals0"],
-                   "optionsSets": [
-                       'nlu_direct_response_filter',
-                       'deepleo',
-                       'disable_emoji_spoken_text',
-                       'responsible_ai_policy_235',
-                       'enablemm',
-                       toneOption,
-                       'dtappid',
-                       'cricinfo',
-                       'cricinfov2',
-                       'dv3sugg',
-                       'nojbfedge',
-                   ],
-                   "traceId": genRanHex(32),
-                   "source": "cib",
-                   "isStartOfSession": isStartOfSession,
-                   "message": {
-                       "author": "user",
-                       "text": your_qus,
-                       "messageType": "Chat"
-                   },
-                   "conversationSignature": conversationSignature,
-                   "participant": {
-                       "id": clientId
-                   }
-               }],
-               "invocationId": `${invocationId}`,
-               "target": "chat",
-               "type": 4
-           }
+            await delay(500)
+            //发送提问
+            if(!isStartOfSession){
+                invocationId += 1;
+            }
+            let toneOption
+            if (toneStyle === 'creative') {
+                toneOption = 'h3imaginative'
+            } else if (toneStyle === 'precise') {
+                toneOption = 'h3precise'
+            } else if (toneStyle === 'fast') {
+                // new "Balanced" mode, allegedly GPT-3.5 turbo
+                toneOption = 'galileo'
+            } else {
+                // old "Balanced" mode
+                toneOption = 'harmonyv3'
+            }
+            const msg = {
+                "arguments": [{
+                    "conversationId": conversationId,
+                    "sliceIds": ["222dtappid", "225cricinfo", "224locals0"],
+                    "optionsSets": [
+                        'nlu_direct_response_filter',
+                        'deepleo',
+                        'disable_emoji_spoken_text',
+                        'responsible_ai_policy_235',
+                        'enablemm',
+                        toneOption,
+                        'dtappid',
+                        'cricinfo',
+                        'cricinfov2',
+                        'dv3sugg',
+                        'nojbfedge',
+                    ],
+                    "traceId": genRanHex(32),
+                    "source": "cib",
+                    "isStartOfSession": isStartOfSession,
+                    "message": {
+                        "author": "user",
+                        "text": your_qus,
+                        "messageType": "Chat"
+                    },
+                    "conversationSignature": conversationSignature,
+                    "participant": {
+                        "id": clientId
+                    }
+                }],
+                "invocationId": `${invocationId}`,
+                "target": "chat",
+                "type": 4
+            }
 
-           bingSocket.send(JSON.stringify(msg) + String.fromCharCode(0x1e));
-          /* if(isStartOfSession){
-               isStartOfSession = false;
-           }*/
-       }
+            bingSocket.send(JSON.stringify(msg) + String.fromCharCode(0x1e));
+            /* if(isStartOfSession){
+                 isStartOfSession = false;
+             }*/
+        }
 
 
 
@@ -2622,10 +2696,10 @@
 
 
 
-   function uuidv4() {
-       let d = new Date().getTime(); // get current timestamp in ms (to ensure UUID uniqueness)
-       let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-           let r = (d + Math.random() * 16) % 16 | 0 // generate random nibble
+    function uuidv4() {
+        let d = new Date().getTime(); // get current timestamp in ms (to ensure UUID uniqueness)
+        let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            let r = (d + Math.random() * 16) % 16 | 0 // generate random nibble
             d = Math.floor(d / 16) // correspond each UUID digit to unique 4-bit chunks of timestamp
             return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16) // generate random hexadecimal digit
         })
@@ -2633,191 +2707,191 @@
     }
 
     //OPENAI update wss 2024.3.12
-   //let messageChain_openai = [];
-   let openai_conversation_id ;
-   let openai_parent_message_id ;
-   let history_disable = false ;
-   async function OPENAI(GPTModel){
-       // addMessageChain(messageChain_openai,{
-       //     "role": "user",
-       //     "id": uuidv4(),
-       //     "content": {
-       //         "content_type": "text",
-       //         "parts": [
-       //             your_qus
-       //         ]
-       //     },
-       //     "metadata":{}
-       // },20)
-       showAnserAndHighlightCodeStr(`此线路为OpenAI官网线路：${GPTModel}，使用前确定有访问权限且登录账号：[OPENAI官网](https://chatgpt.com/)`)
-       let req1 = await GM_fetch({
-           method: "GET",
-           url: "https://chatgpt.com/api/auth/session"
-       })
-       let r = req1.responseText;
-       console.log(r)
-       let accessToken;
-       try{
-           accessToken = JSON.parse(r).accessToken;
-       }catch (e) {
-           showAnserAndHighlightCodeStr("验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chatgpt.com/)")
-       }
+    //let messageChain_openai = [];
+    let openai_conversation_id ;
+    let openai_parent_message_id ;
+    let history_disable = false ;
+    async function OPENAI(GPTModel){
+        // addMessageChain(messageChain_openai,{
+        //     "role": "user",
+        //     "id": uuidv4(),
+        //     "content": {
+        //         "content_type": "text",
+        //         "parts": [
+        //             your_qus
+        //         ]
+        //     },
+        //     "metadata":{}
+        // },20)
+        showAnserAndHighlightCodeStr(`此线路为OpenAI官网线路：${GPTModel}，使用前确定有访问权限且登录账号：[OPENAI官网](https://chatgpt.com/)`)
+        let req1 = await GM_fetch({
+            method: "GET",
+            url: "https://chatgpt.com/api/auth/session"
+        })
+        let r = req1.responseText;
+        console.log(r)
+        let accessToken;
+        try{
+            accessToken = JSON.parse(r).accessToken;
+        }catch (e) {
+            showAnserAndHighlightCodeStr("验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chatgpt.com/)")
+        }
 
-       if(!accessToken){
-           showAnserAndHighlightCodeStr("验证出错,请确认有权限OPENAI官网[OPENAI](https://chatgpt.com/)")
-       }
+        if(!accessToken){
+            showAnserAndHighlightCodeStr("验证出错,请确认有权限OPENAI官网[OPENAI](https://chatgpt.com/)")
+        }
 
-       let paramObj = {
-           action: "next",
-           messages: [{
-               "author": {
+        let paramObj = {
+            action: "next",
+            messages: [{
+                "author": {
                     "role": "user"
                 },
-               "id": uuidv4(),
-               "content": {
-                   "content_type": "text",
-                   "parts": [
-                       your_qus
-                   ]
-               },
-               "metadata":{}
-           }],
-           model: GPTModel,
-           parent_message_id: openai_parent_message_id ? openai_parent_message_id : uuidv4(),
-           suggestions: [],
-           arkose_token: null,
-           history_and_training_disabled: history_disable,
-           timezone_offset_min: new Date().getTimezoneOffset()
-       }
-       if(openai_conversation_id){
-           try {
-               Reflect.set(paramObj,"conversation_id", openai_conversation_id)
-           }catch (ex) {
-               console.error(ex)
-           }
-       }
-       console.log(paramObj)
+                "id": uuidv4(),
+                "content": {
+                    "content_type": "text",
+                    "parts": [
+                        your_qus
+                    ]
+                },
+                "metadata":{}
+            }],
+            model: GPTModel,
+            parent_message_id: openai_parent_message_id ? openai_parent_message_id : uuidv4(),
+            suggestions: [],
+            arkose_token: null,
+            history_and_training_disabled: history_disable,
+            timezone_offset_min: new Date().getTimezoneOffset()
+        }
+        if(openai_conversation_id){
+            try {
+                Reflect.set(paramObj,"conversation_id", openai_conversation_id)
+            }catch (ex) {
+                console.error(ex)
+            }
+        }
+        console.log(paramObj)
 
-       let sendData = JSON.stringify(paramObj)
-       GM_fetch({
-           method: 'POST',
-           url: 'https://chatgpt.com/backend-api/conversation',
-           headers: {
-               'Content-Type': 'application/json',
+        let sendData = JSON.stringify(paramObj)
+        GM_fetch({
+            method: 'POST',
+            url: 'https://chatgpt.com/backend-api/conversation',
+            headers: {
+                'Content-Type': 'application/json',
                 Authorization: 'Bearer ' + accessToken,
                 'origin': 'https://chatgpt.com',
                 'Referer': 'https://chatgpt.com/',
-           },
-           responseType: "stream",
-           data: sendData
-       }).then((stream)=> {
-           let reader = stream.response.getReader()
-           let reqJsonStr;
-           reader.read().then(function processText({done, value}) {
-               if (done) {
+            },
+            responseType: "stream",
+            data: sendData
+        }).then((stream)=> {
+            let reader = stream.response.getReader()
+            let reqJsonStr;
+            reader.read().then(function processText({done, value}) {
+                if (done) {
 
-                   //连接openai websocket
-                   let reqJson = JSON.parse(reqJsonStr)
-                   //openai_conversation_id = reqJson.openai_conversation_id
-                   let wssurl = reqJson.wss_url
+                    //连接openai websocket
+                    let reqJson = JSON.parse(reqJsonStr)
+                    //openai_conversation_id = reqJson.openai_conversation_id
+                    let wssurl = reqJson.wss_url
 
-                   let socket = new WebSocket(wssurl);
-                   socket.addEventListener('open', (event) => {
-                       console.log('OpenAI wss 连接成功');
-                   });
-                   socket.addEventListener('message', (event) => {
-                       console.log('OpenAISocket 接收到消息：', event.data);
-                       let revData = event.data;
-                       try{
-                           let revJSON = JSON.parse(revData);
-                           if(revJSON.type == 'http.response.body'){
-                               openai_parent_message_id = revJSON.message_id
-                               if(revJSON.body !== 'ZGF0YTogW0RPTkVdCgo='){
-                                   //处理结果
-                                   try{
-                                       let responseItem = atob(revJSON.body)
-                                       console.log(responseItem)
-                                       showAnserAndHighlightCodeStr(JSON.parse(responseItem.slice(6)).message.content.parts[0])
-                                       if(JSON.parse(responseItem.slice(6)).conversation_id){
-                                           openai_conversation_id = JSON.parse(responseItem.slice(6)).conversation_id
-                                           openai_parent_message_id = JSON.parse(responseItem.slice(6)).message.id
-                                       }
-                                   }catch (ex) {
-                                       console.error(ex)
-                                   }
-                               }
+                    let socket = new WebSocket(wssurl);
+                    socket.addEventListener('open', (event) => {
+                        console.log('OpenAI wss 连接成功');
+                    });
+                    socket.addEventListener('message', (event) => {
+                        console.log('OpenAISocket 接收到消息：', event.data);
+                        let revData = event.data;
+                        try{
+                            let revJSON = JSON.parse(revData);
+                            if(revJSON.type == 'http.response.body'){
+                                openai_parent_message_id = revJSON.message_id
+                                if(revJSON.body !== 'ZGF0YTogW0RPTkVdCgo='){
+                                    //处理结果
+                                    try{
+                                        let responseItem = atob(revJSON.body)
+                                        console.log(responseItem)
+                                        showAnserAndHighlightCodeStr(JSON.parse(responseItem.slice(6)).message.content.parts[0])
+                                        if(JSON.parse(responseItem.slice(6)).conversation_id){
+                                            openai_conversation_id = JSON.parse(responseItem.slice(6)).conversation_id
+                                            openai_parent_message_id = JSON.parse(responseItem.slice(6)).message.id
+                                        }
+                                    }catch (ex) {
+                                        console.error(ex)
+                                    }
+                                }
 
-                           }
+                            }
 
-                       }catch (ex) { }
+                        }catch (ex) { }
 
-                   });
+                    });
 
 
 
-                   console.log("===done==")
-                   // addMessageChain(messageChain_openai,{
-                   //     "role": "assistant",
-                   //     "id": uuidv4(),
-                   //     "content": {
-                   //         "content_type": "text",
-                   //         "parts": [
-                   //             answer
-                   //         ]
-                   //     },
-                   //     "metadata":{}
-                   // }, 20)
-                   return
-               }
-               reqJsonStr = String.fromCharCode(...Array.from(value))
+                    console.log("===done==")
+                    // addMessageChain(messageChain_openai,{
+                    //     "role": "assistant",
+                    //     "id": uuidv4(),
+                    //     "content": {
+                    //         "content_type": "text",
+                    //         "parts": [
+                    //             answer
+                    //         ]
+                    //     },
+                    //     "metadata":{}
+                    // }, 20)
+                    return
+                }
+                reqJsonStr = String.fromCharCode(...Array.from(value))
 
-               /*try{
-                   let responseItem = String.fromCharCode(...Array.from(value))
-                   console.log(responseItem)
-                   let items = responseItem.split('\n\n')
-                   if (items.length > 2) {
-                       let lastItem = items.slice(-3, -2)[0]
-                       if (lastItem.startsWith('data: [DONE]')) {
-                           responseItem = items.slice(-4, -3)[0]
-                       } else {
-                           responseItem = lastItem
-                       }
-                   }
-                   if (responseItem.startsWith('data: {')) {
-                       answer = JSON.parse(responseItem.slice(6)).message.content.parts[0]
-                       showAnserAndHighlightCodeStr(answer)
-                       if(JSON.parse(responseItem.slice(6)).conversation_id){
-                           openai_conversation_id = JSON.parse(responseItem.slice(6)).conversation_id
-                           openai_parent_message_id = JSON.parse(responseItem.slice(6)).message.id
-                       }
+                /*try{
+                    let responseItem = String.fromCharCode(...Array.from(value))
+                    console.log(responseItem)
+                    let items = responseItem.split('\n\n')
+                    if (items.length > 2) {
+                        let lastItem = items.slice(-3, -2)[0]
+                        if (lastItem.startsWith('data: [DONE]')) {
+                            responseItem = items.slice(-4, -3)[0]
+                        } else {
+                            responseItem = lastItem
+                        }
+                    }
+                    if (responseItem.startsWith('data: {')) {
+                        answer = JSON.parse(responseItem.slice(6)).message.content.parts[0]
+                        showAnserAndHighlightCodeStr(answer)
+                        if(JSON.parse(responseItem.slice(6)).conversation_id){
+                            openai_conversation_id = JSON.parse(responseItem.slice(6)).conversation_id
+                            openai_parent_message_id = JSON.parse(responseItem.slice(6)).message.id
+                        }
 
-                   } else if (responseItem.startsWith('data: [DONE]')) {
+                    } else if (responseItem.startsWith('data: [DONE]')) {
 
-                       // return
-                   }
-               }catch (e) {
-                   console.error(e)
-               }*/
+                        // return
+                    }
+                }catch (e) {
+                    console.error(e)
+                }*/
 
-               return reader.read().then(processText)
-           },function (reason) {
-               console.log(reason)
-               Toast.error("未知错误!")
-           }).catch((ex)=>{
-               console.log(ex)
-               Toast.error("未知错误!")
-           })
-       })
-   }
+                return reader.read().then(processText)
+            },function (reason) {
+                console.log(reason)
+                Toast.error("未知错误!")
+            }).catch((ex)=>{
+                console.log(ex)
+                Toast.error("未知错误!")
+            })
+        })
+    }
 
     //Gemini api
     let gemini_key = localStorage.getItem("gemini_key")
     async function Gemini(GPTModel){
 
-       if(!gemini_key){
-           showAnserAndHighlightCodeStr(`gemini_key为空,请点击设置-更新key,请到获取[https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)`)
-           return
-       }
+        if(!gemini_key){
+            showAnserAndHighlightCodeStr(`gemini_key为空,请点击设置-更新key,请到获取[https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)`)
+            return
+        }
 
         showAnserAndHighlightCodeStr(`请稍后。。。此线路为google官网线路，使用前确定apikey的正确性(设置-更新key),[key获取](https://aistudio.google.com/app/apikey)`)
 
@@ -2867,37 +2941,37 @@
     }
 
 
-   let csrfToken;
-   async function setCsrfToken(){
-       let req1 = await GM_fetch({
-           method: "GET",
-           url: "https://tongyi.aliyun.com/qianwen/",
-           headers: {
-               "origin":"https://qianwen.aliyun.com",
-               "referer":"https://tongyi.aliyun.com/qianwen/"
-           }
-       })
-       let r = req1.responseText;
-       console.log(r);
-       try{
-           csrfToken =  /\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g.exec(r)[0];
-           console.log("csrfToken:",csrfToken)
-       }catch (e) {
-           Toast.error("csrfToken获取失败")
-       }
+    let csrfToken;
+    async function setCsrfToken(){
+        let req1 = await GM_fetch({
+            method: "GET",
+            url: "https://tongyi.aliyun.com/qianwen/",
+            headers: {
+                "origin":"https://qianwen.aliyun.com",
+                "referer":"https://tongyi.aliyun.com/qianwen/"
+            }
+        })
+        let r = req1.responseText;
+        console.log(r);
+        try{
+            csrfToken =  /\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g.exec(r)[0];
+            console.log("csrfToken:",csrfToken)
+        }catch (e) {
+            Toast.error("csrfToken获取失败")
+        }
     }
-   setTimeout(()=>{
-       if(getGPTMode()==="TONGYI"){
-           setCsrfToken()
-       }
-   })
+    setTimeout(()=>{
+        if(getGPTMode()==="TONGYI"){
+            setCsrfToken()
+        }
+    })
 
 
     let tongyi_sessionId = '';
     let tongyi_pMsgId;
 
     //通义千问 2023年5月13日
-   async function TONGYI(){
+    async function TONGYI(){
         /*if(tongyi_first){
            let req1 = await GM_fetch({
                method: "POST",
@@ -2927,123 +3001,123 @@
            }
        }
 */
-       showAnserAndHighlightCodeStr("请稍后....该接口需登录通义官网[通义](https://tongyi.aliyun.com/qianwen/)")
+        showAnserAndHighlightCodeStr("请稍后....该接口需登录通义官网[通义](https://tongyi.aliyun.com/qianwen/)")
 
 
-       let sendData = JSON.stringify({
-           "action": "next",
-           "userAction": tongyi_sessionId ? "chat" : "new_top",
-          // "msgId": generateRandomString(32),
-           "parentMsgId": (tongyi_sessionId && tongyi_pMsgId) ? tongyi_pMsgId : generateRandomString(32),
-           "requestId":   generateRandomString(32),
-           "contents": [
-               {
-                   "contentType": "text",
-                   "content": your_qus,
-                   "role": "user"
-               }
-           ],
-           "sessionId": tongyi_sessionId ? tongyi_sessionId : '',
-          // "sessionId": "",
-           "sessionType": "text_chat",
-           "model": "",
-           "mode": "chat",
-           "params": {"fileUploadBatchId": ""}
+        let sendData = JSON.stringify({
+            "action": "next",
+            "userAction": tongyi_sessionId ? "chat" : "new_top",
+            // "msgId": generateRandomString(32),
+            "parentMsgId": (tongyi_sessionId && tongyi_pMsgId) ? tongyi_pMsgId : generateRandomString(32),
+            "requestId":   generateRandomString(32),
+            "contents": [
+                {
+                    "contentType": "text",
+                    "content": your_qus,
+                    "role": "user"
+                }
+            ],
+            "sessionId": tongyi_sessionId ? tongyi_sessionId : '',
+            // "sessionId": "",
+            "sessionType": "text_chat",
+            "model": "",
+            "mode": "chat",
+            "params": {"fileUploadBatchId": ""}
 
-       })
+        })
 
-       GM_fetch({
-           method: 'POST',
-           url:  'https://qianwen.biz.aliyun.com/dialog/conversation',
-           headers: {
-               "origin": "https://tongyi.aliyun.com",
-               "referer":"https://tongyi.aliyun.com/qianwen/",
-               "Content-Type": "application/json",
-               "accept": "text/event-stream",
-               "x-platform": "pc_tongyi",
-               "x-xsrf-token": csrfToken
-           },
-           responseType: "stream",
-           data: sendData
-       }).then((stream)=> {
-           let reader = stream.response.getReader()
-           let answer;
-           reader.read().then(function processText({done, value}) {
-               if (done) {
-                   console.log("===done==")
-                   return
-               }
-               let responseItem = new TextDecoder("utf-8").decode(value)
-               console.log(responseItem)
-               /*{
-                   "aiDisclaimer": false,
-                   "canFeedback": true,
-                   "canRegenerate": true,
-                   "canShare": true,
-                   "canShow": true,
-                   "contentFrom": "text",
-                   "contentType": "text",
-                   "contents": [
-                   {
-                       "content": "你好！有什么我能帮助你的吗？",
-                       "contentType": "text",
-                       "id": "102416421db845179064dd046d5ce8d4_0",
-                       "role": "assistant",
-                       "status": "generating"
-                   }
-               ],
-                   "msgId": "102416421db845179064dd046d5ce8d4",
-                   "msgStatus": "generating",
-                   "params": {},
-                   "parentMsgId": "4880983feec04eae862ce2e08d67fc09",
-                   "sessionId": "95812ea382de4b4e82051a7272d965cb",
-                   "sessionOpen": true,
-                   "sessionShare": true,
-                   "sessionWarnNew": false,
-                   "stopReason": "null",
-                   "traceId": "0bc3b2e817159180903973007eb266"
-               }*/
+        GM_fetch({
+            method: 'POST',
+            url:  'https://qianwen.biz.aliyun.com/dialog/conversation',
+            headers: {
+                "origin": "https://tongyi.aliyun.com",
+                "referer":"https://tongyi.aliyun.com/qianwen/",
+                "Content-Type": "application/json",
+                "accept": "text/event-stream",
+                "x-platform": "pc_tongyi",
+                "x-xsrf-token": csrfToken
+            },
+            responseType: "stream",
+            data: sendData
+        }).then((stream)=> {
+            let reader = stream.response.getReader()
+            let answer;
+            reader.read().then(function processText({done, value}) {
+                if (done) {
+                    console.log("===done==")
+                    return
+                }
+                let responseItem = new TextDecoder("utf-8").decode(value)
+                console.log(responseItem)
+                /*{
+                    "aiDisclaimer": false,
+                    "canFeedback": true,
+                    "canRegenerate": true,
+                    "canShare": true,
+                    "canShow": true,
+                    "contentFrom": "text",
+                    "contentType": "text",
+                    "contents": [
+                    {
+                        "content": "你好！有什么我能帮助你的吗？",
+                        "contentType": "text",
+                        "id": "102416421db845179064dd046d5ce8d4_0",
+                        "role": "assistant",
+                        "status": "generating"
+                    }
+                ],
+                    "msgId": "102416421db845179064dd046d5ce8d4",
+                    "msgStatus": "generating",
+                    "params": {},
+                    "parentMsgId": "4880983feec04eae862ce2e08d67fc09",
+                    "sessionId": "95812ea382de4b4e82051a7272d965cb",
+                    "sessionOpen": true,
+                    "sessionShare": true,
+                    "sessionWarnNew": false,
+                    "stopReason": "null",
+                    "traceId": "0bc3b2e817159180903973007eb266"
+                }*/
 
-               responseItem.split("\n").forEach(item=>{
-                   try {
-                       let jsonObj = JSON.parse(item.replace(/data: /gi,"").trim())
+                responseItem.split("\n").forEach(item=>{
+                    try {
+                        let jsonObj = JSON.parse(item.replace(/data: /gi,"").trim())
 
-                       jsonObj.contents.forEach((item)=>{
+                        jsonObj.contents.forEach((item)=>{
 
-                           if(item.contentType === 'text'){
-                               let content = item.content;
-                               console.log(content)
-                               showAnserAndHighlightCodeStr(content)
-                           }
-                       })
-
-
-                       if(!tongyi_sessionId){
-                           tongyi_sessionId = jsonObj.sessionId;
-                           console.log("tongyi_sessionId:",tongyi_sessionId)
-                       }
-                       if(tongyi_pMsgId !== jsonObj.msgId){
-                           tongyi_pMsgId = jsonObj.msgId;
-                           console.log("tongyi_pMsgId:",tongyi_sessionId)
-                       }
+                            if(item.contentType === 'text'){
+                                let content = item.content;
+                                console.log(content)
+                                showAnserAndHighlightCodeStr(content)
+                            }
+                        })
 
 
-
-                   }catch (ex){}
-               })
-
-               return reader.read().then(processText)
-           },function (reason) {
-               console.log(reason)
-               Toast.error("未知错误!")
-           }).catch((ex)=>{
-               console.log(ex)
-               Toast.error("未知错误!")
-           })
-       })
+                        if(!tongyi_sessionId){
+                            tongyi_sessionId = jsonObj.sessionId;
+                            console.log("tongyi_sessionId:",tongyi_sessionId)
+                        }
+                        if(tongyi_pMsgId !== jsonObj.msgId){
+                            tongyi_pMsgId = jsonObj.msgId;
+                            console.log("tongyi_pMsgId:",tongyi_sessionId)
+                        }
 
 
-  }
+
+                    }catch (ex){}
+                })
+
+                return reader.read().then(processText)
+            },function (reason) {
+                console.log(reason)
+                Toast.error("未知错误!")
+            }).catch((ex)=>{
+                console.log(ex)
+                Toast.error("未知错误!")
+            })
+        })
+
+
+    }
 
 
 
@@ -3211,27 +3285,27 @@
 
     //解码
     function decodeSpark(src) {
-       /*let rv = function(e) {
-            return e.replace(/[^A-Za-z0-9\+\/]/g, "")
-        }*/
+        /*let rv = function(e) {
+             return e.replace(/[^A-Za-z0-9\+\/]/g, "")
+         }*/
 
         let dv =  function(e) {
-                //return Buffer.from(e, "base64").toString("utf8")
+            //return Buffer.from(e, "base64").toString("utf8")
             // 将 base64 编码的字符串转换为字节数组
             const bytes = CryptoJS.enc.Base64.parse(e);
             // 将字节数组转换为 UTF-8 字符串
             return bytes.toString(CryptoJS.enc.Utf8);
         }//等价BASE64解码 6KaB
 
-         /*let  fv = function(e) {
-                return dv(function(e) {
-                    return rv(e.replace(/[-_]/g, (function(e) {
-                            return "-" == e ? "+" : "/"
-                        }
-                    )))
-                }(e))
-         };*/
-       return dv(src);
+        /*let  fv = function(e) {
+               return dv(function(e) {
+                   return rv(e.replace(/[-_]/g, (function(e) {
+                           return "-" == e ? "+" : "/"
+                       }
+                   )))
+               }(e))
+        };*/
+        return dv(src);
     }
 
 
@@ -3249,7 +3323,7 @@
         console.log("sp_GtToken",sp_GtToken)
         //重命名
         if(spark_first){
-           let req1 = await GM_fetch({
+            let req1 = await GM_fetch({
                 method: "POST",
                 url: "https://xinghuo.xfyun.cn/iflygpt/u/chat-list/v1/rename-chat-list",
                 headers: {
@@ -3447,13 +3521,13 @@
             console.log('天工 接收到消息：', event.data);
             let revData = event.data;
             try{
-                 let revJSON = JSON.parse(revData);
-                 if(revJSON.type == 1){
-                     try {
-                         tg_result.push(revJSON.arguments[0].messages[0].text)
-                         showAnserAndHighlightCodeStr(tg_result.join(""))
-                     }catch (e) { }
-                 }
+                let revJSON = JSON.parse(revData);
+                if(revJSON.type == 1){
+                    try {
+                        tg_result.push(revJSON.arguments[0].messages[0].text)
+                        showAnserAndHighlightCodeStr(tg_result.join(""))
+                    }catch (e) { }
+                }
 
             }catch (ex) { }
 
@@ -3613,7 +3687,7 @@
             hunyuan_tUserId = getCookieValue(document.cookie,"hy_user");
             GM_setValue("hunyuan_tUserId", hunyuan_tUserId)
             if(hunyuan_tUserId){
-                 Toast.info(`hunyuan_tUserId获取成功:${hunyuan_tUserId}`)
+                Toast.info(`hunyuan_tUserId获取成功:${hunyuan_tUserId}`)
             }else{
                 setTimeout(initHunyuanID, 5000)
                 if(hunyuan_count < 3){
@@ -3652,32 +3726,32 @@
         console.error("hunyuan_chatId:",r)
     }
 
-   /* fetch('https://yuanbao.tencent.com/api/chat/ca7b253f-a1a7-4e24-82ca-667cc0fbd98d', {
-        method: 'POST',
-        headers: {
-            'authority': 'yuanbao.tencent.com',
-            'accept': '*!/!*',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'cache-control': 'no-cache',
-            'chat_version': 'v1',
-            'content-type': 'text/plain;charset=UTF-8',
-            'cookie': '_ga=GA1.2.1033776250.1698727525; _gcl_au=1.1.484286265.1713846526; hy_source=web; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2229491242%22%2C%22first_id%22%3A%2218b840cf7219d8-044a60801af8344-1f7e152e-1440000-18b840cf7229ea%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E5%BC%95%E8%8D%90%E6%B5%81%E9%87%8F%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMThiODQwY2Y3MjE5ZDgtMDQ0YTYwODAxYWY4MzQ0LTFmN2UxNTJlLTE0NDAwMDAtMThiODQwY2Y3MjI5ZWEiLCIkaWRlbnRpdHlfbG9naW5faWQiOiIyOTQ5MTI0MiJ9%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%24identity_login_id%22%2C%22value%22%3A%2229491242%22%7D%2C%22%24device_id%22%3A%2218b840cf7219d8-044a60801af8344-1f7e152e-1440000-18b840cf7229ea%22%7D; hy_user=Bcw9KJaWemFaQ9iL; hy_token=bP9sp/yaXedZmIELMZz0hGSfpb6zW8UN7hFQeec8RFQIVAhWHCHLbFxq0tF5U6pO',
-            'origin': 'https://yuanbao.tencent.com',
-            'pragma': 'no-cache',
-            'referer': 'https://yuanbao.tencent.com/chat/naQivTmsDa',
-            'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-origin',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36',
-            'x-requested-with': 'XMLHttpRequest',
-            'x-source': 'web'
-        },
-        body: '{"model":"gpt_175B_0404","prompt":"你叫我什么","plugin":"Adaptive","displayPrompt":"你很牛吗","displayPromptType":1,"options":{},"multimedia":[],"agentId":"naQivTmsDa","version":"v2"}'
-    });
-    */
+    /* fetch('https://yuanbao.tencent.com/api/chat/ca7b253f-a1a7-4e24-82ca-667cc0fbd98d', {
+         method: 'POST',
+         headers: {
+             'authority': 'yuanbao.tencent.com',
+             'accept': '*!/!*',
+             'accept-language': 'zh-CN,zh;q=0.9',
+             'cache-control': 'no-cache',
+             'chat_version': 'v1',
+             'content-type': 'text/plain;charset=UTF-8',
+             'cookie': '_ga=GA1.2.1033776250.1698727525; _gcl_au=1.1.484286265.1713846526; hy_source=web; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%2229491242%22%2C%22first_id%22%3A%2218b840cf7219d8-044a60801af8344-1f7e152e-1440000-18b840cf7229ea%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E5%BC%95%E8%8D%90%E6%B5%81%E9%87%8F%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMThiODQwY2Y3MjE5ZDgtMDQ0YTYwODAxYWY4MzQ0LTFmN2UxNTJlLTE0NDAwMDAtMThiODQwY2Y3MjI5ZWEiLCIkaWRlbnRpdHlfbG9naW5faWQiOiIyOTQ5MTI0MiJ9%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%24identity_login_id%22%2C%22value%22%3A%2229491242%22%7D%2C%22%24device_id%22%3A%2218b840cf7219d8-044a60801af8344-1f7e152e-1440000-18b840cf7229ea%22%7D; hy_user=Bcw9KJaWemFaQ9iL; hy_token=bP9sp/yaXedZmIELMZz0hGSfpb6zW8UN7hFQeec8RFQIVAhWHCHLbFxq0tF5U6pO',
+             'origin': 'https://yuanbao.tencent.com',
+             'pragma': 'no-cache',
+             'referer': 'https://yuanbao.tencent.com/chat/naQivTmsDa',
+             'sec-ch-ua': '"Chromium";v="122", "Not(A:Brand";v="24", "Google Chrome";v="122"',
+             'sec-ch-ua-mobile': '?0',
+             'sec-ch-ua-platform': '"Windows"',
+             'sec-fetch-dest': 'empty',
+             'sec-fetch-mode': 'cors',
+             'sec-fetch-site': 'same-origin',
+             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.95 Safari/537.36',
+             'x-requested-with': 'XMLHttpRequest',
+             'x-source': 'web'
+         },
+         body: '{"model":"gpt_175B_0404","prompt":"你叫我什么","plugin":"Adaptive","displayPrompt":"你很牛吗","displayPromptType":1,"options":{},"multimedia":[],"agentId":"naQivTmsDa","version":"v2"}'
+     });
+     */
     async function Hunyuan(mtag) {
 
         showAnserAndHighlightCodeStr("请稍后...deepseek较慢。该线路为官网线路，请确保登录[元宝](https://yuanbao.tencent.com/chat)")
@@ -3703,7 +3777,7 @@
         }
 
         if(hunyuan_isfirst && !hunyuan_chatId){
-           await initHunyuan()
+            await initHunyuan()
         }
 
         let payload = JSON.stringify({
@@ -3769,7 +3843,7 @@
 
                             //add deepseek 2025.02
                             if(mtag === 'deepseek'){
-                               chunk = JSON.parse(ii).content
+                                chunk = JSON.parse(ii).content
                             }else{
                                 chunk = JSON.parse(ii).msg
                             }
@@ -3808,7 +3882,7 @@
     async function init_chatgml_token() {
         if (location.href.includes("chatglm.cn")) {
             chatgml_token = getCookieValue(document.cookie, "chatglm_token")
-             GM_setValue("chatgml_token", chatgml_token)
+            GM_setValue("chatgml_token", chatgml_token)
             if (chatgml_token) {
                 console.log(`chatgml_token获取成功:${chatgml_token}`)
             } else {
@@ -3911,7 +3985,7 @@
                     return
                 }
                 let responseItem = new TextDecoder("utf-8").decode(value)
-               // console.error(responseItem)
+                // console.error(responseItem)
                 responseItem = responseItem.split("\n\n");
                 console.warn(responseItem)
                 responseItem.forEach(item=>{
@@ -3996,14 +4070,14 @@
                     return
                 }
                 let responseItem = new TextDecoder("utf-8").decode(value)
-                 //console.error(responseItem)
-                 responseItem = responseItem.split("\n\n");
+                //console.error(responseItem)
+                responseItem = responseItem.split("\n\n");
                 console.warn(responseItem)
                 if(responseItem.length >= 2 && responseItem[responseItem.length - 2].includes("finish")){
 
                     responseItem.forEach(item=>{
                         try {
-                           let resJson =  JSON.parse(item.replace(/event:message\ndata:/gi,""))
+                            let resJson =  JSON.parse(item.replace(/event:message\ndata:/gi,""))
                             let part =  resJson.parts[0].content[0].text
                             if(resJson.parts[0].status == 'finish'){
                                 res.push(part)
@@ -4087,7 +4161,7 @@
             headers: {
                 "accept": "text/event-stream",
                 "Content-Type":"application/json",
-               "Authorization": generate_token(zhipu_apiKey, 1000)
+                "Authorization": generate_token(zhipu_apiKey, 1000)
                 // "Authorization": 'eyJhbGciOiJIUzI1NiIsInNpZ25fdHlwZSI6IlNJR04iLCJ0eXAiOiJKV1QifQ.eyJhcGlfa2V5IjoiZjM3ZDVlMjFhZDk1NGJhOTM0NmYyOTgwMTgzNDJiMjciLCJleHAiOjE2ODc4Nzg1NTM1NjcsInRpbWVzdGFtcCI6MTY4Nzg3NzU1MzU2N30.e8SMjA0vBaUxXB-WrViFa0-C0qVLechNV5L5s2WoF8c'
             },
             data:JSON.stringify({
@@ -4109,7 +4183,7 @@
                     return
                 }
                 let responseItem = new TextDecoder("utf-8").decode(value)
-                 console.error(responseItem)
+                console.error(responseItem)
                 responseItem = responseItem.split("\n");
                 console.warn(responseItem)
                 responseItem.forEach(item=>{
@@ -4341,7 +4415,7 @@
                 'assistant': {},
                 'retry': 3
             }),
-           // responseType:"stream"
+            // responseType:"stream"
         }).then((stream)=>{
             let responseText =  stream.responseText
             let result = []
@@ -4681,7 +4755,7 @@
                     try {
                         let d = new TextDecoder("utf8").decode(new Uint8Array(value));
                         if(d.match(/wxgpt@qq.com/gi)){
-                           d = d.replace(/wxgpt@qq.com/gi,"")
+                            d = d.replace(/wxgpt@qq.com/gi,"")
                         }
                         result.push(d);
                         console.log(d)
@@ -4706,14 +4780,14 @@
 
     //获取A类网站key 2023年5月3日
     async function setNormalKey(url) {
-       let response = await GM_fetch({
+        let response = await GM_fetch({
             method: "GET",
             url: url,
-           headers: {
-               "Referer": url+"/",
-               "origin": url,
-               "upgrade-insecure-requests":"1"
-           }
+            headers: {
+                "Referer": url+"/",
+                "origin": url,
+                "upgrade-insecure-requests":"1"
+            }
         });
         let resp = response.responseText;
         if(!resp){
@@ -4728,7 +4802,7 @@
                     "upgrade-insecure-requests":"1"
                 }
             });
-             resp = response.responseText;
+            resp = response.responseText;
         }
         let regex = /component-url="(.*?)"/i;
         let match = resp.match(regex);
@@ -4740,12 +4814,12 @@
             Toast.error("未知错误!")
             return
         }
-       let rr = await GM_fetch({
+        let rr = await GM_fetch({
             method: "GET",
             url: url + jsurl,
             headers: {
-               "Referer": url+"/",
-               "origin": url,
+                "Referer": url+"/",
+                "origin": url,
                 "cookie":"_h=_1"
             }
         });
