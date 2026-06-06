@@ -7,9 +7,6 @@
 // @author       夜雨
 // @match        *://*/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=https://www.the-qrcode-generator.com
-// @require      https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js
-// @require      https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js
-// @require      https://cdn.staticfile.org/jquery/3.4.0/jquery.min.js
 // @grant        GM_registerMenuCommand
 // @homepageURL  https://greasyfork.org/zh-CN/scripts/480612
 // @supportURL   https://greasyfork.org/zh-CN/scripts/480612
@@ -18,6 +15,39 @@
 
 (function () {
     'use strict';
+
+    // ==================== 动态加载外部库 ====================
+    function injectScript(id, src) {
+        return new Promise((resolve, reject) => {
+            if (document.getElementById(id)) {
+                resolve();
+                return;
+            }
+            const script = document.createElement('script');
+            script.id = id;
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    // 预加载 QRCode 和 jsQR
+    const libsReady = Promise.all([
+        injectScript('qrcode-script', 'https://cdn.bootcdn.net/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'),
+        injectScript('jsQR-script', 'https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js')
+    ]).catch(() => {
+        console.warn('[二维码脚本] 部分库加载失败，尝试备用 CDN');
+        // 备用 CDN
+        return Promise.all([
+            typeof QRCode === 'undefined'
+                ? injectScript('qrcode-script-alt', 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js')
+                : Promise.resolve(),
+            typeof jsQR === 'undefined'
+                ? injectScript('jsQR-script-alt', 'https://unpkg.com/jsqr/dist/jsQR.js')
+                : Promise.resolve()
+        ]);
+    });
 
     // ==================== 样式 ====================
     const STYLE = `
@@ -325,7 +355,13 @@
 
     // ==================== 生成二维码 ====================
 
-    function generateQRCode() {
+    async function generateQRCode() {
+        await libsReady;
+        if (typeof QRCode === 'undefined') {
+            showToast('QRCode 库加载失败，请刷新页面重试');
+            return;
+        }
+
         const contentHTML = `
             <div id="qr-code-container"></div>
             <button class="qr-btn" id="qr-regenerate-btn">重新生成</button>
@@ -359,21 +395,25 @@
     // ==================== 解析二维码 ====================
 
     // 从 canvas 解析二维码
-    function decodeCanvas(canvas) {
+    async function decodeCanvas(canvas) {
+        await libsReady;
+        if (typeof jsQR === 'undefined') {
+            throw new Error('jsQR 库加载失败');
+        }
         const ctx = canvas.getContext('2d');
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         return jsQR(imageData.data, imageData.width, imageData.height);
     }
 
     // 从 Image 元素解析二维码
-    function decodeFromImage(img) {
+    async function decodeFromImage(img) {
         const canvas = document.createElement('canvas');
         try {
             canvas.width = img.naturalWidth || img.width;
             canvas.height = img.naturalHeight || img.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            return decodeCanvas(canvas);
+            return await decodeCanvas(canvas);
         } finally {
             canvas.width = 0;
             canvas.height = 0;
@@ -433,7 +473,7 @@
     // 解析入口：处理图片并显示结果
     async function processAndDecode(img) {
         try {
-            const code = decodeFromImage(img);
+            const code = await decodeFromImage(img);
             if (code) {
                 showDecodeResult(code.data);
             } else {
@@ -446,9 +486,9 @@
     }
 
     // 直接从 canvas 元素解析（无需转图片，避免跨域问题）
-    function processCanvasElement(canvas) {
+    async function processCanvasElement(canvas) {
         try {
-            const code = decodeCanvas(canvas);
+            const code = await decodeCanvas(canvas);
             if (code) {
                 showDecodeResult(code.data);
             } else {
@@ -470,7 +510,12 @@
     }
 
     // 一键扫描页面上所有 Canvas
-    function scanAllCanvases() {
+    async function scanAllCanvases() {
+        await libsReady;
+        if (typeof jsQR === 'undefined') {
+            showToast('jsQR 库加载失败，请刷新页面重试');
+            return;
+        }
         const canvases = document.querySelectorAll('canvas');
         if (canvases.length === 0) {
             showToast('页面上没有找到 Canvas 元素');
