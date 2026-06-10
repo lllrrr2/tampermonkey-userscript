@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         B站视频调速
 // @namespace    yeyu
-// @version      1.0
+// @version      1.1
 // @description  bilibili视频调速，突破2倍速，滑块无极变速
 // @author       夜雨
 // @match        *://www.bilibili.com/video/*
@@ -154,6 +154,55 @@
             text-align: center;
         }
 
+        /* 记忆功能开关 */
+        .bili-rate-memory {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .bili-rate-memory-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+        }
+        .bili-rate-switch {
+            position: relative;
+            width: 34px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .bili-rate-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .bili-rate-switch-slider {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 9px;
+            transition: background 0.2s;
+        }
+        .bili-rate-switch-slider::before {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            left: 2px;
+            top: 2px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .bili-rate-switch input:checked + .bili-rate-switch-slider {
+            background: #00a1d6;
+        }
+        .bili-rate-switch input:checked + .bili-rate-switch-slider::before {
+            transform: translateX(16px);
+        }
+
         /* 播放器控制栏隐藏时，按钮也半透明 */
         .bili-rate-side.bili-rate-dim {
             opacity: 0.15;
@@ -183,6 +232,8 @@
     // ==================== 创建控件 ====================
 
     const PRESETS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 5];
+    const STORAGE_KEY_RATE = 'bili-rate-memory-rate';
+    const STORAGE_KEY_ENABLED = 'bili-rate-memory-enabled';
     let injected = false;
 
     function inject() {
@@ -200,7 +251,10 @@
         player.style.position = 'relative';
         injected = true;
 
-        const currentRate = getVideo().playbackRate || 1;
+        // 读取记忆配置
+        const memoryEnabled = localStorage.getItem(STORAGE_KEY_ENABLED) === 'true';
+        const savedRate = parseFloat(localStorage.getItem(STORAGE_KEY_RATE));
+        const currentRate = (memoryEnabled && savedRate > 0) ? savedRate : (getVideo().playbackRate || 1);
 
         // ---- 右侧贴边容器 ----
         const side = document.createElement('div');
@@ -227,6 +281,13 @@
                 ${PRESETS.map(r => `<button class="bili-rate-p${Math.abs(r - currentRate) < 0.01 ? ' bili-rate-active' : ''}" data-rate="${r}">${r}x</button>`).join('')}
             </div>
             <div class="bili-rate-hint">点击速度数值重置为 1x</div>
+            <div class="bili-rate-memory">
+                <span class="bili-rate-memory-label">记忆倍速</span>
+                <label class="bili-rate-switch">
+                    <input type="checkbox" id="bili-rate-memory-toggle" ${memoryEnabled ? 'checked' : ''}>
+                    <span class="bili-rate-switch-slider"></span>
+                </label>
+            </div>
         `;
 
         side.appendChild(popup);
@@ -281,6 +342,7 @@
         const slider = popup.querySelector('#bili-rate-slider');
         const label = popup.querySelector('#bili-rate-val');
         const presets = popup.querySelector('#bili-rate-presets');
+        const memoryToggle = popup.querySelector('#bili-rate-memory-toggle');
 
         function applyRate(rate) {
             const video = getVideo();
@@ -295,7 +357,22 @@
                 const r = parseFloat(b.dataset.rate);
                 b.classList.toggle('bili-rate-active', Math.abs(r - rate) < 0.05);
             });
+            // 记忆功能：保存当前倍速
+            if (memoryToggle.checked) {
+                localStorage.setItem(STORAGE_KEY_RATE, rate.toString());
+            }
         }
+
+        // 记忆开关事件
+        memoryToggle.addEventListener('change', () => {
+            if (memoryToggle.checked) {
+                localStorage.setItem(STORAGE_KEY_ENABLED, 'true');
+                localStorage.setItem(STORAGE_KEY_RATE, getVideo().playbackRate.toString());
+            } else {
+                localStorage.removeItem(STORAGE_KEY_ENABLED);
+                localStorage.removeItem(STORAGE_KEY_RATE);
+            }
+        });
 
         // 点击按钮 → 展开/收起
         btn.addEventListener('click', (e) => {
@@ -327,6 +404,11 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') popup.classList.remove('bili-rate-show');
         });
+
+        // 记忆功能：页面加载时自动应用保存的倍速
+        if (memoryEnabled && savedRate > 0) {
+            applyRate(savedRate);
+        }
     }
 
     // ==================== 等待播放器加载 ====================
