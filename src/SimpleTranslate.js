@@ -2,7 +2,7 @@
 // @name         网页中英双显互译
 // @name:en      Translation between Chinese and English
 // @namespace    http://yeyu1024.xyz
-// @version      1.9.0
+// @version      1.9.1
 // @description  中-英-外互转，双语显示。支持谷歌，微软等API，为用户提供了快速准确的中英文翻译服务。无论是在工作中处理文件、学习外语、还是在日常生活中与国际友人交流，这个脚本都能够帮助用户轻松应对语言障碍。通过简单的操作，用户只需点击就会立即把网页翻译，节省了用户手动查词或使用在线翻译工具的时间，提高工作效率。
 // @description:en  Web pages translated into Chinese, English and foreign languages
 // @description:de  Webseite in Chinesisch, Englisch, Fremdsprachen
@@ -914,8 +914,8 @@
     async function handleMouseUpOrTouchend(event) {
         event.stopPropagation()
 
-        //copyTranslatedText
-        if (/copyTranslatedText/.test(event.target.id)) {
+        //copyTranslatedText - 用closest兼容SVG内部子元素
+        if (event.target.closest('#copyTranslatedText')) {
             GM_setClipboard(document.querySelector('#qs_selectedText').innerText, "text");
             console.log('复制成功')
             Toast.success("复制成功!")
@@ -923,8 +923,8 @@
         }
 
         const selectText = window.getSelection().toString()
-        //console.error(event.target)
-        if (/(qs_searchBoxOuter|qs_searchBox|qs_selectedText)/.test(event.target.id)) {
+        //点击弹窗内部不关闭
+        if (event.target.closest('#qs_searchBoxOuter')) {
             return;
         } else {
             document.querySelectorAll('#qs_searchBoxOuter').forEach(item => {
