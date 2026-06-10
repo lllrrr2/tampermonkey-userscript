@@ -1182,34 +1182,73 @@
                 padding: 12px 12px 0 12px;
                 max-width: 300px;
                 position: absolute;
-               /* height: 28px;*/
-                border-radius: 6px;
-                border: none;
+                border-radius: 10px;
+                border: 1px solid rgba(0,0,0,.08);
                 outline: 0;
                 text-decoration: none;
-                box-shadow: 0 0 0 1px rgba(0,0,0,.05),0 2px 3px 0 rgba(0,0,0,.1);
+                box-shadow: 0 4px 16px rgba(0,0,0,.12), 0 1px 4px rgba(0,0,0,.08);
                 margin-top: 8px;
                 display: none;
+                animation: qs_fadeIn 0.15s ease;
                 cursor: pointer;
                 font-weight: 600;
                 z-index: 30009
             }
+            @keyframes qs_fadeIn {
+                from { opacity: 0; transform: translateY(4px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
 
             #qs_searchBox:hover {
-                box-shadow: 0 0 0 1px rgba(0,0,0,.05),0 2px 4px 1px rgba(0,0,0,.14)
+                box-shadow: 0 6px 24px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.1);
+            }
+            #qs_searchBox hr {
+                border: none;
+                border-top: 1px solid #f0f0f0;
+                margin: 0;
             }
 
             #qs_selectedText {
-                /* padding-right:12px; */
-                /*overflow: hidden;*/
+                max-height: 200px;
+                overflow-y: auto;
+                overflow-x: hidden;
                 text-overflow: ellipsis;
                 white-space: normal;
                 max-width: 258px;
+                font-size: 13px;
+                line-height: 1.6;
+                color: #333;
+                font-weight: 500;
+                padding-bottom: 8px;
+                scrollbar-width: thin;
+                scrollbar-color: #ccc transparent;
+            }
+            #qs_selectedText::-webkit-scrollbar {
+                width: 5px;
+            }
+            #qs_selectedText::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            #qs_selectedText::-webkit-scrollbar-thumb {
+                background: #ccc;
+                border-radius: 3px;
+            }
+            #qs_selectedText::-webkit-scrollbar-thumb:hover {
+                background: #aaa;
             }
 
 
             #qs_searchIconInner {
                 display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background 0.15s;
+                padding: 4px;
+            }
+            #qs_searchIconInner:hover {
+                background: #f0f0f0;
             }
 
             .engine-card {
