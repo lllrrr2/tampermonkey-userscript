@@ -2,7 +2,7 @@
 // @name         网页中英双显互译
 // @name:en      Translation between Chinese and English
 // @namespace    http://yeyu1024.xyz
-// @version      1.9.1
+// @version      1.9.2
 // @description  中-英-外互转，双语显示。支持谷歌，微软等API，为用户提供了快速准确的中英文翻译服务。无论是在工作中处理文件、学习外语、还是在日常生活中与国际友人交流，这个脚本都能够帮助用户轻松应对语言障碍。通过简单的操作，用户只需点击就会立即把网页翻译，节省了用户手动查词或使用在线翻译工具的时间，提高工作效率。
 // @description:en  Web pages translated into Chinese, English and foreign languages
 // @description:de  Webseite in Chinesisch, Englisch, Fremdsprachen
@@ -35,9 +35,7 @@
 // @run-at       document-end
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=translate.google.com
 // @require      https://bowercdn.net/c/jquery-3.4.0/dist/jquery.min.js
-// @require      https://bowercdn.net/c/toastr-2.1.3/toastr.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
-// @resource toastCss  https://bowercdn.net/c/toastr-2.1.3/toastr.min.css
 // @grant        GM_addStyle
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -45,7 +43,6 @@
 // @grant        GM_openInTab
 // @grant        GM_setClipboard
 // @grant        GM_registerMenuCommand
-// @grant        GM_getResourceText
 // @grant        unsafeWindow
 // @connect      api-edge.cognitive.microsofttranslator.com
 // @connect      edge.microsoft.com
@@ -535,17 +532,6 @@
         })
     }
 
-    function addToastCss() {
-        try {
-            GM_addStyle(GM_getResourceText("toastCss"))
-        } catch (e) {
-
-        }
-    }
-
-    addToastCss()
-
-
     function changeSelectLang() {
         if (selectTolang === currentAPI.ChineseLang) {
             selectTolang = currentAPI.EnglishLang;
@@ -855,25 +841,6 @@
         }
         console.warn('excludeSites', excludeSites)
 
-
-        //toastr配置
-        toastr.options = {
-            // "closeButton": false,
-            // "debug": false,
-            // "newestOnTop": false,
-            // "progressBar": false,
-            "positionClass": "toast-top-right", // 提示框位置，这里填类名
-            // "preventDuplicates": false,
-            // "onclick": null,
-            "showDuration": "1000",              // 提示框渐显所用时间
-            "hideDuration": "1000",              // 提示框隐藏渐隐时间
-            "timeOut": "5000",                  // 提示框持续时间
-            "extendedTimeOut": "2000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        }
     }
 
     try {
@@ -1012,36 +979,92 @@
     }
 
 
-    //toastr 封装  ----start----
-    const Toast = {
+    //自定义Toast封装  ----start----
+    (function () {
+        // 注入Toast样式
+        const toastCSS = `
+        .custom-toast-container {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .custom-toast {
+            min-width: 240px;
+            max-width: 360px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            line-height: 1.5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            pointer-events: auto;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+            word-break: break-word;
+        }
+        .custom-toast.show {
+            opacity: 0.85;
+            transform: translateX(0);
+        }
+        .custom-toast.hide {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+        .custom-toast-success { background: rgba(76,175,80,0.85); }
+        .custom-toast-error   { background: rgba(244,67,54,0.85); }
+        .custom-toast-info    { background: rgba(33,150,243,0.85); }
+        .custom-toast-warning { background: rgba(255,152,0,0.85); }
+        `;
+        GM_addStyle(toastCSS);
 
-        warn: function (msg, title, options) {
-            try {
-                toastr.warning(msg, title, options)
-            } catch (e) {
+        let container = null;
+        function getContainer() {
+            if (!container || !document.body.contains(container)) {
+                container = document.createElement('div');
+                container.className = 'custom-toast-container';
+                document.body.appendChild(container);
             }
-        },
-        info: function (msg, title, options) {
-            try {
-                toastr.info(msg, title, options)
-            } catch (e) {
-            }
-        },
-        success: function (msg, title, options) {
-            try {
-                toastr.success(msg, title, options)
-            } catch (e) {
-            }
-        },
-        error: function (msg, title, options) {
-            try {
-                toastr.error(msg, title, options)
-            } catch (e) {
-            }
-        },
-    };
+            return container;
+        }
 
-    //toastr 封装  ----end----
+        function showToast(type, msg) {
+            try {
+                const el = document.createElement('div');
+                el.className = `custom-toast custom-toast-${type}`;
+                el.textContent = msg || '';
+                getContainer().appendChild(el);
+                // 触发动画
+                requestAnimationFrame(() => {
+                    el.classList.add('show');
+                });
+                // 自动消失
+                setTimeout(() => {
+                    el.classList.remove('show');
+                    el.classList.add('hide');
+                    setTimeout(() => {
+                        el.remove();
+                    }, 400);
+                }, 3000);
+            } catch (e) {
+                console.error('Toast error:', e);
+            }
+        }
+
+        window.Toast = {
+            success: function (msg) { showToast('success', msg); },
+            error:   function (msg) { showToast('error', msg); },
+            info:    function (msg) { showToast('info', msg); },
+            warn:    function (msg) { showToast('warning', msg); },
+            warning: function (msg) { showToast('warning', msg); },
+        };
+    })();
+    //自定义Toast封装  ----end----
 
     if (excludeSites.includes(location.host)) {
         throw new Error('当前网站不允许运行,已经停止!')
@@ -3378,7 +3401,7 @@ ${ali_uuid}\r
     document.querySelector("#en2zh").addEventListener("click", async (event) => {
         event.stopPropagation()
         try {
-            Toast.info(`正在翻译。。。。当前API:${currentAPI.name}`)
+            Toast.info(`正在翻译.....当前引擎:${engineList[getCurrentEngineIndex()].name}`)
         } catch (e) {
         }
         translateTo(currentAPI.ChineseLang)
@@ -3388,7 +3411,7 @@ ${ali_uuid}\r
     document.querySelector("#zh2en").addEventListener("click", async (event) => {
         event.stopPropagation()
         try {
-            Toast.info(`正在翻译。。。。当前API:${currentAPI.name}`)
+            Toast.info(`正在翻译.....当前引擎:${engineList[getCurrentEngineIndex()].name}`)
         } catch (e) {
         }
         translateTo(currentAPI.EnglishLang)
