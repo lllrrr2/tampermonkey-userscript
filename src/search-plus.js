@@ -31,7 +31,6 @@
 // @match      *://m.sogou.com/*
 // @match      *://chat.scnet.cn/*
 // @match      *://wap.sogou.com/*
-// @match      *://*.tiangong.cn/*
 // @match      *://www.bilibili.com/video/*
 // @match      *://blog.csdn.net/*/article/details/*
 // @match      *://chatglm.cn/*
@@ -55,14 +54,8 @@
 // @require    https://s4.zstatic.net/ajax/libs/marked/13.0.2/marked.min.js
 // @resource toastCss  https://cdn.bootcdn.net/ajax/libs/toastr.js/2.1.3/toastr.min.css
 // @resource katexCss  https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.6/katex.css
-// @connect    api.forchange.cn
 // @connect    hunyuan.tencent.com
 // @connect    yuanbao.tencent.com
-// @connect    baichuan-ai.com
-// @connect    chatbot.theb.ai
-// @connect    cbjtestapi.binjie.site
-// @connect    freechatgpt.xgp.one
-// @connect    luntianxia.uk
 // @connect    xjai.pro
 // @connect    zw7.lol
 // @connect    chatforai.store
@@ -103,17 +96,9 @@
 // @connect   chatcleand.xyz
 // @connect   gptforlove.com
 // @connect   xcbl.cc
-// @connect   hz-it-dev.com
-// @connect   6bbs.cn
-// @connect   toyaml.com
-// @connect   38.47.97.76
 // @connect   lbb.ai
 // @connect   lovebaby.today
 // @connect   gamejx.cn
-// @connect   chat86.cn
-// @connect   ai001.live
-// @connect   ai003.live
-// @connect   ai006.live
 // @connect   promptboom.com
 // @connect   hehanwang.com
 // @connect   caipacity.com
@@ -137,9 +122,6 @@
 // @connect   yuxin-ai.com
 // @connect   xinghuo.xfyun.cn
 // @connect   geetest.com
-// @connect   neice.tiangong.cn
-// @connect   chat.tiangong.cn
-// @connect   work.tiangong.cn
 // @connect   yeyu2048.xyz
 // @connect   chatglm.cn
 // @connect   open.bigmodel.cn
@@ -922,12 +904,10 @@
     // AI线路调度表：模式名 -> 启动函数
     const GPT_MODE_HANDLERS = {
         'YeYu':          () => { /* YeYu() */ },
-        'THEBAI':        () => THEBAI(),
         'YQCLOUD':       () => YQCLOUD(),
         'TDCHAT':        () => TDCHAT(),
         'AILS':          () => AILS(),
         'CVEOY':         () => CVEOY(),
-        'TOYAML':        () => TOYAML(),
         'newBing':       () => newBing(),
         'AIFREE':        () => AIFREE(),
         'OPENAI':        () => OPENAI("text-davinci-002-render-sha"),
@@ -935,17 +915,12 @@
         'Gemini':        () => Gemini(),
         'TONGYI':        () => TONGYI(),
         'SPARK':         () => SPARK(),
-        'TIANGONG':      () => TIANGONG(),
         'Hunyuan':       () => Hunyuan(''),
         'DeepSeekYuanBao':() => Hunyuan('deepseek'),
-        'YIYAN':         () => YIYAN(),
-        'DeepSeek':      () => DeepSeek(),
         'ChatGLM':       () => ChatGLM(),
         'ChatGLM4':      () => ChatGLM4(),
         'ZhipuAI':       () => ZhipuAI(),
-        'chatforai':     () => chatforai(),
         'Zhinao360':     () => Zhinao360(),
-        'BAICHUAN':      () => BAICHUAN(),
         'MixerBox':      () => MixerBox(),
         'miniMax':       () => miniMax(),
     };
@@ -1018,28 +993,21 @@
                         <option style="display:none" value="newBing">New Bing</option>
                         <option style="display:none" value="OPENAI-3.5">OPENAI-3.5</option>
                         <option value="Gemini">Gemini-2.0</option>
-                        <option value="DeepSeek">DeepSeek(满血)</option>
                         <option value="TONGYI">通义千问</option>
-                        <option value="YIYAN">百度文心</option>
                         <option value="SPARK">讯飞星火</option>
-                        <option value="TIANGONG">天工AI</option>
                         <option value="Hunyuan">腾讯元宝</option>
                         <option value="DeepSeekYuanBao">腾讯Deepseek(联网)</option>
                         <option value="ChatGLM">ChatGLM</option>
                         <option value="ChatGLM4">ChatGLM4</option>
                         <option value="ZhipuAI">智谱AI</option>
                         <option value="Zhinao360">360智脑</option>
-                        <option value="BAICHUAN">百川AI</option>
                         <option value="miniMax">miniMax</option>
                         <option value="AIFREE">AIFREE</option>
-                        <option value="chatforai">chatforai</option>
                         <option value="MixerBox">MixerBox</option>
-                        <option style="display:none" value="THEBAI">XJAI</option>
                         <option value="YQCLOUD">YQCLOUD</option>
                         <option value="TDCHAT">TDCHAT</option>
                         <option value="AILS">AILS</option>
                         <option value="CVEOY">CVEOY</option>
-                        <option value="TOYAML">TOYAML</option>
                     </select>
                     <span class="sp-hint">部分线路需科学上网</span>
                 </div>
@@ -1083,26 +1051,20 @@
             <div class="sp-section" id="website">
                 <div class="sp-section-title">🔗 AI 官网</div>
                 <div class="sp-links">
+                    <a target="_blank" href="https://claude.ai/">Claude</a>
+                    <a target="_blank" href="https://gemini.google.com/">Gemini</a>
+                    <a target="_blank" href="https://chatgpt.com">OpenAI</a>
                     <a target="_blank" href="https://chat.deepseek.com/">DeepSeek</a>
                     <a target="_blank" href="https://yiyan.baidu.com/">文心</a>
-                    <a target="_blank" href="https://qianwen.aliyun.com/">通义</a>
-                    <a target="_blank" href="https://www.tiangong.cn/">天工</a>
-                    <a target="_blank" href="https://xinghuo.xfyun.cn/">讯飞</a>
+                    <a target="_blank" href="https://www.qianwen.com/">千问</a>
                     <a target="_blank" href="https://hunyuan.tencent.com/">元宝</a>
                     <a target="_blank" href="https://www.doubao.com/chat/">豆包</a>
-                    <a target="_blank" href="https://kimi.moonshot.cn/">Kimi</a>
-                    <a target="_blank" href="https://chatgpt.com">OpenAI</a>
-                    <a target="_blank" href="https://gemini.google.com/app">Gemini</a>
-                    <a target="_blank" href="https://claude.ai/">Claude</a>
-                    <a target="_blank" href="https://chatglm.cn/chat">GLM</a>
-                    <a target="_blank" href="https://poe.com/">Poe</a>
-                    <a target="_blank" href="https://chat.360.cn/">360智脑</a>
+                    <a target="_blank" href="https://www.kimi.com/">Kimi</a>
+                    <a target="_blank" href="https://chatglm.cn/">GLM</a>
                 </div>
                 <div class="sp-footer-links">
                     <a target="_blank" href="https://greasyfork.org/scripts/459997">🔄 更新脚本</a>
                     <a href="https://q1.qlogo.cn/g?b=qq&nk=2471543762&s=640">❤️ 用爱发电</a>
-                    <a target="_blank" href="https://www.bing.com/search?q=Bing+AI&showconv=1">Bing</a>
-                    <a target="_blank" href="https://www.baichuan-ai.com/">百川</a>
                 </div>
             </div>
         </div>
@@ -1110,7 +1072,7 @@
             <div id="gptAnswer_inner">
                 <div style="text-align:center;padding:10px 0;color:#999;font-size:13px;">
                     <div style="font-size:16px;margin-bottom:6px;">🤖</div>
-                    <div>版本 ${JSver} 已启动</div>
+                    <div>版本 ${JSver} </div>
                     <div style="margin-top:4px;">当前线路: <strong style="color:#4e6ef2;">${getGPTMode() || "Default"}</strong> · 自动点击: ${localStorage.getItem("autoClick") || "关闭"}</div>
                     <div style="margin-top:4px;font-size:12px;color:#bbb;">更换AI接口请点击上方「设置」</div>
                 </div>
@@ -2287,133 +2249,6 @@
     }
 
 
-    let ds_x_token_dasclient = ""
-
-    async function initDS_x_token_dasclient() {
-        if (location.href.includes("scnet.cn")) {
-            ds_x_token_dasclient = localStorage.getItem("user_chat_token");
-            console.log("ds_x_token_dasclient",ds_x_token_dasclient)
-            GM_setValue("ds_x_token_dasclient", ds_x_token_dasclient)
-            try {
-                if(ds_x_token_dasclient){
-                    Toast.info("ds_x_token_dasclient 获取成功：",ds_x_token_dasclient)
-                }else{
-                    Toast.info("`ds_x_token_dasclient获取失败，请再次刷新.`",ds_x_token_dasclient)
-                }
-            }catch (e) {}
-        } else {
-            ds_x_token_dasclient =  GM_getValue("ds_x_token_dasclient")
-        }
-    }
-
-    setTimeout(initDS_x_token_dasclient)
-
-
-    async function DeepSeek() {
-
-
-        showAnserAndHighlightCodeStr(`此线路为超算互联Deepseek线路，如果出错请尝试打开官方后刷新页面再试：[Deepseek](https://chat.scnet.cn/)`)
-
-        if(!ds_x_token_dasclient){
-            showAnserAndHighlightCodeStr(`x_token_dasclient为空，请尝试打开官方后刷新页面再试：[Deepseek](https://chat.scnet.cn/)`)
-            return
-        }
-        console.warn("x_token_dasclient:",ds_x_token_dasclient)
-
-
-
-        let baseURL = "https://chat.scnet.cn/";
-        let res = await GM_fetch({
-            method: "POST",
-            url: baseURL + "api/chat/Ask/",
-            headers: {
-                "accept": "application/json, text/plain, */*",
-                "content-type": "application/json",
-                "x-token-dasclient": ds_x_token_dasclient,
-                "Referer": baseURL
-            },
-            data:  JSON.stringify(
-                {
-                    "modelType": "DeepSeek-R1-671B",
-                    "query": your_qus,
-                    "conversationId": "",
-                    "messageType": "local"
-                }
-            )
-        });
-        if (res.status === 200) {
-            console.log('ds：成功....')
-            console.log(res)
-            let ds_messageId = JSON.parse(res.responseText).data.messageId;
-            console.log("ds_messageId",ds_messageId)
-
-
-            GM_fetch({
-                method: "GET",
-                url: `https://chat.scnet.cn/api/chat/GetReplay?messageId=${ds_messageId}&query=&modelType=DeepSeek-R1-671B`,
-                headers: {
-                    "Referer": baseURL,
-                    "x-token-dasclient": ds_x_token_dasclient,
-                    "accept": "text/event-stream",
-                },
-                responseType: "stream"
-            }).then((stream) => {
-                let result = [];
-                let finalResult;
-                const reader = stream.response.getReader();
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        finalResult = result.join("")
-                        showAnserAndHighlightCodeStr(finalResult)
-                        return;
-                    }
-
-                    try {
-
-                        let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                        console.log("raw:",d)
-                        let responseItem = d.trim().split("\n");
-                        console.warn(responseItem)
-                        responseItem.forEach(item=>{
-                            try {
-                                if(item && item.startsWith("data:")){
-                                    let ii = item.replace(/data:/gi,"")
-                                    console.log("ii:",ii)
-                                    if(ii){
-                                        if(ii.length > 2 ){
-                                            result.push(ii.trim().slice(1,-1))
-                                        }else{
-                                            result.push(ii.trim())
-                                        }
-                                        showAnserAndHighlightCodeStr(result.join(""))
-                                    }
-                                }
-                            }catch (ex){
-                                console.error(item)
-                            }
-                        })
-                    } catch (e) {
-                        console.log(e)
-                    }
-
-                    return reader.read().then(processText);
-                });
-            },function (err) {
-                console.log(err)
-                Toast.error("未知错误!")
-            }).catch((ex)=>{
-                console.log(ex)
-                Toast.error("未知错误!")
-            })
-
-
-        } else {
-            console.log(res)
-            Toast.error('访问失败了')
-        }
-
-    }
-
 
     //取某个cookie的值
     function getCookieValue(cookies, cookieName) {
@@ -2502,94 +2337,11 @@
     }
 
 
-    let parentID_thebai;
-
-    //https://f2.cnote.top/#/chat/1002
-    function THEBAI() {
-        let ops = {};
-        if (parentID_thebai) {
-            ops = {parentMessageId: parentID_thebai};
-        }
-        console.log(ops)
-        abortXml = GM_xmlhttpRequest({
-            method: "POST",
-            url: "https://p1api.xjai.pro/freeapi/chat-process",
-            headers: {
-                "Content-Type": "application/json",
-                "Referer": "https://f2.cnote.top/",
-                "accept": "application/json, text/plain, */*"
-            },
-            data: JSON.stringify({
-                "prompt": your_qus,
-                "options": ops,
-                "systemMessage": "You are ChatGPT, a large language model trained by OpenAI. Follow the user's instructions carefully. Respond using markdown.",
-                "temperature": 0.8,
-                "top_p": 1
-            }),
-            onloadstart: (stream) => {
-                const reader = stream.response.getReader();
-                let result = []
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        showAnserAndHighlightCodeStr(result.join("").replace(/x-code.fun/gi,"")
-                            .replace(/bilibili/gi,"").replace(/xjai/gi,"")
-                            .replace(/ymiai/gi,"").replace(/aiflarepro/gi,"")
-                            .split(/\.*?\&/gi)[2])
-
-                        return;
-                    }
-                    try {
-                        let byteArray = new Uint8Array(value);
-                        let decoder = new TextDecoder('utf-8');
-                        let d = decoder.decode(byteArray);
-                        try {
-                            let jsonObj = JSON.parse(d.trim())
-                            if (jsonObj.id) {
-                                parentID_thebai = jsonObj.id;
-                            }
-                        }catch (e) {  }
-                        console.log(d)
-                        result.push(d)
-                        showAnserAndHighlightCodeStr(result.join("").replace(/x-code.fun/gi,"")
-                            .replace(/bilibili/gi,"")
-                            .replace(/xjai/gi,"")
-                            .replace(/ymiai/gi,"").replace(/aiflarepro/gi,""))
-
-
-                    } catch (e) {
-                        console.error(e)
-                    }
-
-                    return reader.read().then(processText);
-                });
-            },
-            responseType: "stream",
-            onerror: function (err) {
-                console.log(err)
-                Toast.error("未知错误!")
-            }
-        })
-    }
 
 
 
 
 
-    /*setTimeout(async () => {
-        let rr = await GM_fetch({
-            method: "GET",
-            url: `https://yeyu2048.xyz/chat/haohula.json?r=${Math.random()}`
-        });
-        if (rr.status === 200) {
-            console.log(rr)
-            let result = JSON.parse(rr.responseText);
-
-
-        } else {
-            console.error(rr)
-        }
-
-    })*/
 
     function isTokenExpired(token) {
         if(!token) return true
@@ -3490,278 +3242,6 @@
 
 
 
-    //天工 ----start--------
-
-    let tg_k_device_hash;
-
-    async function initDeviceHash() {
-        if (location.href.includes("tiangong.cn")) {
-            tg_k_device_hash = getCookieValue(document.cookie,"k_device_hash");
-            console.log("tg_k_device_hash",tg_k_device_hash)
-            GM_setValue("tg_k_device_hash", tg_k_device_hash)
-            try {
-                if(tg_k_device_hash){
-                    document.querySelector('textarea').placeholder = `device_hash获取成功:${tg_k_device_hash}`
-                }else{
-                    document.querySelector('textarea').placeholder = `device_hash获取失败，请再次刷新.`
-                }
-            }catch (e) {}
-            setTimeout(initDeviceHash,2000)
-        } else {
-            tg_k_device_hash =  GM_getValue("tg_k_device_hash")
-        }
-    }
-
-    setTimeout(initDeviceHash)
-
-
-
-    let tg_conversation_id
-    async function TIANGONG(){
-        showAnserAndHighlightCodeStr("请稍后...使用该线路，请确保已经登天工官网获取token后刷新页面。[天工AI](https://www.tiangong.cn/)")
-        console.log("tg_k_device_hash:",tg_k_device_hash)
-        if(!tg_k_device_hash){
-            showAnserAndHighlightCodeStr("device_hash错误了。请确保已经登天工官网获取device_hash后刷新页面。[天工AI](https://www.tiangong.cn/)")
-            return
-        }
-
-
-
-        //请求
-        let req1 = await GM_fetch({
-            method: "POST",
-            url: "https://work.tiangong.cn/dialogue-aggregation/dialogue/aggregation/v1/chat/sensitive/words",
-            headers: {
-                "accept": "application/json, text/plain, */*",
-                "origin":"https://www.tiangong.cn",
-                "referer":"https://www.tiangong.cn/",
-                "channel": "",
-                "content-type": "application/json",
-                "device": "Web",
-                "device_hash": tg_k_device_hash,
-                "device_id": tg_k_device_hash,
-            },
-            data:JSON.stringify({
-                data:{
-                    content: your_qus,
-                    source: "web"
-                }
-            })
-        })
-        let req1Text = req1.responseText;
-        console.log(req1Text)
-        //获取对话id
-        let req2 = await GM_fetch({
-            method: "GET",
-            url: "https://work.tiangong.cn/agents_api/user/dialogue_list?offset=0",
-            headers: {
-                "accept": "application/json, text/plain, */*",
-                "origin":"https://www.tiangong.cn",
-                "referer":"https://www.tiangong.cn/",
-                "channel": "",
-                "content-type": "application/json",
-                "device": "Web",
-                "device_hash": tg_k_device_hash,
-                "device_id": tg_k_device_hash,
-            },
-        })
-        let req2Text = req2.responseText;
-        console.log(req2Text)
-        tg_conversation_id = JSON.parse(req2Text).data.datalist[0].session_id
-        console.log("tg_conversation_id",tg_conversation_id)
-
-
-        //获取信息信息
-
-        //连接天工 websocket
-
-        let wssurl = `wss://work.tiangong.cn/dialogue-aggregation/dialogue/aggregation/v2/agent?device=Web&device_id=${tg_k_device_hash}&device_hash=${tg_k_device_hash}`
-
-        let socket = new WebSocket(wssurl);
-        socket.addEventListener('open', (event) => {
-            console.log('天工 wss 连接成功');
-            socket.send(JSON.stringify({
-                "agent_id": "016",
-                "agent_type": "universal",
-                "conversation_id": tg_conversation_id,
-                "prompt": {
-                    "ask_from": "user",
-                    "ask_id": null,
-                    "content": your_qus,
-                    "prompt_content": null,
-                    "template_id": null,
-                    "action": null,
-                    "file": null,
-                    "template": null,
-                    "copilot": false,
-                    "bubble_text": null,
-                    "publish_agent": null,
-                    "copilot_option": null
-                }
-            }))
-        });
-
-        let tg_result = []
-        socket.addEventListener('message', (event) => {
-            console.log('天工 接收到消息：', event.data);
-            let revData = event.data;
-            try{
-                let revJSON = JSON.parse(revData);
-                if(revJSON.type == 1){
-                    try {
-                        tg_result.push(revJSON.arguments[0].messages[0].text)
-                        showAnserAndHighlightCodeStr(tg_result.join(""))
-                    }catch (e) { }
-                }
-
-            }catch (ex) { }
-
-        });
-
-
-
-    }
-
-
-    //天工 ----end--------
-
-
-
-    //问心一言 ----start---
-
-    let yy_aisearch_id;
-    let yy_pvId;
-    let yy_sessionId;
-
-    async function initYiYAN(){
-        let req1 = await GM_fetch({
-            method: "GET",
-            url: `https://chat.baidu.com/?pcasync=pc&asyncRenderUrl=&passportStaticPage=https%3A%2F%2Fwww.baidu.com%2Fcache%2Fuser%2Fhtml%2Fv3Jump.html&from=pc_tab&word=${encodeURI(your_qus)}&source=pd_ic`,
-            headers: {
-                "accept": "*/*",
-                "origin":"https://www.baidu.com",
-                "referer":`https://www.baidu.com/`
-            },
-            data:JSON.stringify({
-                data:{}
-            })
-        })
-        let r = req1.responseText;
-        yy_aisearch_id =  /"aisearch_id":"(.*?)"/i.exec(r)[1];
-        yy_pvId =  /"pvId":"(.*?)"/i.exec(r)[1];
-        yy_sessionId =  /"sessionId":"(.*?)"/i.exec(r)[1];
-        console.log("yy_aisearch_id:",yy_aisearch_id)
-        console.log("yy_pvId:",yy_pvId)
-        console.log("yy_sessionId:",yy_sessionId)
-    }
-    setTimeout(()=>{
-        if(getGPTMode() === 'YIYAN'){
-            initYiYAN()
-        }
-    })
-    async function YIYAN() {
-        showAnserAndHighlightCodeStr("请稍后...该线路为官网线路，使用该线路，请确保已经登百度账号，再刷新页面。[百度](https://www.baidu.com/)")
-        GM_fetch({
-            method: 'POST',
-            url: 'https://chat-ws.baidu.com/aichat/api/conversation',
-            headers: {
-                "origin":"https://www.baidu.com",
-                "referer":`https://www.baidu.com/`,
-                "Content-Type": "application/json",
-                "accept": "text/event-stream"
-            },
-            responseType: "stream",
-            data: JSON.stringify({
-                "message": {
-                    "inputMethod": "keyboard",
-                    "isRebuild": false,
-                    "content": {
-                        "query": your_qus,
-                        "qtype": 0
-                    }
-                },
-                "sessionId": yy_sessionId,
-                "aisearchId": yy_aisearch_id,
-                "pvId": yy_pvId
-            })
-        }).then((stream)=> {
-            let reader = stream.response.getReader()
-            let ans = []
-            let preResponseItem = '';//前一记录
-            let combineItem = [];//合并
-            let referenceList;//引用
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    console.log("===done==")
-                    //console.log(de)
-                    let result = ans.join("");
-                    let arr = result.match(/\^(.*?)\^/g);
-                    let oldArr = arr.slice()
-                    if(referenceList && referenceList.length > 0){
-                        for (let i = 0; i < arr.length; i++) {
-                            for (let j = 0; j < referenceList.length; j++) {
-                                if(arr[i].includes(`[${j+1}]`)){
-                                    let url = referenceList[j].url;
-                                    arr[i] = arr[i].replace(`[${j+1}]`,`[${j+1}](${url})`)
-                                }
-                            }
-                        }
-                    }
-                    console.log("arr:",arr)
-                    console.log("oldArr:",oldArr)
-                    for (let i = 0; i < oldArr.length; i++) {
-                        result =  result.replace(oldArr[i],arr[i].replace(/\^/g,""))
-                    }
-                    showAnserAndHighlightCodeStr(result)
-
-                    return
-                }
-                let responseItem = new TextDecoder("utf-8").decode(value)
-                console.log(responseItem)
-                if(!responseItem.includes("event:ping") && !responseItem.startsWith("event:messag")){
-                    combineItem.push(preResponseItem)
-                    combineItem.push(responseItem)
-                    preResponseItem = '';//恢复初始
-                    responseItem = combineItem.join("")//合并
-                    console.log("combineItem:",responseItem)
-                    combineItem = [];//清空
-
-                }else if(!responseItem.includes("event:ping")){
-                    preResponseItem = responseItem;
-                }
-
-
-                responseItem.split("\n").forEach(item=>{
-                    try {
-                        let ii = item.replace(/data:/gi,"").trim();
-                        if(ii && ii !==""){
-                            let chunk = JSON.parse(ii).data.message.content.generator.text
-                            //de.push(item.replace(/data:/gi,"").trim())
-                            ans.push(chunk)
-                            showAnserAndHighlightCodeStr(ans.join(""))
-                            if(JSON.parse(ii).data.message.content.generator.referenceList){
-                                referenceList = JSON.parse(ii).data.message.content.generator.referenceList
-                            }
-
-                        }
-                    }catch (ex){
-                        console.error(item)
-                    }
-                })
-
-                return reader.read().then(processText)
-            },function (reason) {
-                Toast.error("未知错误!")
-                console.log(reason)
-            }).catch((ex)=>{
-                Toast.error("未知错误!")
-                console.log(ex)
-            })
-        })
-
-    }
-    //问心一言 ----end---
-
 
     //腾讯混元 ----start-----
     let hunyuan_tUserId = '';
@@ -4372,283 +3852,6 @@
 
 
 
-    //百川AI---start
-
-
-    function getEagleEyeSessionID() {
-        for (var e, t, r = 20, n = new Array(r), a = Date.now().toString(36).split(""); r-- > 0; )
-            t = (e = 36 * Math.random() | 0).toString(36),
-                n[r] = e % 3 ? t : t.toUpperCase();
-        for (var i = 0; i < 8; i++)
-            n.splice(3 * i + 2, 0, a[i]);
-        return n.join("")
-    }
-
-    let EagleEyeSessionID = getEagleEyeSessionID();
-
-    function getRandIP() {
-        for (var e = [], t = 0; t < 4; t++) {
-            var r = Math.floor(256 * Math.random());
-            e[t] = (r > 15 ? "" : "0") + r.toString(16)
-        }
-        return e.join("").replace(/^0/, "1")
-    }
-
-    function getEagleEyeTraceID() {
-        let e = getRandIP()
-            , t = Date.now()
-            , r = 1000
-            , a = e + t + r + "cced8";
-        return a
-    }
-
-    let EagleEyeTraceID = getEagleEyeTraceID()
-
-
-    let bc_session_id = generateRandomString(11)
-    let bc_messageId = generateRandomString(13)
-
-    let bc_userID;
-
-    async function getBCUserID() {
-        let rr = await GM_fetch({
-            method: "GET",
-            url: `https://www.baichuan-ai.com/api/auth/session`
-        });
-        if (rr.status === 200) {
-            console.log(rr)
-            let result = JSON.parse(rr.responseText);
-            bc_userID = result.user.id;
-        } else {
-            console.error(rr)
-        }
-    }
-
-    setTimeout(()=>{
-        if(getGPTMode()==="BAICHUAN"){
-            getBCUserID()
-        }
-    })
-
-
-    let bc_parent_id = 0
-    let bc_session_info_id
-
-    async function BAICHUAN() {
-        console.log("bc_parent_id",bc_parent_id)
-        showAnserAndHighlightCodeStr("请耐心等待,该线路为非流式传输较慢,第一次切换到该线路需要刷新页面，该线路为官网线路,使用前确保已经登录[百川](https://www.baichuan-ai.com/chat)")
-        if(!bc_userID){
-            showAnserAndHighlightCodeStr("userid为空，请重试。。。使用前确保已经登录[百川](https://www.baichuan-ai.com/chat)")
-            getBCUserID()
-            return
-        }
-
-        let now = Date.now()
-        GM_fetch({
-            method: "POST",
-            url: `https://www.baichuan-ai.com/api/chat/v1/chat`,
-            headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/json',
-                'EagleEye-SessionID': EagleEyeSessionID,
-                'EagleEye-TraceID': EagleEyeTraceID,
-                'EagleEye-pAppName': 'bc7akk1cwt@b6e253f842cced8',
-                'Origin': 'https://www.baichuan-ai.com',
-                'Referer': 'https://www.baichuan-ai.com/chat',
-                'x-requested-with': 'XMLHttpRequest'
-            },
-            data: JSON.stringify({
-                'type': 'input',
-                'request_id': uuidv4(),
-                'stream': true,
-                'prompt': {
-                    'id': null,
-                    'messageId': `Ub${generateRandomString(13)}`,
-                    'session_id': bc_session_id,
-                    'data': your_qus,
-                    'from': 0,
-                    'parent_id': bc_parent_id,
-                    'created_at': now,
-                    'attachments': []
-                },
-                'app_info': {
-                    'id': 10001,
-                    'name': 'baichuan_web'
-                },
-                'user_info': {
-                    'id': bc_userID,
-                    'status': 1
-                },
-                'session_info': {
-                    'id': bc_session_info_id ? bc_session_info_id: null,
-                    'session_id': bc_session_id,
-                    'name': '\u65B0\u7684\u5BF9\u8BDD',
-                    'created_at': now
-                },
-                'assistant_info': {},
-                'parameters': {
-                    'repetition_penalty': -1,
-                    'temperature': -1,
-                    'top_k': -1,
-                    'top_p': -1,
-                    'max_new_tokens': -1,
-                    'do_sample': -1,
-                    'regenerate': 0,
-                    'wse': true
-                },
-                'history': [],
-                'assistant': {},
-                'retry': 3
-            }),
-            // responseType:"stream"
-        }).then((stream)=>{
-            let responseText =  stream.responseText
-            let result = []
-            //console.warn(responseText)
-            let arr = responseText.split("\n")
-            for (let i = 0; i < arr.length; i++) {
-                try {
-                    result.push(JSON.parse(arr[i]).answer.data)
-                    showAnserAndHighlightCodeStr(result.join(""))
-                }catch (e) { }
-            }
-            showAnserAndHighlightCodeStr(result.join(""))
-
-            // let result = []
-            // const reader = stream.response.getReader();
-            // reader.read().then(function processText({done, value}) {
-            //     if (done) {
-            //         return;
-            //     }
-            //     try {
-            //         let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-            //         console.warn(d)
-            //
-            //         try {
-            //             result.push(JSON.parse(d).answer.data)
-            //             showAnserAndHighlightCodeStr(result.join(""))
-            //         }catch (e) {
-            //             console.error(d)
-            //         }
-            //
-            //         try {
-            //             let v = JSON.parse(d).rds
-            //             bc_parent_id = v[v.length - 1].id
-            //             bc_session_info_id = v[0].id
-            //         }catch (e) {
-            //             //console.error(d)
-            //         }
-            //
-            //
-            //
-            //     } catch (e) {
-            //         console.log(e)
-            //     }
-            //
-            //     return reader.read().then(processText);
-            // });
-        },reason => {
-            console.log(reason)
-            Toast.error("未知错误!")
-        }).catch((ex)=>{
-            console.log(ex)
-            Toast.error("未知错误!")
-        })
-
-
-    }
-    //百川AI---end
-
-
-    let messageChain_chatforai = []
-    let chatforai_coverid = uuidv4()
-
-    const generateSignatureChatforai = async(t,e)=>{
-        const {t: a, m: r, id: o} = t
-            , s = `${o}:${a}:${r}:${e}`;
-        return await digestMessage(s)
-    }
-
-    function chatforai() {
-
-        let now = Date.now();
-
-        generateSignatureChatforai({
-            t: now,
-            m: your_qus,
-            id: chatforai_coverid
-        }, "D6D4X4g9").then(sign => {
-            addMessageChain(messageChain_chatforai, {role: "user", content: your_qus})//连续话
-            console.log(sign)
-            GM_fetch({
-                method: "POST",
-                url: "https://chatforai.store/api/handle/provider-openai",
-                headers: {
-                    "Content-Type": "text/plain;charset=UTF-8",
-                    "Referer": "https://chatforai.store",
-                    "accept": "*/*",
-                    "X-Forwarded-For": generateRandomIP(),
-                    "X-Real-IP": generateRandomIP(),
-                    "Origin": "https://chatforai.store",
-                },
-                data: JSON.stringify({
-                    "conversationId": chatforai_coverid,
-                    "conversationType": "chat_continuous",
-                    "botId": "chat_continuous",
-                    "globalSettings": {
-                        "baseUrl": "https://api.openai.com",
-                        "model": "gpt-3.5-turbo",
-                        "maxTokens": 2048,
-                        "messageHistorySize": 5,
-                        "temperature": 0.7,
-                        "top_p": 1
-                    },
-                    "prompt": your_qus,
-                    "messages": messageChain_chatforai,
-                    "sign": sign,
-                    "timestamp": now
-                }),
-                responseType: "stream"
-            }).then((stream) => {
-                let result = [];
-                const reader = stream.response.getReader();
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        let finalResult = result.join("")
-                        try {
-                            console.log(finalResult)
-                            addMessageChain(messageChain_chatforai, {
-                                role: "assistant",
-                                content: finalResult
-                            })
-                            showAnserAndHighlightCodeStr(finalResult)
-                        } catch (e) {
-                            console.log(e)
-                        }
-                        return;
-                    }
-                    try {
-                        let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                        result.push(d)
-                        showAnserAndHighlightCodeStr(result.join(""))
-                    } catch (e) {
-                        console.log(e)
-                    }
-
-                    return reader.read().then(processText);
-                });
-            },function (reason) {
-                console.log(reason)
-                Toast.error("未知错误!" + reason.message)
-
-            }).catch((ex)=>{
-                console.log(ex)
-                Toast.error("未知错误!" + ex.message)
-            });
-
-        });
-    }
-
 
     async function MixerBox() {
         GM_fetch({
@@ -4863,62 +4066,6 @@
 
 
 
-    //获取A类网站key 2023年5月3日
-    async function setNormalKey(url) {
-        let response = await GM_fetch({
-            method: "GET",
-            url: url,
-            headers: {
-                "Referer": url+"/",
-                "origin": url,
-                "upgrade-insecure-requests":"1"
-            }
-        });
-        let resp = response.responseText;
-        if(!resp){
-            response = await GM_fetch({
-                method: "GET",
-                url: url,
-                headers: {
-                    "accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-                    "Referer": url+"/",
-                    "origin": url,
-                    "cookie":"_h=_1",
-                    "upgrade-insecure-requests":"1"
-                }
-            });
-            resp = response.responseText;
-        }
-        let regex = /component-url="(.*?)"/i;
-        let match = resp.match(regex);
-        let jsurl = match[1];
-        console.log("js url:" + jsurl);
-        if (!jsurl) {
-            //错误
-            console.log(resp)
-            Toast.error("未知错误!")
-            return
-        }
-        let rr = await GM_fetch({
-            method: "GET",
-            url: url + jsurl,
-            headers: {
-                "Referer": url+"/",
-                "origin": url,
-                "cookie":"_h=_1"
-            }
-        });
-        resp = rr.responseText;
-        regex = /\`\$\{\w\}:\$\{\w\}:(.*?)\`/i;
-        match = resp.match(regex);
-        let key = match[1];
-        console.log(url+":key:",key)
-        return key
-    }
-
-
-
-
     //https://s.aifree.site/
     let messageChain_aifree = []
     function AIFREE() {
@@ -4992,21 +4139,6 @@
 
 
 
-    let  formatTime = () => {
-        let padZero = (num) => {
-            // 如果数字小于 10，前面补一个 0
-            return num < 10 ? `0${num}` : num;
-        }
-        const now = new Date(); // 获取当前时间
-        const hours = now.getHours(); // 获取小时
-        const minutes = now.getMinutes(); // 获取分钟
-        const seconds = now.getSeconds(); // 获取秒数
-        // 格式化为 HH:MM:SS 的形式
-        return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
-    }
-
-
-
 
     function TDCHAT(){
         abortXml = GM_xmlhttpRequest({
@@ -5057,55 +4189,6 @@
                 Toast.error("未知错误!" + err.message)
             }
         })
-
-    }
-
-
-    //
-    //23-4-25
-    function TOYAML() {
-
-        GM_fetch({
-            method: "GET",
-            url: "https://toyaml.com/streams?q="+encodeURI(your_qus),
-            headers: {
-                "Referer": "https://toyaml.com/chat.html",
-                "accept": "*/*",
-                "x-requested-with": "XMLHttpRequest"
-
-            },
-            responseType: "stream"
-        }).then((stream) => {
-            let finalResult = [];
-            const reader = stream.response.getReader();
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    return;
-                }
-                try {
-                    // console.log(normalArray)
-                    let byteArray = new Uint8Array(value);
-                    let decoder = new TextDecoder('utf-8');
-                    let nowResult = decoder.decode(byteArray)
-                    console.log(nowResult)
-                    if(!nowResult.match(/答案来自/)){
-                        finalResult.push(nowResult)
-                    }
-                    showAnserAndHighlightCodeStr(finalResult.join(""))
-
-                } catch (ex) {
-                    console.log(ex)
-                }
-
-                return reader.read().then(processText);
-            });
-        }).catch((ex)=>{
-            console.log(ex)
-            Toast.error("未知错误!" + ex.message)
-        })
-
-
-
 
     }
 
