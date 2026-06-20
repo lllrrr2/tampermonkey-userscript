@@ -346,55 +346,77 @@
     }
 
 
-    //动态pubkey
-    function setPubkey() {
-        let GPTMODE = getGPTMode()
-        if(GPTMODE === "ZhipuAI"){
-            localStorage.removeItem("ZhipuapiKey")
-            let manualInput = confirm("请输入你自己的apiKey");
-            if (manualInput) {
-                let ZhipuapiKey = prompt("请输入您的智谱apikey", "");
-                if (ZhipuapiKey) {
-                    localStorage.setItem("ZhipuapiKey", ZhipuapiKey)
-                    zhipu_apiKey = ZhipuapiKey
-                }
-            }
-        }else if(GPTMODE === "OPENAI"){
-            localStorage.removeItem("openai_base_url")
-            let base_url_input = prompt("请输入OpenAI兼容接口Base URL (如 https://api.openai.com)", localStorage.getItem("openai_base_url") || "https://api.openai.com");
-            if (base_url_input) {
-                localStorage.setItem("openai_base_url", base_url_input.replace(/\/+$/, ''))
-            }
-            localStorage.removeItem("openai_api_key")
-            let api_key_input = prompt("请输入您的API Key", localStorage.getItem("openai_api_key") || "");
-            if (api_key_input) {
-                localStorage.setItem("openai_api_key", api_key_input)
-            }
-            localStorage.removeItem("openai_model")
-            let model_input = prompt("请输入模型名称 (如  gpt-4, gpt-4o, deepseek-chat 等)", localStorage.getItem("openai_model") || "gpt-3.5-turbo");
-            if (model_input) {
-                localStorage.setItem("openai_model", model_input.trim())
-            }
-        }else if(GPTMODE === "miniMax"){
+    //各线路API配置项定义
+    const API_CONFIG_SCHEMA = {
+        'ZhipuAI': [
+            { key: 'ZhipuapiKey', label: 'API Key', placeholder: '请输入智谱API Key' }
+        ],
+        'OPENAI': [
+            { key: 'openai_base_url', label: 'Base URL', placeholder: 'https://api.openai.com' },
+            { key: 'openai_api_key', label: 'API Key', placeholder: '请输入API Key' },
+            { key: 'openai_model', label: '模型', placeholder: 'gpt-3.5-turbo' }
+        ],
+        'miniMax': [
+            { key: 'minimax_group_id', label: 'Group ID', placeholder: '请输入minimax_group_id' },
+            { key: 'minimax_api_key', label: 'API Key', placeholder: '请输入minimax_api_key' }
+        ],
+        'Gemini': [
+            { key: 'gemini_key', label: 'API Key', placeholder: '请输入Gemini API Key' }
+        ]
+    };
 
-            localStorage.removeItem("minimax_group_id")
-            let minimax_group_id_input = prompt("请输入您的minimax_group_id", "");
-            if (minimax_group_id_input) {
-                localStorage.setItem("minimax_group_id", minimax_group_id_input)
-                minimax_group_id = minimax_group_id_input;
-            }
+    //渲染API配置面板
+    function renderApiConfigPanel() {
+        const panel = document.getElementById('apiConfigPanel');
+        if (!panel) return;
+        const GPTMODE = getGPTMode();
+        const schema = API_CONFIG_SCHEMA[GPTMODE];
 
-            localStorage.removeItem("minimax_api_key")
-            let minimax_api_key_input = prompt("请输入您的minimax_api_key", "");
-            if (minimax_api_key_input){
-                localStorage.setItem("minimax_api_key",minimax_api_key_input)
-                minimax_api_key = minimax_api_key_input;
-            }
-
-        }else {
-            //Toast.error("该线路不适用")
+        if (!schema) {
+            panel.innerHTML = '';
+            panel.style.display = 'none';
+            return;
         }
 
+        panel.style.display = 'block';
+        let html = '';
+        schema.forEach(item => {
+            const val = localStorage.getItem(item.key) || '';
+            html += `<div class="api-config-row">
+                <span class="api-config-label">${item.label}</span>
+                <input class="api-config-input" data-key="${item.key}" type="text" placeholder="${item.placeholder}" value="${val}">
+            </div>`;
+        });
+        // OPENAI模式下提示添加@connect
+        if (GPTMODE === 'OPENAI') {
+            html += `<div class="api-config-warn">
+                ⚠️ 若使用第三方接口，请在脚本头部添加：<code>// @connect &nbsp;你的域名</code><br>
+                例如：<code>// @connect api.deepseek.com</code>
+            </div>`;
+        }
+        html += '<div class="api-config-hint">修改后自动保存 ✓</div>';
+        panel.innerHTML = html;
+
+        //绑定自动保存事件
+        panel.querySelectorAll('.api-config-input').forEach(input => {
+            input.addEventListener('input', function () {
+                const key = this.dataset.key;
+                let val = this.value.trim();
+                if (key === 'openai_base_url') {
+                    val = val.replace(/\/+$/, '');
+                }
+                if (val) {
+                    localStorage.setItem(key, val);
+                } else {
+                    localStorage.removeItem(key);
+                }
+                //同步全局变量
+                if (key === 'ZhipuapiKey') zhipu_apiKey = val;
+                if (key === 'gemini_key') gemini_key = val;
+                if (key === 'minimax_group_id') minimax_group_id = val;
+                if (key === 'minimax_api_key') minimax_api_key = val;
+            });
+        });
     }
 
 
@@ -989,6 +1011,7 @@
                     </a>
                     <span class="sp-hint">适用于智谱 / miniMax / OPENAI</span>
                 </div>
+                <div id="apiConfigPanel"></div>
             </div>
             <!-- 功能开关 -->
             <div class="sp-section">
@@ -1207,8 +1230,14 @@
         })
 
         document.getElementById('updatePubkey').addEventListener('click', () => {
-            Toast.info("正在更新，请稍后...")
-            setPubkey()
+            const panel = document.getElementById('apiConfigPanel');
+            if (panel.style.display === 'none' || !panel.innerHTML) {
+                renderApiConfigPanel();
+                Toast.info("请在下方直接编辑配置")
+            } else {
+                panel.style.display = 'none';
+                panel.innerHTML = '';
+            }
         })
 
         document.getElementById('autoClick').addEventListener('click', () => {
@@ -1399,7 +1428,7 @@
             const selectEl = document.getElementById('modeSelect');
             const selectedValue = selectEl.options[selectEl.selectedIndex].value;
             localStorage.setItem('GPTMODE', selectedValue);
-
+            renderApiConfigPanel();
             Toast.success(`切换成功，当前线路:${selectedValue}`)
         });
 
@@ -1410,6 +1439,9 @@
             settingsPanel.classList.toggle('chatHide', !chatSetting);
             // 更新齿轮图标旋转状态
             document.getElementById('chatSetting').classList.toggle('sp-active', chatSetting);
+            if (chatSetting) {
+                renderApiConfigPanel();
+            }
         })
 
     }
@@ -1826,6 +1858,70 @@
     .sp-status.sp-on{
         background: #e8f5e9;
         color: #43a047;
+    }
+    /* API配置面板 */
+    #apiConfigPanel{
+        margin-top: 8px;
+        padding: 10px 12px;
+        background: #fff;
+        border-radius: 8px;
+        border: 1px solid #e8e8e8;
+    }
+    .api-config-row{
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    .api-config-row:last-child{
+        margin-bottom: 0;
+    }
+    .api-config-label{
+        font-size: 12px;
+        color: #666;
+        min-width: 70px;
+        flex-shrink: 0;
+    }
+    .api-config-input{
+        flex: 1;
+        height: 28px;
+        padding: 0 8px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 12px;
+        color: #333;
+        background: #fafbfc;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+    .api-config-input:focus{
+        border-color: #4e6ef2;
+        background: #fff;
+    }
+    .api-config-input::placeholder{
+        color: #ccc;
+    }
+    .api-config-hint{
+        font-size: 11px;
+        color: #4e6ef2;
+        margin-top: 6px;
+        text-align: right;
+    }
+    .api-config-warn{
+        margin-top: 8px;
+        padding: 8px 10px;
+        background: #fff8e1;
+        border: 1px solid #ffe082;
+        border-radius: 6px;
+        font-size: 11.5px;
+        color: #8d6e00;
+        line-height: 1.6;
+    }
+    .api-config-warn code{
+        background: rgba(0,0,0,0.06);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 11px;
+        color: #c76c00;
     }
     /* 更新KEY行 */
     #warn{
