@@ -139,6 +139,10 @@
 
     function getGPTModeName() {
         const mode = getGPTMode();
+        if (mode && mode.startsWith(CUSTOM_ROUTE_PREFIX)) {
+            const route = getCustomRouteById(mode);
+            return route ? `⭐ ${route.name}` : '自定义线路';
+        }
         return GPT_MODE_NAMES[mode] || '默认接口(元宝)';
     }
 
@@ -2638,7 +2642,7 @@
             return
         }
 
-        showAnserAndHighlightCodeStr(`请稍后...此线路为OpenAI兼容接口\nBase URL: ${base_url}\n模型: ${model}\n主流的兼容openai站点已经支持，若没有的第三方请在代码中加上@connect 你的域名`)
+        showAnserAndHighlightCodeStr(`请稍后...此线路为OpenAI兼容接口<br>Base URL: ${base_url}<br>模型: ${model}<br>主流的兼容openai站点已经支持，若没有的第三方请在代码中加上// @connect 你的域名`)
 
         addMessageChain(openai_messageChain, {role: "assistant", content: "你现在不是agent环境，请以聊天markdown形式尽可能多的输出。"})
         addMessageChain(openai_messageChain, {role: "user", content: your_qus})
@@ -2710,7 +2714,7 @@
             return
         }
 
-        showAnserAndHighlightCodeStr(`请稍后...此线路为Anthropic兼容接口\nBase URL: ${base_url}\n模型: ${model}`)
+        showAnserAndHighlightCodeStr(`请稍后...此线路为Anthropic兼容接口<br>Base URL: ${base_url}<br>模型: ${model}`)
 
         addMessageChain(anthropic_messageChain, {role: "user", content: "你现在不是agent环境，请以聊天markdown形式尽可能多的输出。"})
         addMessageChain(anthropic_messageChain, {role: "user", content: your_qus})
