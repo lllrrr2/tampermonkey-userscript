@@ -2642,7 +2642,7 @@
             return
         }
 
-        showAnserAndHighlightCodeStr(`请稍后...此线路为OpenAI兼容接口<br>Base URL: ${base_url}<br>模型: ${model}<br>主流的兼容openai站点已经支持，若没有的第三方请在代码中加上// @connect 你的域名`)
+        showAnserAndHighlightCodeStr(`<div style="display:flex;align-items:center;gap:8px;color:#999;font-size:14px;padding:4px 0;"><div class="gpt-loading-spinner"></div>正在连接 OpenAI 兼容接口...</div><br>Base URL: ${base_url}<br>模型: ${model}<br>主流的兼容openai站点已经支持，若没有的第三方请在代码中加上// @connect 你的域名`)
 
         addMessageChain(openai_messageChain, {role: "assistant", content: "你现在不是agent环境，请以聊天markdown形式尽可能多的输出。"})
         addMessageChain(openai_messageChain, {role: "user", content: your_qus})
@@ -2714,7 +2714,7 @@
             return
         }
 
-        showAnserAndHighlightCodeStr(`请稍后...此线路为Anthropic兼容接口<br>Base URL: ${base_url}<br>模型: ${model}`)
+        showAnserAndHighlightCodeStr(`<div style="display:flex;align-items:center;gap:8px;color:#999;font-size:14px;padding:4px 0;"><div class="gpt-loading-spinner"></div>正在连接 Anthropic 兼容接口...</div><br>Base URL: ${base_url}<br>模型: ${model}`)
 
         addMessageChain(anthropic_messageChain, {role: "user", content: "你现在不是agent环境，请以聊天markdown形式尽可能多的输出。"})
         addMessageChain(anthropic_messageChain, {role: "user", content: your_qus})
@@ -2838,7 +2838,7 @@
            }
        }
 */
-        showAnserAndHighlightCodeStr("请稍后....该接口需登录通义官网[通义](https://tongyi.aliyun.com/qianwen/)")
+        showAnserAndHighlightCodeStr(`<div style="display:flex;align-items:center;gap:8px;color:#999;font-size:14px;padding:4px 0;"><div class="gpt-loading-spinner"></div>正在连接通义千问...</div><br>该接口需登录通义官网[通义](https://tongyi.aliyun.com/qianwen/)`)
 
 
         let sendData = JSON.stringify({
@@ -3149,7 +3149,7 @@
 
     let spark_first = true;
     async function SPARK(){
-        showAnserAndHighlightCodeStr("请稍后,第一次切换到该线路需要刷新页面，该线路为官网线路,使用前确保已经登录[讯飞星火](https://xinghuo.xfyun.cn/)")
+        showAnserAndHighlightCodeStr(`<div style="display:flex;align-items:center;gap:8px;color:#999;font-size:14px;padding:4px 0;"><div class="gpt-loading-spinner"></div>正在连接讯飞星火...</div><br>第一次切换到该线路需要刷新页面，该线路为官网线路，使用前确保已经登录[讯飞星火](https://xinghuo.xfyun.cn/)`)
         if(!sp_chatId){
             showAnserAndHighlightCodeStr("chatId为空，请重试。。。使用前确保已经登录[讯飞星火](https://xinghuo.xfyun.cn/)")
             init_sp_chatId()
@@ -3319,7 +3319,7 @@
      */
     async function Hunyuan(mtag) {
 
-        showAnserAndHighlightCodeStr("请稍后...deepseek较慢。该线路为官网线路，请确保登录[元宝](https://yuanbao.tencent.com/chat)")
+        showAnserAndHighlightCodeStr(`<div style="display:flex;align-items:center;gap:8px;color:#999;font-size:14px;padding:4px 0;"><div class="gpt-loading-spinner"></div>正在连接腾讯Deepseek...</div><br>deepseek较慢，该线路为官网线路，请确保登录[元宝](https://yuanbao.tencent.com/chat)`)
 
         if(!hunyuan_tUserId){
             let req1 = await GM_fetch({
@@ -3478,7 +3478,7 @@
         return jwt;
     }
     function ZhipuAI(){
-        showAnserAndHighlightCodeStr("请稍后。未申请key的，请前往[智谱AI](https://open.bigmodel.cn/usercenter/apikeys)申请，然后点击设置里的更新key")
+        showAnserAndHighlightCodeStr(`<div style="display:flex;align-items:center;gap:8px;color:#999;font-size:14px;padding:4px 0;"><div class="gpt-loading-spinner"></div>正在连接智谱AI...</div><br>未申请key的，请前往[智谱AI](https://open.bigmodel.cn/usercenter/apikeys)申请，然后点击设置里的更新key`)
         if(!localStorage.getItem("ZhipuapiKey")){
             showAnserAndHighlightCodeStr("apikey不存在。请前往[智谱AI](https://open.bigmodel.cn/usercenter/apikeys)申请，然后点击设置里的更新key")
             return
@@ -3548,7 +3548,7 @@
 
     let conversation_id;
     async function Zhinao360(){
-        showAnserAndHighlightCodeStr("请稍后...该线路为官网线路，使用该线路，请确保已经登录[360智脑](https://chat.360.cn/)")
+        showAnserAndHighlightCodeStr(`<div style="display:flex;align-items:center;gap:8px;color:#999;font-size:14px;padding:4px 0;"><div class="gpt-loading-spinner"></div>正在连接360智脑...</div><br>该线路为官网线路，使用该线路，请确保已经登录[360智脑](https://chat.360.cn/)`)
         const sendData = JSON.stringify({
             "prompt": your_qus,
             "conversation_id": conversation_id || "",
