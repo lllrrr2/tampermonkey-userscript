@@ -50,9 +50,7 @@
 // @require    https://s4.zstatic.net/ajax/libs/highlight.js/11.7.0/highlight.min.js
 // @require    https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @require    https://s4.zstatic.net/ajax/libs/KaTeX/0.16.6/katex.min.js
-// @require    https://bowercdn.net/c/toastr-2.1.3/toastr.min.js
 // @require    https://s4.zstatic.net/ajax/libs/marked/13.0.2/marked.min.js
-// @resource toastCss  https://cdn.bootcdn.net/ajax/libs/toastr.js/2.1.3/toastr.min.css
 // @resource katexCss  https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.6/katex.css
 // @connect    hunyuan.tencent.com
 // @connect    yuanbao.tencent.com
@@ -134,13 +132,6 @@
         GM_addStyle(GM_getResourceText("katexCss"))
     }catch (e) {}
 
-    //toastr css
-    try {
-        GM_addStyle(GM_getResourceText("toastCss"))
-    }catch (e) {}
-
-
-
     //(prefers-color-scheme: light)
     function addHeadCss() {
         if(!document.getElementById("github-markdown-link")){
@@ -174,74 +165,156 @@
             `%c【chatGPT tools Plus】${JSver} 已加载`,
             'color: yellow;font-size: large;font-weight: bold;background-color: darkblue;'
         );
-        const menu_updateChat_id = GM_registerMenuCommand("更新Chat", function (event) {
+        const menu_updateChat_id = GM_registerMenuCommand("更新脚本", function (event) {
             GM_openInTab("https://greasyfork.org/zh-CN/scripts/459997")
         }, "updateChat");
         const menu_groupNum_id = GM_registerMenuCommand("交流群", function (event) {
-            Toast.info("交流群7：817298021\n交流群6：792365186\n交流群4：745163513\n交流群3:177193765\n交流群2:734403992\n交流群1:710808464\n交流总群：249733992",
+            Toast.info("交流总群：249733992",
                 "QQ交流群", {timeOut: 15000} )
         }, "groupNum");
 
-        const menu_pubkey_id = GM_registerMenuCommand("更新key", function (event) {
-            Toast.info("正在更新...")
-            setPubkey();
-        }, "PUBKEY");
 
         //禁用console 未转义警告
         hljs.configure({
             ignoreUnescapedHTML: true
         })
 
-        //toastr配置
-        toastr.options = {
-            // "closeButton": false,
-            // "debug": false,
-            // "newestOnTop": false,
-            // "progressBar": false,
-            "positionClass": "toast-top-right", // 提示框位置，这里填类名
-            // "preventDuplicates": false,
-            // "onclick": null,
-            "showDuration": "300",              // 提示框渐显所用时间
-            "hideDuration": "300",              // 提示框隐藏渐隐时间
-            "timeOut": "3000",                  // 提示框持续时间
-            "extendedTimeOut": "1000",
-            "showEasing": "swing",
-            "hideEasing": "linear",
-            "showMethod": "fadeIn",
-            "hideMethod": "fadeOut"
-        }
-
-
     } catch (ex) {
         console.error(ex)
     }
 
-    //toastr 封装  ----start----
-    const Toast = {
+    //自定义Toast通知  ----start----
+    GM_addStyle(`
+    #sp-toast-container {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        pointer-events: none;
+    }
+    .sp-toast {
+        pointer-events: auto;
+        min-width: 240px;
+        max-width: 380px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        color: #fff;
+        font-size: 14px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        line-height: 1.5;
+    }
+    .sp-toast.sp-show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    .sp-toast.sp-hide {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    .sp-toast-icon {
+        flex-shrink: 0;
+        font-size: 16px;
+        line-height: 1.4;
+    }
+    .sp-toast-body {
+        flex: 1;
+        min-width: 0;
+    }
+    .sp-toast-title {
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    .sp-toast-msg {
+        word-break: break-all;
+    }
+    .sp-toast-close {
+        flex-shrink: 0;
+        cursor: pointer;
+        opacity: 0.7;
+        font-size: 18px;
+        line-height: 1;
+        padding: 0 2px;
+        transition: opacity 0.2s;
+    }
+    .sp-toast-close:hover {
+        opacity: 1;
+    }
+    .sp-toast-success { background: linear-gradient(135deg, #43a047, #388e3c); }
+    .sp-toast-error   { background: linear-gradient(135deg, #e53935, #c62828); }
+    .sp-toast-info    { background: linear-gradient(135deg, #1e88e5, #1565c0); }
+    .sp-toast-warning { background: linear-gradient(135deg, #fb8c00, #ef6c00); }
+    `);
 
-        warn: function(msg, title, options) {
-            try {
-                toastr.warning(msg, title, options)
-            }catch (e) {}
+    const Toast = {
+        _container: null,
+        _getContainer: function() {
+            if (!this._container) {
+                this._container = document.createElement('div');
+                this._container.id = 'sp-toast-container';
+                document.body.appendChild(this._container);
+            }
+            return this._container;
         },
-        info: function(msg, title, options) {
+        _show: function(type, icon, msg, title, options) {
             try {
-                toastr.info(msg, title, options)
-            }catch (e) {}
+                const container = this._getContainer();
+                const timeOut = (options && options.timeOut) || 3000;
+
+                const el = document.createElement('div');
+                el.className = 'sp-toast sp-toast-' + type;
+
+                let bodyHtml = '';
+                if (title) {
+                    bodyHtml += '<div class="sp-toast-title">' + title + '</div>';
+                }
+                bodyHtml += '<div class="sp-toast-msg">' + msg + '</div>';
+
+                el.innerHTML = '<span class="sp-toast-icon">' + icon + '</span>'
+                    + '<div class="sp-toast-body">' + bodyHtml + '</div>'
+                    + '<span class="sp-toast-close">×</span>';
+
+                el.querySelector('.sp-toast-close').addEventListener('click', () => {
+                    Toast._remove(el);
+                });
+
+                container.appendChild(el);
+                el.offsetHeight; // reflow
+                el.classList.add('sp-show');
+
+                var timer = setTimeout(function() { Toast._remove(el); }, timeOut);
+                el._timer = timer;
+            } catch (e) { console.error(e); }
+        },
+        _remove: function(el) {
+            if (el._timer) clearTimeout(el._timer);
+            el.classList.remove('sp-show');
+            el.classList.add('sp-hide');
+            setTimeout(function() { el.remove(); }, 300);
         },
         success: function(msg, title, options) {
-            try {
-                toastr.success(msg, title, options)
-            }catch (e) {}
+            this._show('success', '✅', msg, title, options);
         },
         error: function(msg, title, options) {
-            try {
-                toastr.error(msg, title, options)
-            }catch (e) {}
+            this._show('error', '❌', msg, title, options);
         },
+        info: function(msg, title, options) {
+            this._show('info', 'ℹ️', msg, title, options);
+        },
+        warn: function(msg, title, options) {
+            this._show('warning', '⚠️', msg, title, options);
+        }
     };
-
-    //toastr 封装  ----end----
+    //自定义Toast通知  ----end----
 
     //封装GM_xmlhttpRequest ---start---
     async function GM_fetch(details) {
