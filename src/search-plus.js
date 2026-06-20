@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.7.0
+// @version      3.7.1
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax，DeepSeek、Gemini。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -114,7 +114,7 @@
     'use strict';
 
 
-    const JSver = '3.7.0';
+    const JSver = '3.7.1';
 
 
     function getGPTMode() {
@@ -487,6 +487,7 @@
                 ⚠️ 若使用第三方接口，请在脚本头部添加：<code>// @connect &nbsp;你的域名</code><br>
                 例如：<code>// @connect api.deepseek.com</code>
             </div>`;
+            html += `<div class="api-config-save-row"><button id="saveCustomRouteBtn" class="api-config-save-btn">📌 保存为线路</button></div>`;
         }
         html += '<div class="api-config-hint">修改后自动保存 ✓</div>';
         panel.innerHTML = html;
@@ -510,8 +511,93 @@
                 if (key === 'minimax_api_key') minimax_api_key = val;
             });
         });
+
+        //绑定保存线路按钮
+        const saveBtn = document.getElementById('saveCustomRouteBtn');
+        if (saveBtn) saveBtn.addEventListener('click', saveCustomRoute);
     }
 
+    // ===== 自定义线路管理 =====
+    const CUSTOM_ROUTE_PREFIX = 'custom_';
+    const CUSTOM_ROUTES_KEY = 'custom_routes';
+
+    function getCustomRoutes() {
+        try { return JSON.parse(localStorage.getItem(CUSTOM_ROUTES_KEY)) || []; }
+        catch { return []; }
+    }
+    function setCustomRoutes(routes) {
+        localStorage.setItem(CUSTOM_ROUTES_KEY, JSON.stringify(routes));
+    }
+    function getCustomRouteById(id) {
+        return getCustomRoutes().find(r => r.id === id);
+    }
+    function loadCustomRouteConfig(route) {
+        if (route.type === 'OPENAI') {
+            localStorage.setItem('openai_base_url', route.base_url);
+            localStorage.setItem('openai_api_key', route.api_key);
+            if (route.model) localStorage.setItem('openai_model', route.model);
+        } else if (route.type === 'Anthropic') {
+            localStorage.setItem('anthropic_base_url', route.base_url);
+            localStorage.setItem('anthropic_api_key', route.api_key);
+            if (route.model) localStorage.setItem('anthropic_model', route.model);
+        }
+    }
+    function saveCustomRoute() {
+        const GPTMODE = getGPTMode();
+        if (GPTMODE !== 'OPENAI' && GPTMODE !== 'Anthropic') {
+            Toast.error('仅支持在 OPENAI 或 Anthropic 线路下保存');
+            return;
+        }
+        const name = prompt('请输入线路名称：', GPTMODE === 'OPENAI' ? '我的OpenAI线路' : '我的Anthropic线路');
+        if (!name || !name.trim()) return;
+        const route = {
+            id: CUSTOM_ROUTE_PREFIX + Date.now(),
+            name: name.trim(),
+            type: GPTMODE,
+            base_url: localStorage.getItem(GPTMODE === 'OPENAI' ? 'openai_base_url' : 'anthropic_base_url') || '',
+            api_key: localStorage.getItem(GPTMODE === 'OPENAI' ? 'openai_api_key' : 'anthropic_api_key') || '',
+            model: localStorage.getItem(GPTMODE === 'OPENAI' ? 'openai_model' : 'anthropic_model') || ''
+        };
+        if (!route.api_key) {
+            Toast.error('请先填写 API Key 再保存');
+            return;
+        }
+        const routes = getCustomRoutes();
+        routes.push(route);
+        setCustomRoutes(routes);
+        refreshModeSelectOptions();
+        Toast.success(`线路"${route.name}"保存成功`);
+    }
+    function deleteCustomRoute(id) {
+        const routes = getCustomRoutes().filter(r => r.id !== id);
+        setCustomRoutes(routes);
+        const selectEl = document.getElementById('modeSelect');
+        if (selectEl && selectEl.value === id) {
+            selectEl.value = 'OPENAI';
+            localStorage.setItem('GPTMODE', 'OPENAI');
+            renderApiConfigPanel();
+        }
+        refreshModeSelectOptions();
+        Toast.success('线路已删除');
+    }
+    // 将自定义线路注入到下拉框（插入在 Anthropic 之后）
+    function refreshModeSelectOptions() {
+        const selectEl = document.getElementById('modeSelect');
+        if (!selectEl) return;
+        // 移除旧的自定义选项
+        selectEl.querySelectorAll('option[data-custom]').forEach(o => o.remove());
+        const routes = getCustomRoutes();
+        // 在 Anthropic option 之后插入
+        const anthropicOpt = selectEl.querySelector('option[value="Anthropic"]');
+        routes.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.id;
+            opt.textContent = `⭐ ${r.name}`;
+            opt.setAttribute('data-custom', '1');
+            if (anthropicOpt) anthropicOpt.after(opt);
+            else selectEl.appendChild(opt);
+        });
+    }
 
     //enc-start
     async function digestMessage(r) {
@@ -1015,6 +1101,16 @@
         document.getElementById('gptAnswer').innerHTML = `<div style="display:flex;align-items:center;gap:8px;color:#999;font-size:14px;padding:8px 0;"><div class="gpt-loading-spinner"></div>加载中<span id="dot"></span></div>`;
 
         let GPTMODE = getGPTMode();
+        // 自定义线路：加载配置后转发到对应类型处理器
+        if (GPTMODE && GPTMODE.startsWith(CUSTOM_ROUTE_PREFIX)) {
+            const route = getCustomRouteById(GPTMODE);
+            if (route) {
+                console.log("自定义线路:", route.name, "->", route.type);
+                loadCustomRouteConfig(route);
+                if (route.type === 'OPENAI') { OPENAI(); return; }
+                if (route.type === 'Anthropic') { Anthropic(); return; }
+            }
+        }
         if (GPTMODE && GPT_MODE_HANDLERS[GPTMODE]) {
             console.log("当前模式:", GPTMODE);
             GPT_MODE_HANDLERS[GPTMODE]();
@@ -1513,7 +1609,12 @@
             const selectedValue = selectEl.options[selectEl.selectedIndex].value;
             localStorage.setItem('GPTMODE', selectedValue);
             renderApiConfigPanel();
-            Toast.success(`切换成功，当前线路:${GPT_MODE_NAMES[selectedValue] || selectedValue}`)
+            let displayName = GPT_MODE_NAMES[selectedValue];
+            if (!displayName) {
+                const cr = getCustomRouteById(selectedValue);
+                displayName = cr ? cr.name : selectedValue;
+            }
+            Toast.success(`切换成功，当前线路:${displayName}`)
         });
 
         let chatSetting = false;
@@ -2006,6 +2107,30 @@
         border-radius: 3px;
         font-size: 11px;
         color: #c76c00;
+    }
+    /* 保存为线路按钮 */
+    .api-config-save-row{
+        margin-top: 8px;
+        text-align: right;
+    }
+    .api-config-save-btn{
+        padding: 5px 14px;
+        border: 1px solid #4e6ef2;
+        border-radius: 6px;
+        background: linear-gradient(135deg, #4e6ef2, #6c8cff);
+        color: #fff;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .api-config-save-btn:hover{
+        box-shadow: 0 2px 8px rgba(78,110,242,0.35);
+        transform: translateY(-1px);
+    }
+    /* 自定义线路选项 */
+    option[data-custom]{
+        color: #4e6ef2;
+        font-weight: 600;
     }
     /* 更新KEY行 */
     #warn{
@@ -3633,6 +3758,9 @@
 
     //默认设置
     setTimeout(()=>{
+        // 加载自定义线路到下拉框
+        refreshModeSelectOptions();
+
         if(localStorage.getItem('GPTMODE')){
             const selectEl = document.getElementById('modeSelect');
             let optionElements = selectEl.querySelectorAll("option");
