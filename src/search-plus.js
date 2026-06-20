@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.9
+// @version      3.7.0
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax，DeepSeek、Gemini。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -101,6 +101,7 @@
 // @connect    api.minimaxi.com
 // @connect    api.deepwords.cn
 // @connect    abab.ai
+// @connect    api.anthropic.com
 // @compatible   Chrome
 // @compatible   Firefox
 // @license    MIT
@@ -118,7 +119,7 @@
     'use strict';
 
 
-    const JSver = '3.6.9';
+    const JSver = '3.7.0';
 
 
     function getGPTMode() {
@@ -354,14 +355,16 @@
         'OPENAI': [
             { key: 'openai_base_url', label: 'Base URL', placeholder: 'https://api.openai.com' },
             { key: 'openai_api_key', label: 'API Key', placeholder: '请输入API Key' },
-            { key: 'openai_model', label: '模型', placeholder: 'gpt-3.5-turbo' }
+            { key: 'openai_model', label: '模型', placeholder: 'gpt-5.5' }
         ],
         'miniMax': [
             { key: 'minimax_group_id', label: 'Group ID', placeholder: '请输入minimax_group_id' },
             { key: 'minimax_api_key', label: 'API Key', placeholder: '请输入minimax_api_key' }
         ],
-        'Gemini': [
-            { key: 'gemini_key', label: 'API Key', placeholder: '请输入Gemini API Key' }
+        'Anthropic': [
+            { key: 'anthropic_base_url', label: 'Base URL', placeholder: 'https://api.anthropic.com' },
+            { key: 'anthropic_api_key', label: 'API Key', placeholder: '请输入Anthropic API Key' },
+            { key: 'anthropic_model', label: '模型', placeholder: 'claude-sonnet-4-20250514' }
         ]
     };
 
@@ -387,8 +390,8 @@
                 <input class="api-config-input" data-key="${item.key}" type="text" placeholder="${item.placeholder}" value="${val}">
             </div>`;
         });
-        // OPENAI模式下提示添加@connect
-        if (GPTMODE === 'OPENAI') {
+        // OPENAI/Anthropic模式下提示添加@connect
+        if (GPTMODE === 'OPENAI' || GPTMODE === 'Anthropic') {
             html += `<div class="api-config-warn">
                 ⚠️ 若使用第三方接口，请在脚本头部添加：<code>// @connect &nbsp;你的域名</code><br>
                 例如：<code>// @connect api.deepseek.com</code>
@@ -402,7 +405,7 @@
             input.addEventListener('input', function () {
                 const key = this.dataset.key;
                 let val = this.value.trim();
-                if (key === 'openai_base_url') {
+                if (key === 'openai_base_url' || key === 'anthropic_base_url') {
                     val = val.replace(/\/+$/, '');
                 }
                 if (val) {
@@ -412,7 +415,6 @@
                 }
                 //同步全局变量
                 if (key === 'ZhipuapiKey') zhipu_apiKey = val;
-                if (key === 'gemini_key') gemini_key = val;
                 if (key === 'minimax_group_id') minimax_group_id = val;
                 if (key === 'minimax_api_key') minimax_api_key = val;
             });
@@ -918,6 +920,7 @@
         'Zhinao360':     () => Zhinao360(),
         'MixerBox':      () => MixerBox(),
         'miniMax':       () => miniMax(),
+        'Anthropic':     () => Anthropic(),
     };
 
     function do_it() {
@@ -934,7 +937,7 @@
         }
 
         console.log("默认线路:");
-        AIFREE();
+        Hunyuan('');
     }
 
 
@@ -986,6 +989,7 @@
                     <select id="modeSelect">
                         <option value="Default">默认接口(元宝)</option>
                         <option value="OPENAI">OPENAI-统一接口</option>
+                        <option value="Anthropic">Anthropic-统一接口</option>
                         <option value="TONGYI">通义千问</option>
                         <option value="SPARK">讯飞星火</option>
                         <option value="Hunyuan">腾讯元宝</option>
@@ -1009,7 +1013,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M18.537 19.567A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10c0 2.136-.67 4.116-1.81 5.74L17 12h3a8 8 0 1 0-2.46 5.772l.997 1.795Z"></path></svg>
                         更新KEY
                     </a>
-                    <span class="sp-hint">适用于智谱 / miniMax / OPENAI</span>
+                    <span class="sp-hint">适用于智谱 / miniMax / OPENAI / Anthropic</span>
                 </div>
                 <div id="apiConfigPanel"></div>
             </div>
@@ -2488,6 +2492,79 @@
     }
 
 
+    //Anthropic 统一接口（兼容 Claude API 格式）
+    let anthropic_messageChain = [];
+    async function Anthropic(){
+        let base_url = localStorage.getItem("anthropic_base_url") || "https://api.anthropic.com";
+        let api_key = localStorage.getItem("anthropic_api_key");
+        let model = localStorage.getItem("anthropic_model") || "claude-sonnet-4-20250514";
+
+        if(!api_key){
+            showAnserAndHighlightCodeStr(`api_key为空，请点击设置-更新key，输入您的Anthropic API Key`)
+            return
+        }
+
+        showAnserAndHighlightCodeStr(`请稍后...此线路为Anthropic兼容接口\nBase URL: ${base_url}\n模型: ${model}`)
+
+        addMessageChain(anthropic_messageChain, {role: "user", content: your_qus})
+
+        GM_fetch({
+            method: "POST",
+            url: `${base_url}/v1/messages`,
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "accept": "text/event-stream"
+            },
+            responseType: "stream",
+            data: JSON.stringify({
+                model: model,
+                max_tokens: 4096,
+                messages: anthropic_messageChain,
+                stream: true
+            })
+        }).then((stream) => {
+            let result = [];
+            const reader = stream.response.getReader();
+            reader.read().then(function processText({done, value}) {
+                if (done) {
+                    let finalResult = result.join("")
+                    try {
+                        console.log(finalResult)
+                        addMessageChain(anthropic_messageChain, {
+                            role: "assistant",
+                            content: finalResult
+                        })
+                        showAnserAndHighlightCodeStr(finalResult)
+                    } catch (e) {
+                        console.log(e)
+                    }
+                    return;
+                }
+                try {
+                    let d = new TextDecoder("utf8").decode(new Uint8Array(value));
+                    d.split("\n").forEach(item => {
+                        try {
+                            let line = item.replace(/^data:\s*/, "").trim()
+                            if (!line) return
+                            let parsed = JSON.parse(line)
+                            if (parsed.type === "content_block_delta" && parsed.delta && parsed.delta.text) {
+                                result.push(parsed.delta.text)
+                            }
+                        } catch (ex) {}
+                    })
+                    showAnserAndHighlightCodeStr(result.join(""))
+                } catch (e) {
+                    console.log(e)
+                }
+                return reader.read().then(processText);
+            })
+        }, (reason) => {
+            console.log(reason)
+            Toast.error("请求失败，请检查Base URL和API Key是否正确!")
+        })
+    }
 
 
     let csrfToken;
