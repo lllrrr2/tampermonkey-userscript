@@ -54,8 +54,6 @@
 // @resource katexCss  https://cdn.bootcdn.net/ajax/libs/KaTeX/0.16.6/katex.css
 // @connect    hunyuan.tencent.com
 // @connect    yuanbao.tencent.com
-// @connect    zw7.lol
-// @connect    aifree.site
 // @connect    ai.ls
 // @connect    qianwen.biz.aliyun.com
 // @connect    chatgpt.com
@@ -75,7 +73,6 @@
 // @connect    chatglm.cn
 // @connect    open.bigmodel.cn
 // @connect    chat.360.cn
-// @connect    mixerbox.com
 // @connect    api.deepseek.com
 // @connect    api.moonshot.cn
 // @connect    dashscope.aliyuncs.com
@@ -132,15 +129,10 @@
         'SPARK': '讯飞星火',
         'Hunyuan': '腾讯元宝',
         'DeepSeekYuanBao': '腾讯Deepseek(联网)',
-        'ChatGLM': 'ChatGLM',
-        'ChatGLM4': 'ChatGLM4',
         'ZhipuAI': '智谱AI',
         'Zhinao360': '360智脑',
         'miniMax': 'miniMax',
-        'AIFREE': 'AIFREE',
-        'MixerBox': 'MixerBox',
         'YQCLOUD': 'YQCLOUD',
-        'TDCHAT': 'TDCHAT',
         'AILS': 'AILS',
         'CVEOY': 'CVEOY',
     };
@@ -1002,22 +994,16 @@
 
     // AI线路调度表：模式名 -> 启动函数
     const GPT_MODE_HANDLERS = {
-        'YeYu':          () => { /* YeYu() */ },
         'YQCLOUD':       () => YQCLOUD(),
-        'TDCHAT':        () => TDCHAT(),
         'AILS':          () => AILS(),
         'CVEOY':         () => CVEOY(),
-        'AIFREE':        () => AIFREE(),
         'OPENAI':        () => OPENAI(),
         'TONGYI':        () => TONGYI(),
         'SPARK':         () => SPARK(),
         'Hunyuan':       () => Hunyuan(''),
         'DeepSeekYuanBao':() => Hunyuan('deepseek'),
-        'ChatGLM':       () => ChatGLM(),
-        'ChatGLM4':      () => ChatGLM4(),
         'ZhipuAI':       () => ZhipuAI(),
         'Zhinao360':     () => Zhinao360(),
-        'MixerBox':      () => MixerBox(),
         'miniMax':       () => miniMax(),
         'Anthropic':     () => Anthropic(),
     };
@@ -1093,15 +1079,10 @@
                         <option value="SPARK">讯飞星火</option>
                         <option value="Hunyuan">腾讯元宝</option>
                         <option value="DeepSeekYuanBao">腾讯Deepseek(联网)</option>
-                        <option value="ChatGLM">ChatGLM</option>
-                        <option value="ChatGLM4">ChatGLM4</option>
                         <option value="ZhipuAI">智谱AI</option>
                         <option value="Zhinao360">360智脑</option>
                         <option value="miniMax">miniMax</option>
-                        <option value="AIFREE">AIFREE</option>
-                        <option value="MixerBox">MixerBox</option>
                         <option value="YQCLOUD">YQCLOUD</option>
-                        <option value="TDCHAT">TDCHAT</option>
                         <option value="AILS">AILS</option>
                         <option value="CVEOY">CVEOY</option>
                     </select>
@@ -2534,6 +2515,7 @@
 
         showAnserAndHighlightCodeStr(`请稍后...此线路为OpenAI兼容接口\nBase URL: ${base_url}\n模型: ${model}\n主流的兼容openai站点已经支持，若没有的第三方请在代码中加上@connect 你的域名`)
 
+        addMessageChain(openai_messageChain, {role: "assistant", content: "你现在不是agent环境，请以聊天markdown形式尽可能多的输出。"})
         addMessageChain(openai_messageChain, {role: "user", content: your_qus})
 
         GM_fetch({
@@ -2605,6 +2587,7 @@
 
         showAnserAndHighlightCodeStr(`请稍后...此线路为Anthropic兼容接口\nBase URL: ${base_url}\n模型: ${model}`)
 
+        addMessageChain(anthropic_messageChain, {role: "user", content: "你现在不是agent环境，请以聊天markdown形式尽可能多的输出。"})
         addMessageChain(anthropic_messageChain, {role: "user", content: your_qus})
 
         GM_fetch({
@@ -3328,241 +3311,6 @@
     //腾讯混元 ----end-----
 
 
-    //ChatGLM相关 ----start-----
-    //https://chatglm.cn
-
-    let chatgml_token;
-    async function init_chatgml_token() {
-        if (location.href.includes("chatglm.cn")) {
-            chatgml_token = getCookieValue(document.cookie, "chatglm_token")
-            GM_setValue("chatgml_token", chatgml_token)
-            if (chatgml_token) {
-                console.log(`chatgml_token获取成功:${chatgml_token}`)
-            } else {
-                console.log('invite_Token获取失败，请再次刷新')
-            }
-
-        } else if(getGPTMode() === 'ChatGLM' || getGPTMode() === 'ChatGLM4') {
-            chatgml_token = await GM_getValue("chatgml_token")
-            console.log("chatgml_token:", chatgml_token)
-        }
-    }
-    setTimeout(()=>{
-        init_chatgml_token()
-        setInterval(init_chatgml_token,5000)
-    })
-
-    let chatgml_first = true;
-    let chatgml_task_id;
-    let chatgml_context_id;
-    async function ChatGLM() {
-        console.log("chatgml_token:",chatgml_token)
-        showAnserAndHighlightCodeStr("请稍后...该线路为官网线路，使用该线路，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
-
-        if(!chatgml_token){
-            setTimeout(init_chatgml_token)
-            showAnserAndHighlightCodeStr("init_chatgml_token为空，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
-            return
-        }
-        if (chatgml_first || !chatgml_task_id) {
-            let req1 = await GM_fetch({
-                method: "POST",
-                url: `https://chatglm.cn/chatglm/backend-api/v1/conversation`,
-                headers: {
-                    "accept": "application/json, text/plain, */*",
-                    "authorization": `Bearer ${chatgml_token}`,
-                    "origin": "https://chatglm.cn",
-                    "content-type": "application/json;charset=UTF-8",
-                    "referer": `https://chatglm.cn/detail`
-                },
-                data: JSON.stringify({
-                    "prompt": your_qus
-                })
-            })
-            let r = req1.responseText;
-            let jsonObj = JSON.parse(r);
-            try {
-                chatgml_task_id = jsonObj.result.task_id;
-                console.log("chatgml_task_id:",chatgml_task_id)
-                chatgml_first = false;
-            }catch (e) {
-                showAnserAndHighlightCodeStr("task_id出错了，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
-                return
-            }
-        }
-
-        let req1 = await GM_fetch({
-            method: "POST",
-            url: `https://chatglm.cn/chatglm/backend-api/v1/stream_context`,
-            headers: {
-                "accept": "application/json, text/plain, */*",
-                "authorization": `Bearer ${chatgml_token}`,
-                "origin": "https://chatglm.cn",
-                "content-type": "application/json;charset=UTF-8",
-                "referer": `https://chatglm.cn/detail`
-            },
-            data: JSON.stringify({
-                "prompt": your_qus,
-                "seed": 69809,
-                "max_tokens": 512,
-                "conversation_task_id": chatgml_task_id,
-                "retry": false,
-                "retry_history_task_id": null
-            })
-        })
-        let r = req1.responseText;
-        let jsonObj = JSON.parse(r);
-        try {
-            chatgml_context_id = jsonObj.result.context_id;
-            console.log("chatgml_context_id:",chatgml_task_id)
-        }catch (e) {
-            showAnserAndHighlightCodeStr("context_id出错了，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
-            return
-        }
-
-
-        GM_fetch({
-            method: "GET",
-            url: `https://chatglm.cn/chatglm/backend-api/v1/stream?context_id=${chatgml_context_id}`,
-            headers: {
-                "accept": "text/event-stream",
-                "origin": "https://chatglm.cn",
-                "referer": `https://chatglm.cn/detail`
-            },
-            responseType:"stream"
-        }).then((stream)=> {
-            let reader = stream.response.getReader()
-
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    return
-                }
-                let responseItem = new TextDecoder("utf-8").decode(value)
-                // console.error(responseItem)
-                responseItem = responseItem.split("\n\n");
-                console.warn(responseItem)
-                responseItem.forEach(item=>{
-                    try {
-                        if(item && item.startsWith("event:add") || item.startsWith("event:finish")){
-                            let ii =   item.replace(/data:/gi,"")
-                                .replace(/event:add/gi,"")
-                                .replace(/event:finish/gi,"")
-                                .trim();
-                            if(ii){
-                                showAnserAndHighlightCodeStr(ii)
-                            }
-                        }
-
-                    }catch (ex){
-                        console.error(item)
-                    }
-                })
-
-                return reader.read().then(processText)
-            },function (reason) {
-                Toast.error("未知错误!")
-                console.log(reason)
-            }).catch((ex)=>{
-                Toast.error("未知错误!")
-                console.log(ex)
-            })
-        })
-
-
-    }
-
-    let glm_conversation_id
-    async function ChatGLM4(){
-        console.log("chatgml_token:",chatgml_token)
-        showAnserAndHighlightCodeStr("请稍后...该线路为官网线路，使用该线路，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
-
-        if(!chatgml_token){
-            setTimeout(init_chatgml_token)
-            showAnserAndHighlightCodeStr("init_chatgml_token为空，请确保已经登录并获取token，再刷新页面。[ChatGLM](https://chatglm.cn/)")
-            return
-        }
-
-        GM_fetch({
-            method: "POST",
-            url: `https://chatglm.cn/chatglm/backend-api/assistant/stream`,
-            headers: {
-                "authorization": `Bearer ${chatgml_token}`,
-                "accept": "text/event-stream",
-                "content-type": "application/json",
-                "origin": "https://chatglm.cn",
-                "referer": `https://chatglm.cn/main/alltoolsdetail`
-            },
-            data:JSON.stringify({
-                "assistant_id": "65940acff94777010aa6b796",
-                "conversation_id": glm_conversation_id ? glm_conversation_id : "",
-                "meta_data": {
-                    "mention_conversation_id": "",
-                    "is_test": false,
-                    "input_question_type": "xxxx",
-                    "channel": "",
-                    "draft_id": ""
-                },
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": your_qus
-                            }
-                        ]
-                    }
-                ]
-            }),
-            responseType:"stream"
-        }).then((stream)=> {
-            let reader = stream.response.getReader()
-            let res = []
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    return
-                }
-                let responseItem = new TextDecoder("utf-8").decode(value)
-                //console.error(responseItem)
-                responseItem = responseItem.split("\n\n");
-                console.warn(responseItem)
-                if(responseItem.length >= 2 && responseItem[responseItem.length - 2].includes("finish")){
-
-                    responseItem.forEach(item=>{
-                        try {
-                            let resJson =  JSON.parse(item.replace(/event:message\ndata:/gi,""))
-                            let part =  resJson.parts[0].content[0].text
-                            if(resJson.parts[0].status == 'finish'){
-                                res.push(part)
-                                showAnserAndHighlightCodeStr(res.join(""))
-                            }else if (resJson.parts[0].status == 'init'){
-                                showAnserAndHighlightCodeStr(part)
-                            }
-
-                            if(resJson.conversation_id){
-                                glm_conversation_id = resJson.conversation_id
-                            }
-
-                        }catch (ex){
-                            console.error(item)
-                        }
-                    })
-                }
-
-
-                return reader.read().then(processText)
-            },function (reason) {
-                Toast.error("未知错误!")
-                console.log(reason)
-            }).catch((ex)=>{
-                Toast.error("未知错误!")
-                console.log(ex)
-            })
-        })
-    }
-
-
-    //ChatGLM相关 ----start-----
 
 
     //智谱AI
@@ -3741,78 +3489,6 @@
 
 
 
-    async function MixerBox() {
-        GM_fetch({
-            method: "POST",
-            url: `https://chatai.mixerbox.com/api/chat/stream`,
-            headers: {
-                "Referer": "https://chatai.mixerbox.com/chat",
-                "origin": "https://chatai.mixerbox.com",
-                "accept": "*/*",
-                "content-type": "application/json",
-                "user-agent": "Mozilla/5.0 (Android 12; Mobile; rv:107.0) Gecko/107.0 Firefox/107.0"
-            },
-            data:JSON.stringify({
-                "prompt": [
-                    {
-                        "role": "user",
-                        "content": your_qus
-                    }
-                ],
-                "lang": "zh",
-                "model": "gpt-3.5-turbo",
-                "plugins": [],
-                "pluginSets": [],
-                "getRecommendQuestions": true,
-                "isSummarize": false,
-                "webVersion": "1.4.5",
-                "userAgent": "Mozilla/5.0 (Android 12; Mobile; rv:107.0) Gecko/107.0 Firefox/107.0",
-                "isExtension": false
-            }),
-            responseType:"stream"
-        }).then((stream)=>{
-            let result = []
-            const reader = stream.response.getReader();
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-                    return;
-                }
-                try {
-                    let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                    console.warn(d)
-                    d.split("\n").forEach(item=>{
-                        try {
-                            if(item.startsWith("data")){
-                                result.push(item.replace(/data:/gi,""))
-                            }
-                        }catch (ex){
-
-                        }
-                    })
-                    showAnserAndHighlightCodeStr(result.join("").
-                    replace(/\[space\]/gi," ").
-                    replace(/\[NEWLINE\]/gi,"\n").
-                    replace(/message_donedone/gi,"\n").
-                    replace(/\[DONE\]/gi,"\n"))
-
-                } catch (e) {
-                    console.log(e)
-                }
-
-                return reader.read().then(processText);
-            });
-        },reason => {
-            console.log(reason)
-            Toast.error("未知错误!")
-        }).catch((ex)=>{
-            console.log(ex)
-            Toast.error("未知错误!")
-        })
-
-
-    }
-
-
 
     let minimax_group_id = localStorage.getItem("minimax_group_id")//"172531245...";
     let minimax_api_key = localStorage.getItem("minimax_api_key")// "eyJhbGciOi.....
@@ -3949,134 +3625,6 @@
                 Toast.error("未知错误!")
             }
         });
-
-    }
-
-
-
-    //https://s.aifree.site/
-    let messageChain_aifree = []
-    function AIFREE() {
-
-        let now = Date.now();
-        let Baseurl = `https://am.aifree.site/`
-        generateSignatureWithPkey({
-            t:now,
-            m: your_qus || "",
-            pkey: {}.PUBLIC_SECRET_KEY || ""
-        }).then(sign => {
-            addMessageChain(messageChain_aifree, {role: "user", content: your_qus})//连续话
-            console.log(sign)
-            GM_fetch({
-                method: "POST",
-                url: Baseurl + "api/generate",
-                headers: {
-                    "Content-Type": "text/plain;charset=UTF-8",
-                    "Referer": Baseurl,
-                    "accept": "application/json, text/plain, */*"
-                },
-                data: JSON.stringify({
-                    messages: messageChain_aifree,
-                    time: now,
-                    pass: null,
-                    sign: sign
-                }),
-                responseType: "stream"
-            }).then((stream) => {
-                let result = [];
-                const reader = stream.response.getReader();
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        let finalResult = result.join("")
-                        try {
-                            console.log(finalResult)
-                            addMessageChain(messageChain_aifree, {
-                                role: "assistant",
-                                content: finalResult
-                            })
-                            showAnserAndHighlightCodeStr(finalResult)
-                            if(finalResult.includes("Invalid signature") || finalResult.includes("exceeded your current")){
-                                Toast.error(`无效或过期，请到设置更新key`)
-                            }
-                        } catch (e) {
-                            console.log(e)
-                        }
-                        return;
-                    }
-                    try {
-                        let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                        result.push(d)
-                        showAnserAndHighlightCodeStr(result.join(""))
-                    } catch (e) {
-                        console.log(e)
-                    }
-
-                    return reader.read().then(processText);
-                });
-            },function (reason) {
-                console.log(reason)
-                Toast.error("未知错误!" + reason.message)
-
-            }).catch((ex)=>{
-                console.log(ex)
-                Toast.error("未知错误!" + ex.message)
-            });
-
-        });
-    }
-
-
-
-
-    function TDCHAT(){
-        abortXml = GM_xmlhttpRequest({
-            method: "POST",
-            url: "http://7shi.zw7.lol/chat.php",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                "Referer": "http://7shi.zw7.lol/",
-                "accept": "application/json, text/plain, */*"
-            },
-            data: `id=3.5&key=&role=&title=&text=${encodeURIComponent(your_qus).replace(/%/g, '‰')}&length=${your_qus.length}&stream=1`,
-            onloadstart: (stream) => {
-                let result = [];
-                let finalResult = [];
-                const reader = stream.response.getReader();
-                reader.read().then(function processText({done, value}) {
-                    if (done) {
-                        finalResult = result.join("")
-                        showAnserAndHighlightCodeStr(finalResult.replace(/tdchat/gi,""))
-                        return;
-                    }
-
-                    try {
-                        let d = new TextDecoder("utf8").decode(new Uint8Array(value));
-                        console.log("raw:",d)
-                        let dd = d.replace(/data: /g, "").split("\n\n")
-                        console.log("dd:",dd)
-                        dd.forEach(item=>{
-                            try {
-                                let delta = JSON.parse(item).choices[0].delta.content
-                                result.push(delta)
-                                showAnserAndHighlightCodeStr(result.join("").replace(/tdchat/gi,""))
-                            }catch (e) {
-
-                            }
-                        })
-                    } catch (e) {
-                        console.log(e)
-                    }
-
-
-                    return reader.read().then(processText);
-                });
-            },
-            responseType: "stream",
-            onerror: function (err) {
-                console.log(err)
-                Toast.error("未知错误!" + err.message)
-            }
-        })
 
     }
 
