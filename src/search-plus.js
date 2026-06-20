@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.6.8
+// @version      3.6.9
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax，DeepSeek、Gemini。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -61,6 +61,8 @@
 // @connect    ai.ls
 // @connect    qianwen.biz.aliyun.com
 // @connect    chatgpt.com
+// @connect    openai.com
+// @connect    jennyapi.site
 // @connect    binjie.fun
 // @connect    free-api.cveoy.top
 // @connect    caipacity.com
@@ -76,6 +78,29 @@
 // @connect    open.bigmodel.cn
 // @connect    chat.360.cn
 // @connect    mixerbox.com
+// @connect    api.deepseek.com
+// @connect    api.moonshot.cn
+// @connect    dashscope.aliyuncs.com
+// @connect    api.groq.com
+// @connect    api.together.xyz
+// @connect    api.mistral.ai
+// @connect    api.perplexity.ai
+// @connect    api.siliconflow.cn
+// @connect    api.lingyiwanwu.com
+// @connect    api.stepfun.com
+// @connect    spark-api-open.xf-yun.com
+// @connect    api.cohere.com
+// @connect    api.baichuan-ai.com
+// @connect    qianfan.baidubce.com
+// @connect    ark.cn-beijing.volces.com
+// @connect    api.sensenova.cn
+// @connect    api.kunlun.com
+// @connect    api.tiangong.cn
+// @connect    api.internlm.org
+// @connect    api.zhipuai.cn
+// @connect    api.minimaxi.com
+// @connect    api.deepwords.cn
+// @connect    abab.ai
 // @compatible   Chrome
 // @compatible   Firefox
 // @license    MIT
@@ -93,7 +118,7 @@
     'use strict';
 
 
-    const JSver = '3.6.8';
+    const JSver = '3.6.9';
 
 
     function getGPTMode() {
@@ -334,15 +359,21 @@
                     zhipu_apiKey = ZhipuapiKey
                 }
             }
-        }else if(GPTMODE === "Gemini"){
-            localStorage.removeItem("gemini_key")
-            let manualInput = confirm("请输入你自己的apiKey");
-            if (manualInput) {
-                let gm_key = prompt("请输入您的gemini apikey", "");
-                if (gm_key) {
-                    localStorage.setItem("gemini_key", gm_key)
-                    gemini_key = gm_key
-                }
+        }else if(GPTMODE === "OPENAI"){
+            localStorage.removeItem("openai_base_url")
+            let base_url_input = prompt("请输入OpenAI兼容接口Base URL (如 https://api.openai.com)", localStorage.getItem("openai_base_url") || "https://api.openai.com");
+            if (base_url_input) {
+                localStorage.setItem("openai_base_url", base_url_input.replace(/\/+$/, ''))
+            }
+            localStorage.removeItem("openai_api_key")
+            let api_key_input = prompt("请输入您的API Key", localStorage.getItem("openai_api_key") || "");
+            if (api_key_input) {
+                localStorage.setItem("openai_api_key", api_key_input)
+            }
+            localStorage.removeItem("openai_model")
+            let model_input = prompt("请输入模型名称 (如  gpt-4, gpt-4o, deepseek-chat 等)", localStorage.getItem("openai_model") || "gpt-3.5-turbo");
+            if (model_input) {
+                localStorage.setItem("openai_model", model_input.trim())
             }
         }else if(GPTMODE === "miniMax"){
 
@@ -853,11 +884,8 @@
         'TDCHAT':        () => TDCHAT(),
         'AILS':          () => AILS(),
         'CVEOY':         () => CVEOY(),
-        'newBing':       () => newBing(),
         'AIFREE':        () => AIFREE(),
-        'OPENAI':        () => OPENAI("text-davinci-002-render-sha"),
-        'OPENAI-3.5':    () => OPENAI("text-davinci-002-render-sha"),
-        'Gemini':        () => Gemini(),
+        'OPENAI':        () => OPENAI(),
         'TONGYI':        () => TONGYI(),
         'SPARK':         () => SPARK(),
         'Hunyuan':       () => Hunyuan(''),
@@ -934,10 +962,8 @@
                 <div class="sp-section-title">🌐 AI 线路</div>
                 <div id="gptStatus">
                     <select id="modeSelect">
-                        <option value="Default">默认接口</option>
-                        <option style="display:none" value="newBing">New Bing</option>
-                        <option style="display:none" value="OPENAI-3.5">OPENAI-3.5</option>
-                        <option value="Gemini">Gemini-2.0</option>
+                        <option value="Default">默认接口(元宝)</option>
+                        <option value="OPENAI">OPENAI-统一接口</option>
                         <option value="TONGYI">通义千问</option>
                         <option value="SPARK">讯飞星火</option>
                         <option value="Hunyuan">腾讯元宝</option>
@@ -961,7 +987,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M18.537 19.567A9.961 9.961 0 0 1 12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10c0 2.136-.67 4.116-1.81 5.74L17 12h3a8 8 0 1 0-2.46 5.772l.997 1.795Z"></path></svg>
                         更新KEY
                     </a>
-                    <span class="sp-hint">适用于智谱 / Gemini / miniMax</span>
+                    <span class="sp-hint">适用于智谱 / miniMax / OPENAI</span>
                 </div>
             </div>
             <!-- 功能开关 -->
@@ -2282,202 +2308,6 @@
     }
 
 
-
-
-
-
-
-
-    function isTokenExpired(token) {
-        if(!token) return true
-        try {
-            const tokenData = JSON.parse(atob(token.split('.')[1]));
-
-            if (!tokenData.exp) {
-                return false;
-            }
-
-            const expirationTime = tokenData.exp * 1000; // Convert expiration time to milliseconds
-            const currentTime = new Date().getTime();
-
-            if (currentTime > expirationTime) {
-                return true;
-            } else {
-                return false;
-            }
-        }catch (e) {
-            return false
-        }
-
-        return true;
-    }
-
-
-    let bingSocket;
-    let bing_sourceAttributions;
-    let bing_result;
-    function initBingSocket() {
-        let socket = new WebSocket(`wss://sydney.bing.com/sydney/ChatHub`);
-
-        // 监听连接成功事件
-
-        socket.addEventListener('open', (event) => {
-            console.log('initBingSocket 连接成功');
-            bingSocket = socket;
-            showAnserAndHighlightCodeStr("BingSocket:已连接，请勿重新点击，结果返回较慢请耐心等待，若长时间没反应则不可用。注意：本线路为new bing官网线路。若要使用线路,则需要科学上网和登录微软账号:[BING AI](https://cn.bing.com/search?q=Bing+AI&showconv=1&FORM=hpcodx)")
-        });
-
-        // 监听接收消息事件
-        socket.addEventListener('message', (event) => {
-            console.log('initBingSocket 接收到消息：', event.data);
-            let revData = event.data;
-            try{
-                let rr = revData.replace(String.fromCharCode(0x1e),"");
-
-                try{
-                    let ref = '\n'
-                    if(rr.startsWith('{"type":2')){
-                        console.warn("bing_sourceAttributions foreach")
-                        bing_sourceAttributions && bing_sourceAttributions.forEach((sb,index) =>{
-                            try{
-                                ref += `${index}.[${sb.providerDisplayName}](${sb.seeMoreUrl})\n\n`
-                            }catch (e) {console.error("sb", e)}
-                        })
-                        showAnserAndHighlightCodeStr(bing_result + ref);
-                    }
-                }catch (ex) { /*console.error("bing_sourceAttributions  ex ", JSON.parse(rr))*/ }
-
-
-                let ans = JSON.parse(rr).arguments[0].messages[0].text;
-                bing_result = (ans ? ans : bing_result)
-                console.log(bing_result)
-                showAnserAndHighlightCodeStr(bing_result)
-                if(conversationId){
-                    isStartOfSession = false;
-                }
-
-                if(JSON.parse(rr).arguments[0].messages[0].sourceAttributions){
-                    let sb = JSON.parse(rr).arguments[0].messages[0].sourceAttributions;
-                    bing_sourceAttributions = sb.length > 0 ? sb : bing_sourceAttributions;
-
-                    console.warn('bing_sourceAttributions',bing_sourceAttributions)
-                }
-
-            }catch (e) {
-
-            }
-            /*if(revData.includes("allowReconnect")){
-                isStartOfSession = true;
-            }*/
-
-        });
-    }
-
-    //setTimeout(initBingSocket,1000)
-    let isStartOfSession = true;
-    let conversationId;
-    let clientId;
-    let conversationSignature;
-    let invocationId = 0;
-    let toneStyle = 'fast';
-    async function newBing() {
-
-        setTimeout(initBingSocket)
-        await delay(2000)
-
-        const genRanHex = (size) =>
-            [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('')
-
-        if(isStartOfSession){
-            console.log("isStartOfSession:",isStartOfSession)
-            let req1 = await GM_fetch({
-                method: "GET",
-                url: "https://www.bing.com/turing/conversation/create"
-            })
-            let r = req1.responseText;
-            console.log(r)
-            conversationId = JSON.parse(r).conversationId;
-            clientId = JSON.parse(r).clientId;
-            conversationSignature = JSON.parse(r).conversationSignature;
-
-        }
-
-
-
-        if (bingSocket.readyState === 1) {
-            // 发送协议和版本号
-            const protocol = {protocol: "json", version: 1};
-            bingSocket.send(JSON.stringify(protocol) + String.fromCharCode(0x1e));
-
-            await delay(1000)
-            // 发送请求类型
-            const type = {type: 6};
-            bingSocket.send(JSON.stringify(type) + String.fromCharCode(0x1e));
-
-            await delay(500)
-            //发送提问
-            if(!isStartOfSession){
-                invocationId += 1;
-            }
-            let toneOption
-            if (toneStyle === 'creative') {
-                toneOption = 'h3imaginative'
-            } else if (toneStyle === 'precise') {
-                toneOption = 'h3precise'
-            } else if (toneStyle === 'fast') {
-                // new "Balanced" mode, allegedly GPT-3.5 turbo
-                toneOption = 'galileo'
-            } else {
-                // old "Balanced" mode
-                toneOption = 'harmonyv3'
-            }
-            const msg = {
-                "arguments": [{
-                    "conversationId": conversationId,
-                    "sliceIds": ["222dtappid", "225cricinfo", "224locals0"],
-                    "optionsSets": [
-                        'nlu_direct_response_filter',
-                        'deepleo',
-                        'disable_emoji_spoken_text',
-                        'responsible_ai_policy_235',
-                        'enablemm',
-                        toneOption,
-                        'dtappid',
-                        'cricinfo',
-                        'cricinfov2',
-                        'dv3sugg',
-                        'nojbfedge',
-                    ],
-                    "traceId": genRanHex(32),
-                    "source": "cib",
-                    "isStartOfSession": isStartOfSession,
-                    "message": {
-                        "author": "user",
-                        "text": your_qus,
-                        "messageType": "Chat"
-                    },
-                    "conversationSignature": conversationSignature,
-                    "participant": {
-                        "id": clientId
-                    }
-                }],
-                "invocationId": `${invocationId}`,
-                "target": "chat",
-                "type": 4
-            }
-
-            bingSocket.send(JSON.stringify(msg) + String.fromCharCode(0x1e));
-            /* if(isStartOfSession){
-                 isStartOfSession = false;
-             }*/
-        }
-
-
-
-    }
-
-
-
     function uuidv4() {
         let d = new Date().getTime(); // get current timestamp in ms (to ensure UUID uniqueness)
         let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -2488,239 +2318,80 @@
         return uuid
     }
 
-    //OPENAI update wss 2024.3.12
-    //let messageChain_openai = [];
-    let openai_conversation_id ;
-    let openai_parent_message_id ;
     let history_disable = false ;
-    async function OPENAI(GPTModel){
-        // addMessageChain(messageChain_openai,{
-        //     "role": "user",
-        //     "id": uuidv4(),
-        //     "content": {
-        //         "content_type": "text",
-        //         "parts": [
-        //             your_qus
-        //         ]
-        //     },
-        //     "metadata":{}
-        // },20)
-        showAnserAndHighlightCodeStr(`此线路为OpenAI官网线路：${GPTModel}，使用前确定有访问权限且登录账号：[OPENAI官网](https://chatgpt.com/)`)
-        let req1 = await GM_fetch({
-            method: "GET",
-            url: "https://chatgpt.com/api/auth/session"
-        })
-        let r = req1.responseText;
-        console.log(r)
-        let accessToken;
-        try{
-            accessToken = JSON.parse(r).accessToken;
-        }catch (e) {
-            showAnserAndHighlightCodeStr("验证出错,请确认有权限访问OPENAI官网[OPENAI](https://chatgpt.com/)")
-        }
 
-        if(!accessToken){
-            showAnserAndHighlightCodeStr("验证出错,请确认有权限OPENAI官网[OPENAI](https://chatgpt.com/)")
-        }
+    //OPENAI 统一接口（兼容 OpenAI API 格式的第三方服务）
 
-        let paramObj = {
-            action: "next",
-            messages: [{
-                "author": {
-                    "role": "user"
-                },
-                "id": uuidv4(),
-                "content": {
-                    "content_type": "text",
-                    "parts": [
-                        your_qus
-                    ]
-                },
-                "metadata":{}
-            }],
-            model: GPTModel,
-            parent_message_id: openai_parent_message_id ? openai_parent_message_id : uuidv4(),
-            suggestions: [],
-            arkose_token: null,
-            history_and_training_disabled: history_disable,
-            timezone_offset_min: new Date().getTimezoneOffset()
-        }
-        if(openai_conversation_id){
-            try {
-                Reflect.set(paramObj,"conversation_id", openai_conversation_id)
-            }catch (ex) {
-                console.error(ex)
-            }
-        }
-        console.log(paramObj)
+    let openai_messageChain = [];
+    async function OPENAI(){
+        let base_url = localStorage.getItem("openai_base_url") || "https://api.openai.com";
+        let api_key = localStorage.getItem("openai_api_key");
+        let model = localStorage.getItem("openai_model") || "gpt-5.5";
 
-        let sendData = JSON.stringify(paramObj)
-        GM_fetch({
-            method: 'POST',
-            url: 'https://chatgpt.com/backend-api/conversation',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + accessToken,
-                'origin': 'https://chatgpt.com',
-                'Referer': 'https://chatgpt.com/',
-            },
-            responseType: "stream",
-            data: sendData
-        }).then((stream)=> {
-            let reader = stream.response.getReader()
-            let reqJsonStr;
-            reader.read().then(function processText({done, value}) {
-                if (done) {
-
-                    //连接openai websocket
-                    let reqJson = JSON.parse(reqJsonStr)
-                    //openai_conversation_id = reqJson.openai_conversation_id
-                    let wssurl = reqJson.wss_url
-
-                    let socket = new WebSocket(wssurl);
-                    socket.addEventListener('open', (event) => {
-                        console.log('OpenAI wss 连接成功');
-                    });
-                    socket.addEventListener('message', (event) => {
-                        console.log('OpenAISocket 接收到消息：', event.data);
-                        let revData = event.data;
-                        try{
-                            let revJSON = JSON.parse(revData);
-                            if(revJSON.type == 'http.response.body'){
-                                openai_parent_message_id = revJSON.message_id
-                                if(revJSON.body !== 'ZGF0YTogW0RPTkVdCgo='){
-                                    //处理结果
-                                    try{
-                                        let responseItem = atob(revJSON.body)
-                                        console.log(responseItem)
-                                        showAnserAndHighlightCodeStr(JSON.parse(responseItem.slice(6)).message.content.parts[0])
-                                        if(JSON.parse(responseItem.slice(6)).conversation_id){
-                                            openai_conversation_id = JSON.parse(responseItem.slice(6)).conversation_id
-                                            openai_parent_message_id = JSON.parse(responseItem.slice(6)).message.id
-                                        }
-                                    }catch (ex) {
-                                        console.error(ex)
-                                    }
-                                }
-
-                            }
-
-                        }catch (ex) { }
-
-                    });
-
-
-
-                    console.log("===done==")
-                    // addMessageChain(messageChain_openai,{
-                    //     "role": "assistant",
-                    //     "id": uuidv4(),
-                    //     "content": {
-                    //         "content_type": "text",
-                    //         "parts": [
-                    //             answer
-                    //         ]
-                    //     },
-                    //     "metadata":{}
-                    // }, 20)
-                    return
-                }
-                reqJsonStr = String.fromCharCode(...Array.from(value))
-
-                /*try{
-                    let responseItem = String.fromCharCode(...Array.from(value))
-                    console.log(responseItem)
-                    let items = responseItem.split('\n\n')
-                    if (items.length > 2) {
-                        let lastItem = items.slice(-3, -2)[0]
-                        if (lastItem.startsWith('data: [DONE]')) {
-                            responseItem = items.slice(-4, -3)[0]
-                        } else {
-                            responseItem = lastItem
-                        }
-                    }
-                    if (responseItem.startsWith('data: {')) {
-                        answer = JSON.parse(responseItem.slice(6)).message.content.parts[0]
-                        showAnserAndHighlightCodeStr(answer)
-                        if(JSON.parse(responseItem.slice(6)).conversation_id){
-                            openai_conversation_id = JSON.parse(responseItem.slice(6)).conversation_id
-                            openai_parent_message_id = JSON.parse(responseItem.slice(6)).message.id
-                        }
-
-                    } else if (responseItem.startsWith('data: [DONE]')) {
-
-                        // return
-                    }
-                }catch (e) {
-                    console.error(e)
-                }*/
-
-                return reader.read().then(processText)
-            },function (reason) {
-                console.log(reason)
-                Toast.error("未知错误!")
-            }).catch((ex)=>{
-                console.log(ex)
-                Toast.error("未知错误!")
-            })
-        })
-    }
-
-    //Gemini api
-    let gemini_key = localStorage.getItem("gemini_key")
-    async function Gemini(GPTModel){
-
-        if(!gemini_key){
-            showAnserAndHighlightCodeStr(`gemini_key为空,请点击设置-更新key,请到获取[https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)`)
+        if(!api_key){
+            showAnserAndHighlightCodeStr(`api_key为空，请点击设置-更新key，输入您的API Key`)
             return
         }
 
-        showAnserAndHighlightCodeStr(`请稍后。。。此线路为google官网线路，使用前确定apikey的正确性(设置-更新key),[key获取](https://aistudio.google.com/app/apikey)`)
+        showAnserAndHighlightCodeStr(`请稍后...此线路为OpenAI兼容接口\nBase URL: ${base_url}\n模型: ${model}\n主流的兼容openai站点已经支持，若没有的第三方请在代码中加上@connect 你的域名`)
 
+        addMessageChain(openai_messageChain, {role: "user", content: your_qus})
 
         GM_fetch({
-            method: 'POST',
-            url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${gemini_key}`,
+            method: "POST",
+            url: `${base_url}/v1/chat/completions`,
             headers: {
-                'Content-Type': 'application/json; charset=utf-8',
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${api_key}`,
                 "accept": "text/event-stream"
-                /*'Accept-Language':'zh-CN,zh;q=0.9'*/
             },
             responseType: "stream",
             data: JSON.stringify({
-                contents: [{
-                    parts: [{ text: your_qus }],
-                }],
+                model: model,
+                messages: openai_messageChain,
+                stream: true
             })
-        }).then((stream)=> {
-            let reader = stream.response.getReader()
-            let answer = [];
+        }).then((stream) => {
+            let result = [];
+            const reader = stream.response.getReader();
             reader.read().then(function processText({done, value}) {
                 if (done) {
-                    console.log("===done==")
-                    showAnserAndHighlightCodeStr(JSON.parse(answer.join("")).candidates[0].content.parts[0].text)
-
-                    return
+                    let finalResult = result.join("")
+                    try {
+                        console.log(finalResult)
+                        addMessageChain(openai_messageChain, {
+                            role: "assistant",
+                            content: finalResult
+                        })
+                        showAnserAndHighlightCodeStr(finalResult)
+                    } catch (e) {
+                        console.log(e)
+                    }
+                    return;
                 }
-                try{
-                    let responseItem = new TextDecoder("utf8").decode(new Uint8Array(value))
-                    showAnserAndHighlightCodeStr(responseItem)
-                    answer.push(responseItem)
-                    console.warn(responseItem)
-                }catch (e) {
-                    console.error(e)
+                try {
+                    let d = new TextDecoder("utf8").decode(new Uint8Array(value));
+                    d.split("\n").forEach(item => {
+                        try {
+                            let chunk = item.replace(/^data:\s*/, "").trim()
+                            if(chunk === "[DONE]") return
+                            let delta = JSON.parse(chunk).choices[0].delta.content
+                            if(delta) result.push(delta)
+                        } catch (ex) {}
+                    })
+                    showAnserAndHighlightCodeStr(result.join(""))
+                } catch (e) {
+                    console.log(e)
                 }
-
-                return reader.read().then(processText)
-            },function (reason) {
-                console.log(reason)
-                Toast.error("未知错误!")
-            }).catch((ex)=>{
-                console.log(ex)
-                Toast.error("未知错误!")
+                return reader.read().then(processText);
             })
+        }, (reason) => {
+            console.log(reason)
+            Toast.error("请求失败，请检查Base URL和API Key是否正确!")
         })
     }
+
+
 
 
     let csrfToken;
