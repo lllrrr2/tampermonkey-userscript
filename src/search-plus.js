@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.7.2
+// @version      3.7.3
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax，DeepSeek、Gemini。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -114,7 +114,7 @@
     'use strict';
 
 
-    const JSver = '3.7.2';
+    const JSver = '3.7.3';
 
 
     function getGPTMode() {
@@ -468,6 +468,56 @@
         const panel = document.getElementById('apiConfigPanel');
         if (!panel) return;
         const GPTMODE = getGPTMode();
+
+        // 自定义线路：显示配置 + 删除按钮
+        if (GPTMODE && GPTMODE.startsWith(CUSTOM_ROUTE_PREFIX)) {
+            const route = getCustomRouteById(GPTMODE);
+            if (!route) {
+                panel.innerHTML = '';
+                panel.style.display = 'none';
+                return;
+            }
+            const fields = route.type === 'OPENAI' ? [
+                { key: 'base_url', label: 'Base URL', value: route.base_url },
+                { key: 'api_key', label: 'API Key', value: route.api_key },
+                { key: 'model', label: '模型', value: route.model }
+            ] : [
+                { key: 'base_url', label: 'Base URL', value: route.base_url },
+                { key: 'api_key', label: 'API Key', value: route.api_key },
+                { key: 'model', label: '模型', value: route.model }
+            ];
+            panel.style.display = 'block';
+            let html = `<div style="font-size:12px;color:#4e6ef2;font-weight:600;margin-bottom:6px;">⭐ ${route.name} <span style="color:#999;font-weight:400;">(${route.type})</span></div>`;
+            fields.forEach(f => {
+                html += `<div class="api-config-row">
+                    <span class="api-config-label">${f.label}</span>
+                    <input class="api-config-input" data-route-key="${f.key}" type="text" value="${f.value || ''}">
+                </div>`;
+            });
+            html += `<div class="api-config-save-row">
+                <button id="deleteCustomRouteBtn" class="api-config-delete-btn">🗑️ 删除线路</button>
+            </div>`;
+            html += '<div class="api-config-hint">修改后自动保存 ✓</div>';
+            panel.innerHTML = html;
+            // 自动保存编辑
+            panel.querySelectorAll('.api-config-input').forEach(input => {
+                input.addEventListener('input', function () {
+                    const key = this.dataset.routeKey;
+                    let val = this.value.trim();
+                    if (key === 'base_url') val = val.replace(/\/+$/, '');
+                    route[key] = val;
+                    setCustomRoutes(getCustomRoutes().map(r => r.id === route.id ? route : r));
+                    // 同步到 localStorage 供当前会话立即生效
+                    loadCustomRouteConfig(route);
+                });
+            });
+            // 删除按钮
+            document.getElementById('deleteCustomRouteBtn').addEventListener('click', () => {
+                if (confirm(`确认删除线路"${route.name}"吗？`)) deleteCustomRoute(route.id);
+            });
+            return;
+        }
+
         const schema = API_CONFIG_SCHEMA[GPTMODE];
 
         if (!schema) {
@@ -2133,6 +2183,20 @@
     .api-config-save-btn:hover{
         box-shadow: 0 2px 8px rgba(78,110,242,0.35);
         transform: translateY(-1px);
+    }
+    .api-config-delete-btn{
+        padding: 5px 14px;
+        border: 1px solid #e53935;
+        border-radius: 6px;
+        background: #fff;
+        color: #e53935;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .api-config-delete-btn:hover{
+        background: #e53935;
+        color: #fff;
     }
     /* 自定义线路选项 */
     option[data-custom]{
