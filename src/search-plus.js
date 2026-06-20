@@ -124,6 +124,32 @@
         return localStorage.getItem("GPTMODE");
     }
 
+    const GPT_MODE_NAMES = {
+        'Default': '默认接口(元宝)',
+        'OPENAI': 'OPENAI-统一接口',
+        'Anthropic': 'Anthropic-统一接口',
+        'TONGYI': '通义千问',
+        'SPARK': '讯飞星火',
+        'Hunyuan': '腾讯元宝',
+        'DeepSeekYuanBao': '腾讯Deepseek(联网)',
+        'ChatGLM': 'ChatGLM',
+        'ChatGLM4': 'ChatGLM4',
+        'ZhipuAI': '智谱AI',
+        'Zhinao360': '360智脑',
+        'miniMax': 'miniMax',
+        'AIFREE': 'AIFREE',
+        'MixerBox': 'MixerBox',
+        'YQCLOUD': 'YQCLOUD',
+        'TDCHAT': 'TDCHAT',
+        'AILS': 'AILS',
+        'CVEOY': 'CVEOY',
+    };
+
+    function getGPTModeName() {
+        const mode = getGPTMode();
+        return GPT_MODE_NAMES[mode] || '默认接口(元宝)';
+    }
+
     let darkTheme = localStorage.getItem("darkTheme")
     console.log(darkTheme)
 
@@ -1144,7 +1170,7 @@
                 <div style="text-align:center;padding:10px 0;color:#999;font-size:13px;">
                     <div style="font-size:16px;margin-bottom:6px;">🤖</div>
                     <div>版本 ${JSver} </div>
-                    <div style="margin-top:4px;">当前线路: <strong style="color:#4e6ef2;">${getGPTMode() || "Default"}</strong> · 自动点击: ${localStorage.getItem("autoClick") || "关闭"}</div>
+                    <div style="margin-top:4px;">当前线路: <strong style="color:#4e6ef2;">${getGPTModeName()}</strong> · 自动点击: ${localStorage.getItem("autoClick") || "关闭"}</div>
                     <div style="margin-top:4px;font-size:12px;color:#bbb;">更换AI接口请点击上方「设置」</div>
                 </div>
             </div>
@@ -1506,7 +1532,7 @@
             const selectedValue = selectEl.options[selectEl.selectedIndex].value;
             localStorage.setItem('GPTMODE', selectedValue);
             renderApiConfigPanel();
-            Toast.success(`切换成功，当前线路:${selectedValue}`)
+            Toast.success(`切换成功，当前线路:${GPT_MODE_NAMES[selectedValue] || selectedValue}`)
         });
 
         let chatSetting = false;
