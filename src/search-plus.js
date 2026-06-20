@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         chatGPT tools Plus（修改版）
 // @namespace    http://tampermonkey.net/
-// @version      3.7.1
+// @version      3.7.2
 // @description  Google、必应、百度、Yandex、360搜索、谷歌镜像、搜狗、b站、F搜、duckduckgo、CSDN侧边栏Chat搜索，集成国内一言，星火，天工，混元，通义AI，ChatGLM，360智脑,miniMax，DeepSeek、Gemini。即刻体验AI，无需翻墙，无需注册，无需等待！
 // @description:en  Google, Bing, Baidu, Yandex, 360 Search, Google Mirror, Sogou, B Station, F Search, DuckDuckgo, CSDN sidebar CHAT search, integrate domestic words, star fire, sky work, righteous AI, Chatglm, 360 wisdom, 360 wisdom brain. Experience AI immediately, no need to turn over the wall, no registration, no need to wait!
 // @description:zh-TW     Google、必應、百度、Yandex、360搜索、谷歌鏡像、搜狗、b站、F搜、duckduckgo、CSDN側邊欄Chat搜索，集成國內一言，星火，天工，通義AI，ChatGLM，360智腦。即刻體驗AI，無需翻墻，無需註冊，無需等待！
@@ -114,7 +114,7 @@
     'use strict';
 
 
-    const JSver = '3.7.1';
+    const JSver = '3.7.2';
 
 
     function getGPTMode() {
@@ -1296,8 +1296,7 @@
         })
     }
 
-    let speakAudio;
-    let isPlayend = true;
+    let isSpeaking = false;
     async function pivElemAddEventAndValue(append_case) {
         let search_content
 
@@ -1476,52 +1475,56 @@
                 Toast.error("暗黑已经关闭")
             }
         })
-        //朗读
+        //朗读（浏览器内置 SpeechSynthesis）
         document.getElementById('speakAnser').addEventListener('click', () => {
-            let ans = document.querySelector("#gptAnswer");
-            if(!isPlayend){
-                Toast.success('已暂停播放!');
-                speakAudio.pause();
-                isPlayend = true;
+            const synth = window.speechSynthesis;
+            if (!synth) {
+                Toast.error('当前浏览器不支持语音朗读');
                 return;
-            }else {
-                Toast.warn('音频已停止,正在重新播放！')
             }
-            if(ans){
-                // let speakText = encodeURIComponent(ans.innerText);
-                let speakText = ans.innerText;
-
-                //new sogou api
-                // 弹出对话框询问用户是否同意
-                const result = confirm("是否启用外国口音朗读? 默认为中文口音。");
-                let dialect = "zh-CHS"
-                if (result) {
-                    dialect = "en"
-                    console.log("英文朗读！");
+            // 正在播放则暂停/恢复
+            if (synth.speaking) {
+                if (synth.paused) {
+                    synth.resume();
+                    Toast.success('继续播放');
+                } else {
+                    synth.pause();
+                    Toast.success('已暂停播放');
                 }
-
-                let f = JSON.stringify({
-                    curTime: Date.now(),
-                    rate: "1",
-                    spokenDialect: dialect,
-                    text: speakText
-                })
-
-                let sParam =  CryptoJS.AES.encrypt(f.replace(/^"|"$/g, ""), CryptoJS.enc.Utf8.parse("76350b1840ff9832eb6244ac6d444366"), {
-                    "iv": CryptoJS.enc.Utf8.parse(atob("AAAAAAAAAAAAAAAAAAAAAA==") || "76350b1840ff9832eb6244ac6d444366"),
-                    "mode": CryptoJS.mode.CBC,
-                    "pad": CryptoJS.pad.Pkcs7
-                }).toString();
-
-
-                speakAudio = new Audio(`https://fanyi.sogou.com/openapi/external/getWebTTS?S-AppId=102356845&S-Param=${encodeURIComponent(sParam)}`);
-                speakAudio.play()
-                isPlayend = false;
-                speakAudio.addEventListener("ended",function() {
-                    isPlayend = true;
-                    Toast.success('音频已播放完毕！');
-                })
+                return;
             }
+            const ans = document.querySelector("#gptAnswer");
+            if (!ans || !ans.innerText.trim()) {
+                Toast.warn('没有可朗读的内容');
+                return;
+            }
+            const speakText = ans.innerText.trim();
+            // 检测是否包含中文
+            const hasChinese = /[一-鿿]/.test(speakText);
+            const utter = new SpeechSynthesisUtterance(speakText);
+            utter.rate = 1;
+            utter.pitch = 1;
+            // 根据内容语言选择合适的语音
+            const voices = synth.getVoices();
+            if (hasChinese) {
+                const zhVoice = voices.find(v => /zh|cmn|chinese/i.test(v.lang));
+                if (zhVoice) utter.voice = zhVoice;
+                utter.lang = 'zh-CN';
+            } else {
+                const enVoice = voices.find(v => /^en-/i.test(v.lang));
+                if (enVoice) utter.voice = enVoice;
+                utter.lang = 'en-US';
+            }
+            isSpeaking = true;
+            Toast.success('开始朗读...');
+            utter.onend = () => {
+                isSpeaking = false;
+                Toast.success('朗读完毕');
+            };
+            utter.onerror = () => {
+                isSpeaking = false;
+            };
+            synth.speak(utter);
         })
 
         //原文切换
